@@ -29,7 +29,10 @@ These registries host the container images used by TIBCO Platform and its depend
 
 **⚠️ IMPORTANT:** This is the main TIBCO container registry. Access requires authentication with JFrog credentials.
 
+---
+
 ### Public Container Registries
+
 | URL | Port | Protocol | Purpose |
 |-----|------|----------|---------|
 | `docker.io` | 443 | HTTPS | Docker Hub - Third-party and open-source images |
@@ -37,7 +40,10 @@ These registries host the container images used by TIBCO Platform and its depend
 | `k8s.io` | 443 | HTTPS | Kubernetes official images |
 | `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and tools |
 
+---
+
 ### Microsoft Container Registry (for AKS)
+
 | URL | Port | Protocol | Purpose |
 |-----|------|----------|---------|
 | `mcr.microsoft.com` | 443 | HTTPS | Microsoft Container Registry - AKS system images |
@@ -62,12 +68,14 @@ These repositories host the Helm charts for TIBCO Platform and dependencies.
 ## 3. Kubernetes and Cloud Provider APIs
 
 ### Kubernetes API Endpoints
+
 | URL | Port | Protocol | Purpose |
 |-----|------|----------|---------|
 | `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and API references |
 | `k8s.io` | 443 | HTTPS | Kubernetes package repositories |
 
 ### Azure-Specific Endpoints
+
 | URL | Port | Protocol | Purpose |
 |-----|------|----------|---------|
 | `disk.csi.azure.com` | 443 | HTTPS | Azure Disk CSI driver |
