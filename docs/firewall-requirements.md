@@ -399,7 +399,194 @@ kubectl run test-azuread --image=curlimages/curl --rm -it --restart=Never -- \
 
 ---
 
-## 15. References
+## 15. Simplified Firewall Request Template
+
+For enterprise environments with strict firewall policies, use this template to submit a firewall request that covers most TIBCO Platform deployment requirements.
+
+### Generic Internet Access on Port 443 (Recommended Approach)
+
+**Request Type**: Outbound Internet Access  
+**Protocol**: HTTPS  
+**Port**: 443  
+**Direction**: Outbound (from AKS cluster to Internet)
+
+#### Option 1: Broad Access (Simplest)
+
+```
+Source: <AKS_SUBNET_CIDR> (e.g., 10.1.0.0/16)
+Destination: Any (0.0.0.0/0)
+Port: 443
+Protocol: TCP
+Action: Allow
+Justification: Required for TIBCO Platform deployment - container image pulls, 
+helm chart downloads, and cloud provider API access
+```
+
+**Pros**: Covers all required and optional endpoints  
+**Cons**: Less secure, may not meet compliance requirements  
+**Use Case**: Development/test environments, PoC deployments
+
+#### Option 2: Service Tag Based (Azure Recommended)
+
+```yaml
+Source: <AKS_SUBNET_CIDR>
+Destination Service Tags:
+  - Internet (for TIBCO JFrog, Helm repos, Docker Hub, GitHub)
+  - AzureCloud (for Azure management and authentication)
+Port: 443
+Protocol: TCP
+Action: Allow
+```
+
+**Pros**: Better security, uses Azure service tags  
+**Cons**: Still broad Internet access  
+**Use Case**: Production environments with moderate security requirements
+
+#### Option 3: FQDN-Based (Most Secure)
+
+For maximum security, request access to specific FQDNs only:
+
+```yaml
+Rule Name: TIBCO-Platform-HTTPS-Access
+Source: <AKS_SUBNET_CIDR>
+Destination Type: FQDN
+Port: 443
+Protocol: HTTPS
+
+Required FQDNs (CRITICAL - Must be approved):
+  - csgprduswrepoedge.jfrog.io          # TIBCO container images
+  - tibcosoftware.github.io              # TIBCO helm charts
+  - docker.io                            # Docker Hub
+  - ghcr.io                              # GitHub Container Registry
+  - mcr.microsoft.com                    # Microsoft Container Registry
+  - charts.jetstack.io                   # cert-manager
+  - helm.elastic.co                      # Elastic ECK
+  - kubernetes-sigs.github.io            # External DNS
+  - prometheus-community.github.io       # Prometheus
+  - management.azure.com                 # Azure Resource Manager
+  - login.microsoftonline.com           # Azure AD
+  - disk.csi.azure.com                  # Azure Disk CSI
+  - file.csi.azure.com                  # Azure Files CSI
+  - *.blob.core.windows.net             # Azure Blob Storage
+
+Optional FQDNs (Recommended):
+  - github.com                           # Source code and releases
+  - *.githubusercontent.com              # GitHub raw content
+  - k8s.io                               # Kubernetes
+  - kubernetes.io                        # Kubernetes
+  - *.azurecr.io                         # Azure Container Registry
+  - *.vault.azure.net                    # Azure Key Vault
+  - learn.microsoft.com                  # Documentation
+  - prometheus.io                        # Documentation
+  - elastic.co                           # Documentation
+```
+
+**Pros**: Most secure, explicit FQDN allow-list  
+**Cons**: Requires Azure Firewall (Premium recommended for FQDN filtering)  
+**Use Case**: Production environments with strict security requirements
+
+### Sample Firewall Request Form
+
+Use this template when submitting to your network/security team:
+
+```
+FIREWALL REQUEST - TIBCO PLATFORM ON AKS
+
+Request ID: [Auto-generated or manual]
+Requested By: [Your Name]
+Team: [Your Team]
+Date: [Current Date]
+Environment: [Production/Staging/Development]
+
+1. BUSINESS JUSTIFICATION
+   Deployment of TIBCO Platform Control Plane and Data Plane on Azure 
+   Kubernetes Service (AKS) for [business purpose]. Requires outbound 
+   Internet access to pull container images, download Helm charts, and 
+   access Azure cloud services.
+
+2. SOURCE
+   - Type: Azure Subnet
+   - CIDR: [e.g., 10.1.0.0/16]
+   - Description: AKS cluster subnet
+   - Resource Group: [e.g., rg-tibco-platform-prod]
+   - Subscription: [Azure Subscription ID]
+
+3. DESTINATION
+   - Option A (Recommended): Internet (0.0.0.0/0) with Azure Service Tags
+   - Option B (Secure): FQDN-based (see attached FQDN list)
+   - Option C (Most Secure): Specific IP ranges (requires IP resolution)
+
+4. PORTS AND PROTOCOLS
+   - Port: 443
+   - Protocol: TCP/HTTPS
+   - Direction: Outbound only
+
+5. REQUIRED ENDPOINTS (Critical - Cannot deploy without these)
+   - csgprduswrepoedge.jfrog.io (TIBCO container registry)
+   - tibcosoftware.github.io (TIBCO Helm charts)
+   - docker.io (Docker Hub)
+   - management.azure.com (Azure Resource Manager)
+   - login.microsoftonline.com (Azure AD)
+
+6. OPTIONAL ENDPOINTS (Highly recommended for full functionality)
+   - charts.jetstack.io, helm.elastic.co, prometheus-community.github.io
+   - mcr.microsoft.com, ghcr.io
+   - *.blob.core.windows.net, disk.csi.azure.com, file.csi.azure.com
+
+7. DURATION
+   - Permanent (required for ongoing platform operations)
+
+8. SECURITY CONSIDERATIONS
+   - All traffic is HTTPS (encrypted)
+   - Authentication required for TIBCO JFrog registry
+   - Managed identities used for Azure service authentication
+   - Network policies implemented within cluster
+
+9. COMPLIANCE & AUDIT
+   - Azure Firewall logs enabled: [Yes/No]
+   - NSG flow logs enabled: [Yes/No]
+   - Log Analytics workspace: [Workspace ID]
+
+10. ROLLBACK PLAN
+    If firewall rules cause issues, disable specific FQDN rules while 
+    keeping Azure management endpoints active.
+
+11. TESTING PLAN
+    Post-approval, validate connectivity using kubectl test pods:
+    - Test TIBCO JFrog: curl -I https://csgprduswrepoedge.jfrog.io
+    - Test Helm repos: curl -I https://tibcosoftware.github.io
+    - Test Azure: curl -I https://management.azure.com
+
+12. ATTACHMENTS
+    - Full FQDN list (see Section 7 of this document)
+    - NSG rules (see Section 8)
+    - Azure Firewall rules (see Section 9)
+```
+
+### Quick Tips for Firewall Request Approval
+
+1. **Start broad, refine later**: Request Internet access on 443 initially, then lock down after successful deployment
+2. **Emphasize encryption**: All traffic is HTTPS (encrypted), reducing security concerns
+3. **Highlight Azure native**: Most endpoints are Microsoft-owned (Azure, GitHub, Docker Hub)
+4. **Provide business value**: Tie request to business objectives and project timelines
+5. **Offer monitoring**: Commit to enabling firewall logs and regular reviews
+6. **Include expiration**: Even for permanent rules, offer annual review
+7. **Test quickly**: Schedule connectivity testing immediately after approval
+
+### Alternative: Air-Gapped Deployment
+
+If firewall approval is denied or delayed, consider air-gapped deployment:
+
+1. **Mirror container images**: Copy all images to internal container registry
+2. **Host Helm charts locally**: Clone tp-helm-charts repo to internal Git/Artifactory
+3. **Disable external dependencies**: Use local PostgreSQL, disable telemetry
+4. **Manual updates**: Download updates on separate machine, transfer via secure channel
+
+**Note**: Air-gapped deployment requires significantly more effort and maintenance.
+
+---
+
+## 16. References
 
 - [TIBCO Platform Helm Charts](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Network Concepts](https://learn.microsoft.com/en-us/azure/aks/concepts-network)
