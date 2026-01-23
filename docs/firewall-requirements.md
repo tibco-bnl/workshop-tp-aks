@@ -22,12 +22,12 @@ The TIBCO Platform deployment requires access to:
 These registries host the container images used by TIBCO Platform and its dependencies.
 
 ### TIBCO Container Registry (CRITICAL)
+
 | URL | Port | Protocol | Purpose |
 |-----|------|----------|---------|
 | `csgprduswrepoedge.jfrog.io` | 443 | HTTPS | **PRIMARY**: TIBCO Platform production images (CP, DP, capabilities) |
 
-> [!IMPORTANT]
-> This is the main TIBCO container registry. Access requires authentication with JFrog credentials.
+**⚠️ IMPORTANT:** This is the main TIBCO container registry. Access requires authentication with JFrog credentials.
 
 ### Public Container Registries
 | URL | Port | Protocol | Purpose |
