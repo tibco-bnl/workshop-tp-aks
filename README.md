@@ -88,6 +88,22 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 - ⏱️ **Preparation Time**: 3-5 business days
 - 🎁 **Benefits**: Reduces deployment delays, ensures all requirements met before installation day
 
+#### [📖 Firewall Requirements and Network Connectivity](./docs/firewall-requirements.md)
+**Complete firewall and network requirements for TIBCO Platform deployment**
+- 🎯 **Scope**: All external endpoints required for TIBCO Platform on AKS
+- 🔧 **Features**:
+  - Container registry endpoints (TIBCO JFrog, Docker Hub, GitHub, etc.)
+  - Helm chart repository URLs
+  - Azure cloud provider endpoints (ARM, Azure AD, CSI drivers)
+  - Monitoring and observability service endpoints
+  - Network Security Group (NSG) rules for Azure
+  - Azure Firewall application rules (copy-paste ready)
+  - Proxy configuration examples with NO_PROXY settings
+  - DNS requirements and connectivity testing commands
+- 📋 **Use Case**: Enterprise deployments, air-gapped environments, firewall rule requests, proxy configuration
+- ⏱️ **Review Time**: 30-60 minutes
+- 🎁 **Benefits**: Streamlines firewall approval process, prevents connectivity issues during deployment
+
 ### ⚙️ Configuration and Scripts
 
 #### [📄 Environment Variables Script](./scripts/aks-env-variables.sh)
