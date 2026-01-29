@@ -1227,6 +1227,130 @@ kubectl get pvc -n ${CP_INSTANCE_ID}-ns
 kubectl logs -n ${CP_INSTANCE_ID}-ns -l app.kubernetes.io/component=cp-proxy -f
 ```
 
+### Step 8.7.1: Install Capability Charts (Required for BWCE, Flogo, and EMS)
+
+> [!IMPORTANT]
+> **Critical Step for TIBCO Platform 1.12.0+**: Starting from version 1.12.0, the TIBCO Platform architecture has changed. The capability charts are **decoupled** from the base infrastructure chart (`tibco-cp-base`). You **must** install them separately in your Control Plane namespace to enable provisioning functionality for BWCE, Flogo, and EMS (Messaging).
+> 
+> **What this resolves**: If you attempt to provision BWCE, Flogo, or EMS capabilities without installing these charts, you will encounter the error: **"required charts for this capability not deployed"**.
+
+**Why this step is needed:** The capability charts provide:
+- **BWCE & BW5**: Runtime recipes, templates, and configurations for BusinessWorks Container Edition
+- **Flogo**: Runtime recipes, templates, and configurations for Flogo applications  
+- **EMS (Messaging)**: Runtime recipes, templates, and configurations for Enterprise Messaging Service
+
+**Installation Instructions:**
+
+You can reuse the `cp-values.yaml` file you used for the Control Plane installation, or extract the values from your deployed release.
+
+**Option 1: Using existing values file**
+```bash
+# Set the chart version to match your tibco-cp-base version
+export CP_CAPABILITY_CHART_VERSION="1.14.0"  # Should match your CP version
+
+# Install BWCE & BW5 capability chart
+helm upgrade --install --wait --timeout 15m \
+  -n ${CP_INSTANCE_ID}-ns tibco-cp-bw tibco-cp-bw \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${CP_CAPABILITY_CHART_VERSION}" \
+  --values cp-values.yaml
+
+# Install Flogo capability chart
+helm upgrade --install --wait --timeout 15m \
+  -n ${CP_INSTANCE_ID}-ns tibco-cp-flogo tibco-cp-flogo \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${CP_CAPABILITY_CHART_VERSION}" \
+  --values cp-values.yaml
+
+# Install EMS (Messaging) capability chart
+helm upgrade --install --wait --timeout 15m \
+  -n ${CP_INSTANCE_ID}-ns tibco-cp-messaging tibco-cp-messaging \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${CP_CAPABILITY_CHART_VERSION}" \
+  --values cp-values.yaml
+```
+
+**Option 2: Extract values from deployed Control Plane release**
+```bash
+# Extract values from the deployed tibco-platform-cp release
+helm get values tibco-platform-cp -n ${CP_INSTANCE_ID}-ns -o yaml > capability-charts-values.yaml
+
+# Install capability charts using extracted values
+helm upgrade --install --wait --timeout 15m \
+  -n ${CP_INSTANCE_ID}-ns tibco-cp-bw tibco-cp-bw \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${CP_CAPABILITY_CHART_VERSION}" \
+  -f capability-charts-values.yaml
+
+helm upgrade --install --wait --timeout 15m \
+  -n ${CP_INSTANCE_ID}-ns tibco-cp-flogo tibco-cp-flogo \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${CP_CAPABILITY_CHART_VERSION}" \
+  -f capability-charts-values.yaml
+
+helm upgrade --install --wait --timeout 15m \
+  -n ${CP_INSTANCE_ID}-ns tibco-cp-messaging tibco-cp-messaging \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${CP_CAPABILITY_CHART_VERSION}" \
+  -f capability-charts-values.yaml
+```
+
+**Verify capability chart installations:**
+```bash
+# Check all Helm releases in the Control Plane namespace
+helm list -n ${CP_INSTANCE_ID}-ns
+
+# You should see at least these releases:
+# - tibco-platform-cp (or tibco-cp-base)
+# - tibco-cp-bw
+# - tibco-cp-flogo
+# - tibco-cp-messaging
+
+# Verify pods are running
+kubectl get pods -n ${CP_INSTANCE_ID}-ns | grep -E 'bw|flogo|messaging'
+```
+
+> [!NOTE]
+> **Chart Version Compatibility**: The capability charts should use the **same version** as your Control Plane installation. Ensure `CP_CAPABILITY_CHART_VERSION` matches your deployed Control Plane version.
+>
+> **Installation Time**: Each capability chart typically takes 5-10 minutes to install. The `--wait` flag ensures Helm waits for all resources to be ready before completing.
+
+> [!TIP]
+> **Selective Installation**: If you only need specific capabilities, you can install only the required capability charts. For example, if you only plan to use BWCE, you can install only `tibco-cp-bw` and skip the others.
+
+**Common Issues and Troubleshooting:**
+
+If capability chart installation fails:
+
+```bash
+# Check the status of the Helm release
+helm status tibco-cp-bw -n ${CP_INSTANCE_ID}-ns
+
+# View detailed logs of failed pods
+kubectl describe pod <pod-name> -n ${CP_INSTANCE_ID}-ns
+
+# Check for resource constraints
+kubectl top nodes
+kubectl top pods -n ${CP_INSTANCE_ID}-ns
+
+# Uninstall and retry if needed
+helm uninstall tibco-cp-bw -n ${CP_INSTANCE_ID}-ns
+# Then re-run the install command
+```
+
+**Reference Documentation:**
+- [TIBCO Control Plane User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
+- [tibco-cp-bw Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-bw)
+- [tibco-cp-flogo Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-flogo)
+
+---
+
 ### Step 8.8: Access Control Plane UI
 
 ```bash
