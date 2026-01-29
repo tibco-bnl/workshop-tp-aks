@@ -14,6 +14,7 @@ The TIBCO Platform deployment requires access to:
 - **5 Helm Chart Repositories** for downloading charts
 - **8+ External Services** for Kubernetes, monitoring, and documentation
 - **3 Azure-specific endpoints** for storage and management
+- **1 Go Module Proxy** for Flogo applications (if not using Flogo CLI)
 
 ---
 
@@ -140,6 +141,8 @@ Destinations:
   - login.microsoftonline.com                 # Azure AD
   - disk.csi.azure.com                        # Azure Disk CSI
   - file.csi.azure.com                        # Azure Files CSI
+  - proxy.golang.org                          # Go module proxy (Flogo)
+  - sum.golang.org                            # Go checksum database (Flogo)
 ```
 
 #### Recommended (HIGHLY RECOMMENDED)
@@ -262,29 +265,231 @@ Rules:
       - disk.csi.azure.com
       - file.csi.azure.com
       - *.blob.core.windows.net
+  
+  - Name: Go-Module-Proxy-Flogo
+    Source Addresses: <AKS_SUBNET_CIDR>
+    Protocols: https:443
+    Target FQDNs:
+      - proxy.golang.org
+      - sum.golang.org
 ```
 
 ---
 
-## 10. Proxy Configuration
+## 10. TIBCO Flogo Go Module Proxy (CRITICAL for Flogo Apps)
 
-If using an HTTP proxy, configure the following environment variables on AKS nodes:
+| URL | Port | Protocol | Purpose |
+|-----|------|----------|---------|
+| `https://proxy.golang.org` | 443 | HTTPS | **CRITICAL**: Go module proxy for Flogo applications |
+| `https://sum.golang.org` | 443 | HTTPS | Go checksum database for module verification |
+
+**⚠️ IMPORTANT:** 
+- **Required for TIBCO Flogo applications** that are NOT built using the Flogo CLI
+- The Kubernetes cluster must have outbound access to `https://proxy.golang.org`
+- This is the official Go module proxy that Flogo runtime uses to download dependencies
+- Without access to this endpoint, Flogo applications will fail to start if they have external Go module dependencies
+- If using the Flogo CLI to build applications, this endpoint may not be required as dependencies are bundled
+
+**Workaround**: If you cannot allow access to `proxy.golang.org`, build all Flogo applications using the Flogo CLI which bundles dependencies.
+
+---
+
+## 11. Proxy Configuration for Enterprise Environments
+
+If your enterprise has a secure HTTP/HTTPS proxy already configured, you can configure TIBCO Platform to use it instead of opening all firewall rules.
+
+### 11.1 Prerequisites
+
+- HTTP/HTTPS proxy server already deployed and operational
+- Proxy allows HTTPS traffic to required endpoints (see sections above)
+- Proxy authentication credentials (if required)
+
+### 11.2 Configure AKS Nodes for Proxy
+
+Configure proxy settings on AKS nodes using cloud-init or custom script extensions:
 
 ```bash
+# /etc/environment or /etc/profile.d/proxy.sh
 export HTTP_PROXY="http://proxy.company.com:8080"
 export HTTPS_PROXY="http://proxy.company.com:8080"
-export NO_PROXY="localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,*.svc,*.svc.cluster.local,<AKS_SERVICE_CIDR>,<AKS_POD_CIDR>"
+export NO_PROXY="localhost,127.0.0.1,169.254.169.254,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.svc.cluster.local,<AKS_SERVICE_CIDR>,<AKS_POD_CIDR>,.azure.com"
+
+# Lowercase versions (some applications require these)
+export http_proxy="$HTTP_PROXY"
+export https_proxy="$HTTPS_PROXY"
+export no_proxy="$NO_PROXY"
 ```
 
 **NO_PROXY must include**:
-- Cluster service CIDR (e.g., `10.0.0.0/16`)
-- Cluster pod CIDR (e.g., `10.244.0.0/16`)
-- `.svc` and `.svc.cluster.local` for internal service discovery
-- Azure metadata service: `169.254.169.254`
+- `localhost`, `127.0.0.1` - Local host
+- `169.254.169.254` - Azure metadata service
+- `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` - Private IP ranges
+- `.svc`, `.svc.cluster.local` - Kubernetes service discovery
+- `<AKS_SERVICE_CIDR>` - Your AKS service CIDR (e.g., `10.0.0.0/16`)
+- `<AKS_POD_CIDR>` - Your AKS pod CIDR (e.g., `10.244.0.0/16`)
+- `.azure.com` - Azure service endpoints (or use Azure Private Link instead)
+
+### 11.3 Configure TIBCO Platform Control Plane Proxy Settings
+
+After installing the TIBCO Platform Control Plane, configure proxy settings through the UI or via Helm values.
+
+**Reference Documentation**: [TIBCO Platform - Updating Proxy Configuration](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm#UserGuide/updating-proxy-configuration.htm)
+
+#### Option 1: Configure via Control Plane UI
+
+1. Login to TIBCO Platform Control Plane UI
+2. Navigate to **Settings** → **Infrastructure** → **Proxy Configuration**
+3. Configure the following settings:
+
+```yaml
+HTTP Proxy: http://proxy.company.com:8080
+HTTPS Proxy: http://proxy.company.com:8080
+No Proxy: localhost,127.0.0.1,.svc,.svc.cluster.local,169.254.169.254,10.0.0.0/8
+Proxy Username: <username> (if authentication required)
+Proxy Password: <password> (if authentication required)
+```
+
+4. Click **Save** and **Apply Configuration**
+
+#### Option 2: Configure via Helm Values
+
+Include proxy configuration in your `tibco-cp-base` values file:
+
+```yaml
+# tibco-cp-base-values.yaml
+global:
+  tibco:
+    # Proxy configuration
+    proxy:
+      enabled: true
+      httpProxy: "http://proxy.company.com:8080"
+      httpsProxy: "http://proxy.company.com:8080"
+      noProxy: "localhost,127.0.0.1,.svc,.svc.cluster.local,169.254.169.254,10.0.0.0/8"
+      # Optional: Proxy authentication
+      username: "<username>"
+      password: "<password>"
+```
+
+Then upgrade the Control Plane:
+
+```bash
+helm upgrade --install -n ${CP_INSTANCE_ID}-ns tibco-cp-base tibco-platform-public/tibco-cp-base \
+  --version "${CP_TIBCO_CP_BASE_VERSION}" \
+  -f tibco-cp-base-values.yaml
+```
+
+### 11.4 Configure TIBCO Platform Data Plane Proxy Settings
+
+Configure proxy settings for the Data Plane similarly:
+
+```yaml
+# dp-configure-namespace values
+global:
+  tibco:
+    proxy:
+      enabled: true
+      httpProxy: "http://proxy.company.com:8080"
+      httpsProxy: "http://proxy.company.com:8080"
+      noProxy: "localhost,127.0.0.1,.svc,.svc.cluster.local,169.254.169.254,10.0.0.0/8"
+```
+
+### 11.5 Configure Flogo Applications for Go Module Proxy
+
+For TIBCO Flogo applications that are NOT built using the Flogo CLI, configure the Go module proxy:
+
+#### Option 1: Use Corporate Proxy for proxy.golang.org
+
+Ensure your corporate proxy allows access to:
+- `https://proxy.golang.org`
+- `https://sum.golang.org`
+
+No additional configuration needed if AKS nodes are already configured with proxy settings.
+
+#### Option 2: Use Private Go Module Proxy (Athens or Artifactory)
+
+If your enterprise has a private Go module proxy:
+
+```yaml
+# Flogo application environment variables
+env:
+  - name: GOPROXY
+    value: "https://go-proxy.company.com,https://proxy.golang.org,direct"
+  - name: GOSUMDB
+    value: "sum.golang.org"
+  - name: GOPRIVATE
+    value: "github.com/company/*"  # Private modules
+```
+
+#### Option 3: Build with Flogo CLI (Recommended)
+
+**Best Practice**: Build all Flogo applications using the Flogo CLI to bundle dependencies:
+
+```bash
+# Build Flogo application with bundled dependencies
+flogo build --embed-config true --optimize true
+
+# This eliminates the need for proxy.golang.org access at runtime
+```
+
+### 11.6 Verify Proxy Configuration
+
+After configuring proxy settings, verify connectivity:
+
+```bash
+# Test from a pod
+kubectl run test-proxy --image=curlimages/curl --rm -it --restart=Never -- \
+  sh -c 'echo "HTTP_PROXY=$HTTP_PROXY"; curl -I https://proxy.golang.org'
+
+# Check Control Plane proxy settings
+kubectl get configmap -n ${CP_INSTANCE_ID}-ns -o yaml | grep -i proxy
+
+# Check Data Plane proxy settings
+kubectl get configmap -n ${DP_NAMESPACE} -o yaml | grep -i proxy
+```
+
+### 11.7 Proxy Configuration Best Practices
+
+1. **Use HTTPS proxy** if available for encrypted traffic
+2. **Configure NO_PROXY carefully** to avoid routing internal traffic through proxy
+3. **Test thoroughly** after proxy configuration changes
+4. **Monitor proxy logs** for blocked connections or authentication issues
+5. **Document proxy exceptions** required for TIBCO Platform
+6. **Use Azure Private Link** for Azure services to bypass proxy
+7. **Rotate proxy credentials** regularly if authentication is required
+
+### 11.8 Troubleshooting Proxy Issues
+
+**Issue**: Pods cannot pull images through proxy
+```bash
+# Check containerd proxy configuration on nodes
+ssh to AKS node
+systemctl show containerd --property Environment
+
+# Restart container runtime if needed
+systemctl restart containerd
+```
+
+**Issue**: Flogo applications fail to download Go modules
+```bash
+# Check GOPROXY setting in pod
+kubectl exec -it <flogo-pod> -- env | grep GOPROXY
+
+# Test Go module proxy access
+kubectl exec -it <flogo-pod> -- curl -v https://proxy.golang.org
+```
+
+**Issue**: Control Plane services cannot reach external APIs
+```bash
+# Check proxy configuration in Control Plane namespace
+kubectl get configmap -n ${CP_INSTANCE_ID}-ns -o yaml | grep -A 5 proxy
+
+# Check pod environment variables
+kubectl exec -it <cp-pod> -n ${CP_INSTANCE_ID}-ns -- env | grep -i proxy
+```
 
 ---
 
-## 11. DNS Requirements
+## 12. DNS Requirements
 
 Ensure the following DNS resolutions work from within the AKS cluster:
 
@@ -307,7 +512,7 @@ Ensure the following DNS resolutions work from within the AKS cluster:
 
 ---
 
-## 12. Testing Connectivity
+## 13. Testing Connectivity
 
 After configuring firewall rules, test connectivity from within the AKS cluster:
 
@@ -348,9 +553,20 @@ kubectl run test-azuread --image=curlimages/curl --rm -it --restart=Never -- \
   curl -I https://login.microsoftonline.com
 ```
 
+### Test Go Module Proxy (Flogo)
+```bash
+# Test proxy.golang.org (critical for Flogo)
+kubectl run test-goproxy --image=curlimages/curl --rm -it --restart=Never -- \
+  curl -I https://proxy.golang.org
+
+# Test sum.golang.org
+kubectl run test-gosum --image=curlimages/curl --rm -it --restart=Never -- \
+  curl -I https://sum.golang.org
+```
+
 ---
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 ### Common Issues
 
@@ -378,9 +594,16 @@ kubectl run test-azuread --image=curlimages/curl --rm -it --restart=Never -- \
 2. For Let's Encrypt, ensure outbound port 80/443 to Let's Encrypt ACME servers
 3. Check cert-manager logs: `kubectl logs -n cert-manager -l app=cert-manager`
 
+**Issue**: Flogo applications fail to start with Go module errors
+**Solution**:
+1. **Most Common**: Verify access to `proxy.golang.org` and `sum.golang.org`
+2. Check pod logs: `kubectl logs <flogo-pod> | grep -i "proxy.golang.org"`
+3. Verify GOPROXY environment variable: `kubectl exec <flogo-pod> -- env | grep GOPROXY`
+4. **Workaround**: Build Flogo applications using Flogo CLI to bundle dependencies
+
 ---
 
-## 14. Security Considerations
+## 15. Security Considerations
 
 ### Least Privilege Access
 - Only allow outbound traffic to required destinations
@@ -399,7 +622,7 @@ kubectl run test-azuread --image=curlimages/curl --rm -it --restart=Never -- \
 
 ---
 
-## 15. Simplified Firewall Request Template
+## 16. Simplified Firewall Request Template
 
 For enterprise environments with strict firewall policies, use this template to submit a firewall request that covers most TIBCO Platform deployment requirements.
 
@@ -468,6 +691,8 @@ Required FQDNs (CRITICAL - Must be approved):
   - disk.csi.azure.com                  # Azure Disk CSI
   - file.csi.azure.com                  # Azure Files CSI
   - *.blob.core.windows.net             # Azure Blob Storage
+  - proxy.golang.org                     # Go module proxy (Flogo)
+  - sum.golang.org                       # Go checksum database (Flogo)
 
 Optional FQDNs (Recommended):
   - github.com                           # Source code and releases
@@ -586,15 +811,17 @@ If firewall approval is denied or delayed, consider air-gapped deployment:
 
 ---
 
-## 16. References
+## 17. References
 
 - [TIBCO Platform Helm Charts](https://github.com/TIBCOSoftware/tp-helm-charts)
+- [TIBCO Platform Proxy Configuration](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm#UserGuide/updating-proxy-configuration.htm)
 - [Azure Kubernetes Service Network Concepts](https://learn.microsoft.com/en-us/azure/aks/concepts-network)
 - [Azure Firewall Application Rules](https://learn.microsoft.com/en-us/azure/firewall/rule-processing)
 - [AKS Outbound Network Rules](https://learn.microsoft.com/en-us/azure/aks/limit-egress-traffic)
+- [Go Module Proxy](https://proxy.golang.org)
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: January 23, 2026  
+**Document Version**: 1.1  
+**Last Updated**: January 29, 2026  
 **Generated From**: /Users/kul/git/tib/tp-helm-charts
