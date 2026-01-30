@@ -8,6 +8,16 @@ This document lists all external URLs and endpoints that need to be accessible f
 
 ---
 
+## Official TIBCO Documentation References
+
+**📖 Before configuring your firewall, review the official TIBCO Platform documentation:**
+
+- **[TIBCO Platform Whitelisting Requirements](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/whitelisting-requirements.htm)** - Official Control Plane firewall requirements
+- **[Pushing Images to JFrog Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)** - JFrog container registry authentication and access
+- **[TIBCO Platform Helm Charts Repository](https://github.com/TIBCOSoftware/tp-helm-charts)** - Official Helm charts and deployment guides
+
+---
+
 ## Summary
 
 The TIBCO Platform deployment on EKS requires access to:
@@ -16,6 +26,11 @@ The TIBCO Platform deployment on EKS requires access to:
 - **8+ External Services** for Kubernetes, monitoring, and documentation
 - **5 AWS-specific endpoints** for EKS, ECR, and other AWS services
 - **1 Go Module Proxy** for Flogo applications (if not using Flogo CLI)
+
+**⚠️ CRITICAL REQUIREMENTS:**
+1. **TIBCO JFrog Registry** (`csgprduswrepoedge.jfrog.io`) - All TIBCO Platform images
+2. **TIBCO Helm Charts** (`tibcosoftware.github.io`) - Official Helm charts repository
+3. **Go Module Proxy** (`proxy.golang.org`) - Required for Flogo applications unless built with Flogo CLI
 
 ---
 
@@ -30,6 +45,8 @@ These registries host the container images used by TIBCO Platform and its depend
 | `csgprduswrepoedge.jfrog.io` | 443 | HTTPS | **PRIMARY**: TIBCO Platform production images (CP, DP, capabilities) |
 
 **⚠️ IMPORTANT:** This is the main TIBCO container registry. Access requires authentication with JFrog credentials.
+
+**📖 Documentation**: [Pushing Images to JFrog Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)
 
 ---
 
