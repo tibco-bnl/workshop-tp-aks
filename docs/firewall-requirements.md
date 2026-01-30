@@ -10,7 +10,7 @@ This document lists all external URLs and endpoints that need to be accessible f
 ## Summary
 
 The TIBCO Platform deployment requires access to:
-- **7 Container Registries** for pulling images
+- **4 Container Registries** for pulling images (TIBCO JFrog, Docker Hub, Quay.io, GitHub)
 - **5 Helm Chart Repositories** for downloading charts
 - **8+ External Services** for Kubernetes, monitoring, and documentation
 - **3 Azure-specific endpoints** for storage and management
@@ -34,12 +34,11 @@ These registries host the container images used by TIBCO Platform and its depend
 
 ### Public Container Registries
 
-| URL | Port | Protocol | Purpose |
-|-----|------|----------|---------|
-| `docker.io` | 443 | HTTPS | Docker Hub - Third-party and open-source images |
-| `ghcr.io` | 443 | HTTPS | GitHub Container Registry - Community images |
-| `k8s.io` | 443 | HTTPS | Kubernetes official images |
-| `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and tools |
+| URL | Port | Protocol | Purpose | Images Used |
+|-----|------|----------|---------|-------------|
+| `docker.io` | 443 | HTTPS | Docker Hub - PostgreSQL and Jaeger tracing | PostgreSQL (bitnami/postgresql:16.4.0), Jaeger (jaegertracing/*) |
+| `quay.io` | 443 | HTTPS | Red Hat Quay - OAuth2 Proxy and Prometheus | OAuth2 Proxy (v7.1.0), Prometheus config reloader |
+| `ghcr.io` | 443 | HTTPS | GitHub Container Registry - Message Gateway | TIBCO Message Gateway (tibco/msg-platform-cicd) |
 
 ---
 
@@ -67,13 +66,6 @@ These repositories host the Helm charts for TIBCO Platform and dependencies.
 ---
 
 ## 3. Kubernetes and Cloud Provider APIs
-
-### Kubernetes API Endpoints
-
-| URL | Port | Protocol | Purpose |
-|-----|------|----------|---------|
-| `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and API references |
-| `k8s.io` | 443 | HTTPS | Kubernetes package repositories |
 
 ### Azure-Specific Endpoints
 
@@ -106,6 +98,8 @@ These repositories host the Helm charts for TIBCO Platform and dependencies.
 | `github.com` | 443 | HTTPS | GitHub - Source code, releases, documentation |
 | `*.githubusercontent.com` | 443 | HTTPS | GitHub raw content |
 | `ubuntu.com` | 443 | HTTPS | Ubuntu package repositories (for base images) |
+| `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and API references |
+| `k8s.io` | 443 | HTTPS | Kubernetes documentation and tools |
 
 ---
 
@@ -131,8 +125,9 @@ Protocol: HTTPS (443)
 Destinations:
   - csgprduswrepoedge.jfrog.io              # TIBCO images
   - tibcosoftware.github.io                  # TIBCO helm charts
-  - docker.io                                 # Docker Hub
-  - ghcr.io                                   # GitHub Container Registry
+  - docker.io                                 # PostgreSQL, Jaeger
+  - quay.io                                   # OAuth2 Proxy, Prometheus
+  - ghcr.io                                   # Message Gateway
   - charts.jetstack.io                        # cert-manager
   - helm.elastic.co                           # Elastic ECK
   - kubernetes-sigs.github.io                 # External DNS
@@ -149,13 +144,13 @@ Destinations:
 ```
 Protocol: HTTPS (443)
 Destinations:
-  - mcr.microsoft.com                         # Microsoft Container Registry
+  - mcr.microsoft.com                         # Microsoft Container Registry (AKS system)
   - *.azurecr.io                              # Azure Container Registry
-  - k8s.io                                    # Kubernetes
-  - kubernetes.io                             # Kubernetes
   - github.com                                # GitHub
   - *.githubusercontent.com                   # GitHub raw content
   - *.blob.core.windows.net                   # Azure Blob Storage
+  - kubernetes.io                             # Kubernetes docs
+  - k8s.io                                    # Kubernetes docs
 ```
 
 #### Optional (For Documentation and Troubleshooting)
@@ -252,6 +247,7 @@ Rules:
     Protocols: https:443
     Target FQDNs:
       - docker.io
+      - quay.io
       - ghcr.io
       - mcr.microsoft.com
       - *.azurecr.io

@@ -11,8 +11,8 @@ This document lists all external URLs and endpoints that need to be accessible f
 ## Summary
 
 The TIBCO Platform deployment on EKS requires access to:
-- **7 Container Registries** for pulling images
-- **5 Helm Chart Repositories** for downloading charts
+- **4 Container Registries** for pulling images (TIBCO JFrog, Docker Hub, Quay.io, GitHub)
+- **6 Helm Chart Repositories** for downloading charts
 - **8+ External Services** for Kubernetes, monitoring, and documentation
 - **5 AWS-specific endpoints** for EKS, ECR, and other AWS services
 - **1 Go Module Proxy** for Flogo applications (if not using Flogo CLI)
@@ -35,15 +35,12 @@ These registries host the container images used by TIBCO Platform and its depend
 
 ### Public Container Registries
 
-| URL | Port | Protocol | Purpose |
-|-----|------|----------|---------|
-| `docker.io` | 443 | HTTPS | Docker Hub - Third-party and open-source images |
-| `registry-1.docker.io` | 443 | HTTPS | Docker Hub registry endpoint |
-| `ghcr.io` | 443 | HTTPS | GitHub Container Registry - Community images |
-| `quay.io` | 443 | HTTPS | Red Hat Quay - Container images |
-| `gcr.io` | 443 | HTTPS | Google Container Registry - Third-party images |
-| `k8s.gcr.io` | 443 | HTTPS | Kubernetes legacy registry (being migrated) |
-| `registry.k8s.io` | 443 | HTTPS | Kubernetes official registry (new) |
+| URL | Port | Protocol | Purpose | Images Used |
+|-----|------|----------|---------|-------------|
+| `docker.io` | 443 | HTTPS | Docker Hub - PostgreSQL and Jaeger tracing | PostgreSQL (bitnami/postgresql:16.4.0), Jaeger (jaegertracing/*) |
+| `registry-1.docker.io` | 443 | HTTPS | Docker Hub registry endpoint | Same as docker.io |
+| `quay.io` | 443 | HTTPS | Red Hat Quay - OAuth2 Proxy and Prometheus | OAuth2 Proxy (v7.1.0), Prometheus config reloader |
+| `ghcr.io` | 443 | HTTPS | GitHub Container Registry - Message Gateway | TIBCO Message Gateway (tibco/msg-platform-cicd) |
 
 ---
 
@@ -76,19 +73,11 @@ These repositories host the Helm charts for TIBCO Platform and dependencies.
 
 ## 3. Kubernetes and Cloud Provider APIs
 
-### Kubernetes API Endpoints
-
-| URL | Port | Protocol | Purpose |
-|-----|------|----------|---------|
-| `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and API references |
-| `k8s.io` | 443 | HTTPS | Kubernetes package repositories |
-| `api.kubernetes.io` | 443 | HTTPS | Kubernetes API server |
-| `*.eks.amazonaws.com` | 443 | HTTPS | EKS cluster API endpoints |
-
 ### AWS-Specific Endpoints
 
 | URL | Port | Protocol | Purpose |
 |-----|------|----------|---------|
+| `*.eks.amazonaws.com` | 443 | HTTPS | EKS cluster API endpoints |
 | `*.amazonaws.com` | 443 | HTTPS | Generic AWS services |
 | `ec2.amazonaws.com` | 443 | HTTPS | EC2 API for node management |
 | `elasticloadbalancing.amazonaws.com` | 443 | HTTPS | ELB API for load balancers |
@@ -142,6 +131,8 @@ These repositories host the Helm charts for TIBCO Platform and dependencies.
 | `ubuntu.com` | 443 | HTTPS | Ubuntu package repositories (for base images) |
 | `archive.ubuntu.com` | 443 | HTTPS | Ubuntu package archives |
 | `security.ubuntu.com` | 443 | HTTPS | Ubuntu security updates |
+| `kubernetes.io` | 443 | HTTPS | Kubernetes documentation and API references |
+| `k8s.io` | 443 | HTTPS | Kubernetes documentation and tools |
 
 ---
 
@@ -180,11 +171,10 @@ Destinations:
   - tibcosoftware.github.io                  # TIBCO helm charts
   
   # Container Registries
-  - docker.io                                 # Docker Hub
+  - docker.io                                 # PostgreSQL, Jaeger
   - registry-1.docker.io                      # Docker Hub registry
-  - ghcr.io                                   # GitHub Container Registry
-  - quay.io                                   # Red Hat Quay
-  - registry.k8s.io                           # Kubernetes registry
+  - quay.io                                   # OAuth2 Proxy, Prometheus
+  - ghcr.io                                   # Message Gateway
   
   # Helm Repositories
   - charts.jetstack.io                        # cert-manager
@@ -220,22 +210,20 @@ Destinations:
   - *.s3.<region>.amazonaws.com               # Regional S3
   - public.ecr.aws                            # ECR Public
   
-  # Container Registries
-  - gcr.io                                    # Google Container Registry
-  - k8s.gcr.io                                # Kubernetes legacy registry
-  
   # Source Control
   - github.com                                # GitHub
   - *.githubusercontent.com                   # GitHub raw content
   - raw.githubusercontent.com                 # GitHub raw files
+  
+  # Kubernetes Documentation
+  - kubernetes.io                             # Kubernetes docs
+  - k8s.io                                    # Kubernetes docs
 ```
 
 #### Optional (For Documentation and Troubleshooting)
 ```
 Protocol: HTTPS (443)
 Destinations:
-  - kubernetes.io                             # Kubernetes docs
-  - k8s.io                                    # Kubernetes
   - docs.tibco.com                            # TIBCO docs
   - learn.tibco.com                           # TIBCO learning
   - prometheus.io                             # Prometheus docs
@@ -324,7 +312,7 @@ Rules:
     Action: ALLOW
     Protocol: HTTPS
   
-  - Domain: registry.k8s.io
+  - Domain: ghcr.io
     Action: ALLOW
     Protocol: HTTPS
   
