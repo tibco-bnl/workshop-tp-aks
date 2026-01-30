@@ -54,7 +54,7 @@ These registries host the container images used by TIBCO Platform and its depend
 | URL | Port | Protocol | Purpose | Images Used |
 |-----|------|----------|---------|-------------|
 | `docker.io` | 443 | HTTPS | Docker Hub - PostgreSQL and Jaeger tracing | PostgreSQL (bitnami/postgresql:16.4.0), Jaeger (jaegertracing/*) |
-| `quay.io` | 443 | HTTPS | Quay Container Registry - OAuth2 Proxy and Prometheus | OAuth2 Proxy (v7.1.0), Prometheus config reloader |
+| `quay.io` | 443 | HTTPS | Quay Container Registry - OAuth2 Proxy and Prometheus | OAuth2 Proxy v7.1.0 (used with Jaeger UI for authentication), Prometheus Operator components (config reloader for observability stack) |
 | `ghcr.io` | 443 | HTTPS | GitHub Container Registry - Message Gateway | TIBCO Message Gateway (tibco/msg-platform-cicd) |
 
 ---
