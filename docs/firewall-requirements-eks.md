@@ -13,7 +13,7 @@ This document lists all external URLs and endpoints that need to be accessible f
 **📖 Before configuring your firewall, review the official TIBCO Platform documentation:**
 
 - **[TIBCO Platform Whitelisting Requirements](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/whitelisting-requirements.htm)** - Official Control Plane firewall requirements
-- **[Pushing Images to JFrog Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)** - JFrog container registry authentication and access
+- **[Pushing Images to Custom Container Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)** - Container registry authentication and access
 - **[TIBCO Platform Helm Charts Repository](https://github.com/TIBCOSoftware/tp-helm-charts)** - Official Helm charts and deployment guides
 
 ---
@@ -46,7 +46,7 @@ These registries host the container images used by TIBCO Platform and its depend
 
 **⚠️ IMPORTANT:** This is the main TIBCO container registry. Access requires authentication with JFrog credentials.
 
-**📖 Documentation**: [Pushing Images to JFrog Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)
+**📖 Documentation**: [Pushing Images to Custom Container Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)
 
 ---
 
