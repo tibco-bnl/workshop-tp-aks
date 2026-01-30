@@ -88,7 +88,7 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 - ⏱️ **Preparation Time**: 3-5 business days
 - 🎁 **Benefits**: Reduces deployment delays, ensures all requirements met before installation day
 
-#### [📖 Firewall Requirements and Network Connectivity for AKS](https://tibco-bnl.github.io/workshop-tp-aks/docs/firewall-requirements.html)
+#### [📖 Firewall Requirements and Network Connectivity for AKS](https://tibco-bnl.github.io/workshop-tp-aks/docs/firewall-requirements-aks.html)
 **Complete firewall and network requirements for TIBCO Platform deployment on Azure Kubernetes Service**
 - 🎯 **Scope**: All external endpoints required for TIBCO Platform on AKS
 - 🔧 **Features**:
@@ -371,7 +371,7 @@ Contributions are welcome! Please:
 
 ### Related Workshop Repositories
 - [TIBCO Platform on ARO Workshop](https://github.com/tibco-bnl/workshop-tp-aro) - Azure Red Hat OpenShift deployment guides
-  - [ARO Firewall Requirements](https://tibco-bnl.github.io/workshop-tp-aro/docs/firewall-requirements.html) - OpenShift-specific firewall configurations
+  - [ARO Firewall Requirements](https://tibco-bnl.github.io/workshop-tp-aro/docs/firewall-requirements-aro.html) - OpenShift-specific firewall configurations
 - [TIBCO Platform on EKS Workshop](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/eks) - Amazon EKS deployment guides
 
 ## 📝 License
