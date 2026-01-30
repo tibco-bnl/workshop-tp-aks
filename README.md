@@ -88,8 +88,8 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 - ⏱️ **Preparation Time**: 3-5 business days
 - 🎁 **Benefits**: Reduces deployment delays, ensures all requirements met before installation day
 
-#### [📖 Firewall Requirements and Network Connectivity](./docs/firewall-requirements.md)
-**Complete firewall and network requirements for TIBCO Platform deployment**
+#### [📖 Firewall Requirements and Network Connectivity for AKS](https://tibco-bnl.github.io/workshop-tp-aks/docs/firewall-requirements.html)
+**Complete firewall and network requirements for TIBCO Platform deployment on Azure Kubernetes Service**
 - 🎯 **Scope**: All external endpoints required for TIBCO Platform on AKS
 - 🔧 **Features**:
   - Container registry endpoints (TIBCO JFrog, Docker Hub, GitHub, etc.)
@@ -99,10 +99,26 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
   - Network Security Group (NSG) rules for Azure
   - Azure Firewall application rules (copy-paste ready)
   - Proxy configuration examples with NO_PROXY settings
+  - TIBCO Flogo Go Module Proxy requirements (proxy.golang.org)
   - DNS requirements and connectivity testing commands
 - 📋 **Use Case**: Enterprise deployments, air-gapped environments, firewall rule requests, proxy configuration
 - ⏱️ **Review Time**: 30-60 minutes
 - 🎁 **Benefits**: Streamlines firewall approval process, prevents connectivity issues during deployment
+
+#### [📖 Firewall Requirements and Network Connectivity for EKS](https://tibco-bnl.github.io/workshop-tp-aks/docs/firewall-requirements-eks.html)
+**Complete firewall and network requirements for TIBCO Platform deployment on Amazon Elastic Kubernetes Service**
+- 🎯 **Scope**: All external endpoints required for TIBCO Platform on EKS
+- 🔧 **Features**:
+  - AWS-specific endpoints (EKS, ECR, EC2, STS, IAM)
+  - VPC endpoints for cost optimization
+  - AWS Network Firewall and Security Group configurations
+  - Container registry and Helm repository endpoints
+  - Proxy configuration for enterprise environments
+  - TIBCO Flogo Go Module Proxy requirements
+  - Troubleshooting and validation commands
+- 📋 **Use Case**: AWS deployments, hybrid cloud setups, VPC-isolated environments
+- ⏱️ **Review Time**: 30-60 minutes
+- 🎁 **Benefits**: Comprehensive AWS firewall guide, VPC endpoint recommendations
 
 ### ⚙️ Configuration and Scripts
 
@@ -353,9 +369,10 @@ Contributions are welcome! Please:
 - [Azure DNS Documentation](https://docs.microsoft.com/en-us/azure/dns/)
 - [Azure Storage Documentation](https://docs.microsoft.com/en-us/azure/storage/)
 
-### Related Workshops
-- [TIBCO Platform on ARO Workshop](https://github.com/tibco-bnl/workshop-tp-aro)
-- [TIBCO Platform on EKS Workshop](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/eks)
+### Related Workshop Repositories
+- [TIBCO Platform on ARO Workshop](https://github.com/tibco-bnl/workshop-tp-aro) - Azure Red Hat OpenShift deployment guides
+  - [ARO Firewall Requirements](https://tibco-bnl.github.io/workshop-tp-aro/docs/firewall-requirements.html) - OpenShift-specific firewall configurations
+- [TIBCO Platform on EKS Workshop](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/eks) - Amazon EKS deployment guides
 
 ## 📝 License
 
