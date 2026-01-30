@@ -1,0 +1,357 @@
+<mxfile host="app.diagrams.net" modified="2026-01-30T00:00:00.000Z" agent="5.0" version="22.1.0" etag="drawio-diagram" type="device">
+  <diagram name="AKS TIBCO Platform Architecture" id="aks-tibco-architecture">
+    <mxGraphModel dx="1800" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="TIBCO Platform on Azure Kubernetes Service (AKS) - Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=26;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="1200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Azure Subscription Container -->
+        <mxCell id="azure-subscription" value="Azure Subscription" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;fontStyle=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1720" height="1240" as="geometry" />
+        </mxCell>
+        
+        <!-- Resource Group -->
+        <mxCell id="resource-group" value="Resource Group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="140" width="1640" height="1140" as="geometry" />
+        </mxCell>
+        
+        <!-- VNet -->
+        <mxCell id="vnet" value="Virtual Network (VNet)&lt;br&gt;CIDR: 10.4.0.0/16" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="200" width="1560" height="1040" as="geometry" />
+        </mxCell>
+        
+        <!-- AKS Subnet -->
+        <mxCell id="aks-subnet" value="AKS Subnet&lt;br&gt;CIDR: 10.4.0.0/20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="260" width="1080" height="920" as="geometry" />
+        </mxCell>
+        
+        <!-- AKS Cluster -->
+        <mxCell id="aks-cluster" value="Azure Kubernetes Service Cluster&lt;br&gt;Service CIDR: 10.0.0.0/16" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="200" y="330" width="1000" height="820" as="geometry" />
+        </mxCell>
+        
+        <!-- Infrastructure Layer -->
+        <mxCell id="infra-layer" value="Infrastructure Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="240" y="380" width="920" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Cert Manager -->
+        <mxCell id="cert-manager" value="cert-manager&lt;br&gt;(Certificate Management)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="260" y="420" width="180" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- External DNS -->
+        <mxCell id="external-dns" value="External DNS&lt;br&gt;(Azure DNS Integration)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="460" y="420" width="180" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Ingress Nginx -->
+        <mxCell id="ingress-nginx" value="NGINX Ingress&lt;br&gt;Controller" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="660" y="420" width="180" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Storage Classes -->
+        <mxCell id="storage-classes" value="Storage Classes&lt;br&gt;(Azure Disk &amp; Files)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="860" y="420" width="180" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Observability Layer -->
+        <mxCell id="observability" value="Observability Stack (Optional)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="260" y="495" width="380" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="elastic" value="Elastic ECK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="270" y="505" width="120" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="prometheus" value="Prometheus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="400" y="505" width="120" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="grafana" value="Grafana" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="530" y="505" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- TIBCO Control Plane -->
+        <mxCell id="control-plane-box" value="TIBCO Platform - Control Plane" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="240" y="590" width="920" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- CP Components -->
+        <mxCell id="cp-namespace-label" value="Control Plane Namespace" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="260" y="625" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-cp-base" value="tibco-cp-base&lt;br&gt;(Core Platform)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="650" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="postgres-cp" value="PostgreSQL&lt;br&gt;(Metadata Store)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="650" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="o11y-service" value="Observability&lt;br&gt;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="580" y="650" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="developer-hub" value="Developer Hub&lt;br&gt;(UI Portal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="740" y="650" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- CP Capabilities -->
+        <mxCell id="cp-capabilities-label" value="Capability Charts (Optional)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="260" y="720" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-cp-bw" value="tibco-cp-bw&lt;br&gt;(BusinessWorks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="745" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-cp-flogo" value="tibco-cp-flogo&lt;br&gt;(Flogo)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="745" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-cp-messaging" value="tibco-cp-messaging&lt;br&gt;(EMS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="580" y="745" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-cp-hawk" value="tibco-cp-hawk&lt;br&gt;(Hawk)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="740" y="745" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- TIBCO Data Plane -->
+        <mxCell id="data-plane-box" value="TIBCO Platform - Data Plane(s)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="240" y="870" width="920" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- DP Namespaces -->
+        <mxCell id="dp-namespace1" value="Data Plane Namespace (dp1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="260" y="910" width="420" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dp-config" value="dp-configure-ns&lt;br&gt;(Namespace Config)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="950" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="bwce-apps" value="BWCE Applications&lt;br&gt;(BusinessWorks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1015" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="flogo-apps" value="Flogo Applications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="430" y="950" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ems-apps" value="EMS Clients&lt;br&gt;(Messaging)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="430" y="1015" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- DP Namespace 2 -->
+        <mxCell id="dp-namespace2" value="Data Plane Namespace (dp2, dp3...)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="700" y="910" width="440" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dp-multi-note" value="Multiple Data Planes can be deployed&lt;br&gt;in separate namespaces, each with&lt;br&gt;independent applications and resources" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="720" y="970" width="400" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- API Server Subnet -->
+        <mxCell id="apiserver-subnet" value="API Server Subnet&lt;br&gt;CIDR: 10.4.19.0/28" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="260" width="360" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="k8s-api-server" value="Kubernetes API Server&lt;br&gt;(VNet Integrated)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="310" width="300" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- NAT Gateway Subnet -->
+        <mxCell id="natgw-subnet" value="NAT Gateway Subnet&lt;br&gt;CIDR: 10.4.18.0/27" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="440" width="360" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="nat-gateway" value="NAT Gateway&lt;br&gt;(Outbound Internet)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="485" width="300" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Azure Services Outside VNet -->
+        <mxCell id="azure-services-label" value="Azure Services" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1280" y="600" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="azure-dns" value="Azure DNS&lt;br&gt;(DNS Zone Management)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="640" width="360" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="azure-storage" value="Azure Storage Account&lt;br&gt;(Blob &amp; File Shares)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="720" width="360" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="azure-keyvault" value="Azure Key Vault&lt;br&gt;(Secrets Management)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="800" width="360" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="azure-monitor" value="Azure Monitor &amp; Log Analytics&lt;br&gt;(Monitoring &amp; Logging)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="880" width="360" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="azure-identity" value="Azure AD / Entra ID&lt;br&gt;(Identity &amp; Authentication)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="960" width="360" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Load Balancer -->
+        <mxCell id="load-balancer" value="Azure Load Balancer&lt;br&gt;(External Traffic)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1080" width="360" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- External Container Registries -->
+        <mxCell id="external-registries-label" value="External Container Registries" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="120" y="1300" width="250" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-jfrog-ext" value="csgprduswrepoedge.jfrog.io&lt;br&gt;(TIBCO Images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="docker-hub-ext" value="docker.io&lt;br&gt;(PostgreSQL, Jaeger)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="quay-ext" value="quay.io&lt;br&gt;(OAuth2, Prometheus)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ghcr-ext" value="ghcr.io&lt;br&gt;(Message Gateway)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Helm Chart Repositories -->
+        <mxCell id="helm-repos-label" value="Helm Chart Repositories" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1300" width="250" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tibco-helm-ext" value="tibcosoftware.github.io&lt;br&gt;(TIBCO Charts)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="jetstack-ext" value="charts.jetstack.io&lt;br&gt;(cert-manager)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="elastic-helm-ext" value="helm.elastic.co&lt;br&gt;(Elastic ECK)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1340" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows -->
+        <!-- NAT Gateway to Internet -->
+        <mxCell id="arrow-nat-internet" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;strokeColor=#d79b00;dashed=1;" edge="1" parent="1" source="nat-gateway">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1630" y="510" as="sourcePoint" />
+            <mxPoint x="1720" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow-nat-label" value="Outbound&lt;br&gt;Internet" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1640" y="490" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- AKS to External DNS -->
+        <mxCell id="arrow-aks-dns" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="external-dns" target="azure-dns">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="840" y="450" as="sourcePoint" />
+            <mxPoint x="890" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- AKS to Load Balancer -->
+        <mxCell id="arrow-ingress-lb" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d79b00;" edge="1" parent="1" source="ingress-nginx" target="load-balancer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="750" y="650" as="sourcePoint" />
+            <mxPoint x="800" y="600" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="750" y="1120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Storage to Azure Storage -->
+        <mxCell id="arrow-storage" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;dashed=1;" edge="1" parent="1" source="storage-classes" target="azure-storage">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1050" y="450" as="sourcePoint" />
+            <mxPoint x="1100" y="400" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1100" y="450" />
+              <mxPoint x="1100" y="750" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User Traffic -->
+        <mxCell id="user-traffic" value="User Traffic&lt;br&gt;(HTTPS)" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#b85450;" edge="1" parent="1" target="load-balancer">
+          <mxGeometry x="-0.2" width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1460" y="1260" as="sourcePoint" />
+            <mxPoint x="1460" y="1160" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend-box" value="Legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;align=left;spacingTop=5;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1420" width="1640" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-1" value="🔷 Azure Resources" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1450" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-2" value="🟩 TIBCO Control Plane" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1450" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-3" value="🟧 TIBCO Data Plane(s)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1450" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-4" value="🟨 Infrastructure Components" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1450" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-5" value="🔴 External Services &amp; Registries" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="920" y="1450" width="220" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-note1" value="• VNet Integration: API Server integrated with VNet for secure cluster communication" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1480" width="550" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-note2" value="• NAT Gateway: Provides consistent outbound IP for external connectivity and firewall rules" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1500" width="600" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-note3" value="• Storage Classes: Azure Disk (Premium_LRS) for persistent volumes, Azure Files for shared storage" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="720" y="1480" width="600" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-note4" value="• Network Policy: Azure CNI with Azure Network Policy for pod-level security" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="720" y="1500" width="520" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="deployment-flow" value="Deployment Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1450" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="flow-1" value="1. Cluster Setup → 2. Infrastructure → 3. Control Plane → 4. Data Plane(s)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1475" width="440" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="flow-2" value="5. Deploy Applications → 6. Configure Observability (Optional)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1495" width="400" height="20" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
