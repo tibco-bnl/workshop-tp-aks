@@ -1,0 +1,172 @@
+<mxfile host="65bd71144e">
+    <diagram name="AKS Firewall Rules" id="aks-firewall-architecture">
+        <mxGraphModel dx="1571" dy="805" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="TIBCO Platform on AKS - Firewall Rules Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="400" y="20" width="800" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="aks-cluster" value="Azure Kubernetes Service (AKS)&lt;br&gt;TIBCO Platform Cluster" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=10;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="90" width="280" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="cp-namespace" value="Control Plane&lt;br&gt;(CP Namespace)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="110" y="160" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="dp-namespace" value="Data Plane&lt;br&gt;(DP Namespaces)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="110" y="260" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="obs-namespace" value="Observability&lt;br&gt;(Prometheus, Grafana)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="110" y="360" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="cert-namespace" value="Cert Manager&lt;br&gt;(cert-manager)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="110" y="460" width="220" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="firewall" value="Azure Firewall / NSG&lt;br&gt;Outbound Rules (Port 443)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="90" width="280" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="critical-label" value="CRITICAL (Required)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#CC0000;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="150" width="240" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-tibco-jfrog" value="✓ csgprduswrepoedge.jfrog.io&lt;br&gt;   (TIBCO images)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="175" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-tibco-charts" value="✓ tibcosoftware.github.io&lt;br&gt;   (TIBCO Helm charts)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="210" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-docker" value="✓ docker.io&lt;br&gt;   (PostgreSQL, Jaeger)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="245" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-quay" value="✓ quay.io&lt;br&gt;   (OAuth2 Proxy, Prometheus)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="280" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-ghcr" value="✓ ghcr.io&lt;br&gt;   (Message Gateway)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="315" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-azure-arm" value="✓ management.azure.com&lt;br&gt;   (Azure Resource Manager)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="350" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-golang" value="✓ proxy.golang.org&lt;br&gt;   (Go modules for Flogo)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="385" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="recommended-label" value="RECOMMENDED" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#007700;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="425" width="240" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-mcr" value="✓ mcr.microsoft.com&lt;br&gt;   (AKS system images)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="450" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-helm" value="✓ charts.jetstack.io, helm.elastic.co&lt;br&gt;   (Third-party Helm charts)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="485" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rule-azure-storage" value="✓ *.blob.core.windows.net&lt;br&gt;   (Azure Blob Storage)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="520" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="external-services" value="External Services (Internet)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="90" width="720" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="tibco-services-label" value="TIBCO Platform Services" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#0066CC;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="150" width="200" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="tibco-jfrog" value="csgprduswrepoedge.jfrog.io&lt;br&gt;TIBCO Container Registry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="175" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="tibco-charts" value="tibcosoftware.github.io&lt;br&gt;TIBCO Helm Charts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="235" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="container-label" value="Container Registries" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#0066CC;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="150" width="200" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="docker-hub" value="docker.io&lt;br&gt;PostgreSQL, Jaeger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="175" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="quay-io" value="quay.io&lt;br&gt;OAuth2 Proxy, Prometheus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="235" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="ghcr-io" value="ghcr.io&lt;br&gt;Message Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="295" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="mcr" value="mcr.microsoft.com&lt;br&gt;AKS System Images" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1300" y="175" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="helm-label" value="Helm Chart Repositories" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#0066CC;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="305" width="200" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="jetstack" value="charts.jetstack.io&lt;br&gt;cert-manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="330" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="elastic" value="helm.elastic.co&lt;br&gt;Elastic ECK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="390" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="prometheus-helm" value="prometheus-community&lt;br&gt;.github.io" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="450" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="azure-label" value="Azure Cloud Services" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#0066CC;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="365" width="200" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="azure-arm" value="management.azure.com&lt;br&gt;Azure Resource Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="390" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="azure-ad" value="login.microsoftonline.com&lt;br&gt;Azure AD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="450" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="azure-storage" value="*.blob.core.windows.net&lt;br&gt;Azure Blob Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="510" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="go-label" value="Go Module Proxy (Flogo)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#0066CC;" parent="1" vertex="1">
+                    <mxGeometry x="1300" y="245" width="200" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="go-proxy" value="proxy.golang.org&lt;br&gt;Go Module Proxy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1300" y="270" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="go-sum" value="sum.golang.org&lt;br&gt;Go Checksum DB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1300" y="330" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow-to-firewall" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#d79b00;" parent="1" source="aks-cluster" target="firewall" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="380" y="400" as="sourcePoint"/>
+                        <mxPoint x="430" y="350" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-label" value="HTTPS/443" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="370" y="340" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow-to-external" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#82b366;" parent="1" source="firewall" target="external-services" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="740" y="400" as="sourcePoint"/>
+                        <mxPoint x="790" y="350" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-external-label" value="Allowed Traffic" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="725" y="340" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend" value="Legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingTop=5;spacingLeft=10;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="640" width="320" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-critical" value="🔴 CRITICAL: Cannot deploy without these" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="665" width="280" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-recommended" value="🟢 RECOMMENDED: For full functionality" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="690" width="280" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-protocol" value="📡 All traffic: HTTPS Port 443 (TCP)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="715" width="280" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="notes" value="Important Notes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;verticalAlign=top;align=left;spacingTop=5;spacingLeft=10;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="640" width="1080" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="note1" value="1. TIBCO JFrog Registry (csgprduswrepoedge.jfrog.io) requires authentication with JFrog credentials" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="665" width="1040" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="note2" value="2. Go Module Proxy (proxy.golang.org) is CRITICAL for Flogo applications unless built with Flogo CLI" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="685" width="1040" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="note3" value="3. NSG Rules: Configure Network Security Groups to allow outbound HTTPS (443) from AKS subnet to Service Tag &#39;Internet&#39;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="705" width="1040" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="note4" value="4. Azure Firewall: Use Application Rules with FQDN filtering for enhanced security (see firewall-requirements-aks.md)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="725" width="1040" height="15" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
