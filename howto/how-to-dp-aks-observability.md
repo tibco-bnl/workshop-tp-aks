@@ -7,6 +7,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Alternative Approach: TIBCO Platform Observability Helm Chart](#alternative-approach-tibco-platform-observability-helm-chart)
 - [Prerequisites](#prerequisites)
 - [Part 1: Elastic Stack Installation](#part-1-elastic-stack-installation)
   - [Step 1.1: Install Elastic ECK Operator](#step-11-install-elastic-eck-operator)
@@ -81,6 +82,43 @@ This guide provides comprehensive instructions for setting up observability for 
 - **Performance Analytics**: APM for application performance insights
 - **Custom Dashboards**: Pre-built and custom Grafana/Kibana dashboards
 - **Alerting**: Prometheus AlertManager for proactive issue detection
+
+---
+
+## Alternative Approach: TIBCO Platform Observability Helm Chart
+
+**Note:** As an alternative to the manual step-by-step installation described in this guide, TIBCO provides a comprehensive helm chart that automates the entire observability stack setup for AKS Data Plane environments.
+
+### Automated Observability Setup
+
+TIBCO Platform provides an all-in-one helm chart that automates:
+- Elastic ECK operator installation
+- Elasticsearch, Kibana, and APM Server deployment
+- **Prometheus and Grafana installation** (required on AKS, unlike ARO where Prometheus is pre-installed)
+- Index templates and lifecycle policies configuration
+- OTEL collectors setup
+- Service monitors configuration
+
+**Documentation and Installation Guide:**
+- **GitHub Repository:** [TIBCO Platform AKS Data Plane Observability Setup](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane#install-observability-tools)
+
+**When to use this approach:**
+- You want a fully automated, one-command observability setup
+- You prefer infrastructure-as-code approach using helm charts
+- You want to avoid manual configuration of multiple components
+- You need a standardized, repeatable deployment process across multiple environments
+
+**Benefits:**
+- Single helm command deploys entire observability stack
+- Pre-configured index templates and lifecycle policies
+- Automated Prometheus installation (AKS-specific requirement)
+- Pre-configured OTEL collectors for traces and metrics
+- Simplified deployment and configuration management
+- Consistent observability setup across multiple AKS clusters
+
+**Quick Start:**
+
+For a quick automated setup, refer to the [official TIBCO Platform observability helm chart documentation](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane#install-observability-tools) which provides a single helm command to deploy all observability components.
 
 ---
 
@@ -370,6 +408,10 @@ After logging in for the first time:
 ---
 
 ## Part 2: Prometheus and Grafana Installation
+
+**Note:** For automated Prometheus and Grafana installation using TIBCO Platform helm chart, refer to the official documentation: [Install Observability Tools on AKS](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane#install-observability-tools)
+
+**Important:** Unlike Azure Red Hat OpenShift (ARO) which has Prometheus pre-installed as part of the cluster monitoring stack, **AKS requires manual installation of Prometheus**. This section provides step-by-step instructions for installing Prometheus using the `kube-prometheus-stack` helm chart.
 
 Prometheus provides metrics collection and Grafana provides visualization.
 
@@ -1222,6 +1264,7 @@ kubectl patch pvc -n elastic-system elasticsearch-data-dp-config-es-es-default-0
 - [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
 - [tp-helm-charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [AKS Workshop - Data Plane](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane)
+- **[Install Observability Tools on AKS (Official Guide)](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane#install-observability-tools)**
 - [dp-config-es Chart](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/dp-config-es)
 - [dp-configure-namespace Chart](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/dp-configure-namespace)
 
