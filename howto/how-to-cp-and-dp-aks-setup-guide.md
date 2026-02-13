@@ -1077,6 +1077,15 @@ export POSTGRES_PORT=5432
 
 Create the official Control Plane values file using the **tibco-cp-base** chart structure:
 
+> [!IMPORTANT]
+> **Critical Database Configuration**: The values file below includes **all required configuration sections** including:
+> - **Database connection details** (`db_host`, `db_name`, `db_port`, `db_username`, `db_password`, `db_secret_name`, `db_ssl_mode`)
+> - **Email server configuration** (for user activation and notifications)
+> - **Admin user configuration** (for initial platform administrator)
+> - **Encryption secret configuration** (for platform security)
+> 
+> If any of these sections are missing (especially the database configuration), the Control Plane deployment will fail with errors like "missing DBHost key in ConfigMap provider-cp-database-config".
+
 ```bash
 cat > cp-values.yaml <<EOF
 # TIBCO Platform Control Plane Values for AKS
@@ -1165,19 +1174,76 @@ global:
   external:
     clusterInfo:
       nodeCIDR: "${TP_VNET_CIDR}"
+      podCIDR: "${TP_POD_CIDR}"  # Optional: Kubernetes Pod CIDR
+      serviceCIDR: "${TP_SERVICE_CIDR}"  # Optional: Kubernetes Service CIDR
+    
+    # DNS Domains
+    dnsDomain: "${CP_MY_DNS_DOMAIN}"
+    dnsTunnelDomain: "${CP_TUNNEL_DNS_DOMAIN}"
+    
+    # Storage Configuration
+    storage:
+      pvcName: "control-plane-pvc"
+      resources:
+        requests:
+          storage: "10Gi"
+      storageClassName: "${TP_FILE_STORAGE_CLASS}"
     
     # Database Configuration
-    db:
-      vendor: "postgres"
-      host: "${POSTGRES_HOST}"
-      port: ${POSTGRES_PORT}
-      sslMode: "disable"  # Use "require" for Azure PostgreSQL
-      sslRootCert: ""
-      secretName: "postgres-${CP_INSTANCE_ID}-postgresql"
-      adminUsername: "postgres"
-      adminPasswordKey: "postgres-password"
+    db_host: "${POSTGRES_HOST}"
+    db_name: "postgres"
+    db_port: ${POSTGRES_PORT}
+    db_username: "postgres"
+    db_password: "postgres"  # Or use secret reference
+    db_secret_name: "postgres-${CP_INSTANCE_ID}-postgresql"
+    db_ssl_mode: "disable"  # Use "require" for Azure PostgreSQL
+    # Uncomment for SSL/TLS database connections (Azure PostgreSQL)
+    # db_ssl_root_cert_secret_name: "db-ssl-root-cert"
+    # db_ssl_root_cert_filename: "db_ssl_root.cert"
+    
+    # Email Server Configuration
+    emailServerType: "smtp"  # Options: smtp, ses, sendgrid
+    emailServer:
+      smtp:
+        server: "development-mailserver.tibco-ext.svc.cluster.local"  # Update for production
+        port: "1025"  # Update for production SMTP
+        username: ""  # Empty for MailDev, set for production
+        password: ""  # Empty for MailDev, set for production
+    
+    # Admin User Configuration
+    admin:
+      email: "admin@example.com"  # Replace with actual admin email
+      firstname: "Platform"
+      lastname: "Admin"
+      customerID: "customer-id"  # Replace with actual customer ID
+    
+    # Encryption Secret Configuration
+    cpEncryptionSecretName: "cporch-encryption-secret"
+    cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
+    
+    # Optional: Audit Server Configuration
+    # auditserver:
+    #   index: "audittrail"
+    #   endpoint: ""
+    #   username: ""
+    #   password: ""
+    
+    # Environment
+    environment: "production"
 EOF
 ```
+
+> [!TIP]
+> **Verify Database Configuration After Deployment**: After the chart is installed, verify that the database configuration was correctly applied:
+> ```bash
+> # Check if the ConfigMap contains the DBHost key
+> kubectl get configmap provider-cp-database-config -n ${CP_INSTANCE_ID}-ns -o yaml | grep -i "host"
+> 
+> # Expected output should show:
+> #   DBHost: postgres-cp1-postgresql.cp1-ns.svc.cluster.local  (or your DB host)
+> ```
+> 
+> If the DBHost is missing from the ConfigMap, it indicates the database configuration was not included in the Helm values, and you'll need to redeploy with the corrected configuration.
 
 ### Step 8.6: Deploy Control Plane
 
@@ -1824,7 +1890,63 @@ kubectl run dns-test --image=busybox --rm -it --restart=Never -n $TP_DP_NAMESPAC
 
 ### Common Issues and Solutions
 
-#### 1. Pods Not Starting
+#### 1. Missing DBHost in ConfigMap
+
+**Symptom:** During or after Control Plane installation, you encounter an error:
+```
+Error: missing DBHost key in ConfigMap {namespace}/provider-cp-database-config
+```
+
+**Root Cause:** The database configuration was not included in the Helm values during installation. Environment variables alone do not automatically flow into Helm charts unless explicitly referenced in the values.
+
+**Solution:**
+
+1. **Verify your environment variables are set:**
+```bash
+# Check if DB environment variables are exported
+echo "DB Host: ${POSTGRES_HOST}"
+echo "DB Port: ${POSTGRES_PORT}"
+```
+
+2. **Ensure the Helm values file includes database configuration:**
+
+The values file (cp-values.yaml) **must** include this section under `global.external`:
+```yaml
+global:
+  external:
+    db_host: "${POSTGRES_HOST}"
+    db_name: "postgres"
+    db_port: ${POSTGRES_PORT}
+    db_username: "postgres"
+    db_password: "postgres"
+    db_secret_name: "postgres-${CP_INSTANCE_ID}-postgresql"
+    db_ssl_mode: "disable"
+```
+
+3. **Verify after deployment:**
+```bash
+# Check if the ConfigMap contains the DBHost key
+kubectl get configmap provider-cp-database-config -n ${CP_INSTANCE_ID}-ns -o yaml | grep -i "host"
+
+# Expected output:
+#   DBHost: postgres-cp1-postgresql.cp1-ns.svc.cluster.local  (or your DB host)
+```
+
+4. **Fix by redeploying with corrected values:**
+
+Update your `cp-values.yaml` file to include the complete database configuration (see [Step 8.5](#step-85-configure-control-plane-helm-values)), then redeploy:
+
+```bash
+helm upgrade --install --wait --timeout 30m \
+  -n ${CP_INSTANCE_ID}-ns tibco-platform-cp tibco-platform-cp \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --values cp-values.yaml
+```
+
+**Related:** See [Step 8.5: Configure Control Plane Helm Values](#step-85-configure-control-plane-helm-values) for the complete and corrected configuration.
+
+#### 2. Pods Not Starting
 
 **Symptoms**: Pods stuck in `Pending`, `ImagePullBackOff`, or `CrashLoopBackOff`
 
@@ -1846,7 +1968,7 @@ kubectl logs <pod-name> -n <namespace> -c <container-name>
 # - Storage issues: Verify storage classes and PVC status
 ```
 
-#### 2. Ingress Not Working
+#### 3. Ingress Not Working
 
 **Symptoms**: Cannot access Control Plane UI, 404 or connection timeout
 
@@ -1871,7 +1993,7 @@ nslookup account.$TP_CP_MY_DOMAIN
 # - Ingress class mismatch: Ensure ingressClassName matches controller
 ```
 
-#### 3. Data Plane Not Connecting to Control Plane
+#### 4. Data Plane Not Connecting to Control Plane
 
 **Symptoms**: Data Plane shows as **Disconnected** in Control Plane UI
 
@@ -1899,7 +2021,7 @@ kubectl run netshoot --image=nicolaka/netshoot --rm -it --restart=Never -n $TP_D
 # - Network policy blocking: Review NetworkPolicies if Calico is enabled
 ```
 
-#### 4. PostgreSQL Connection Issues
+#### 5. PostgreSQL Connection Issues
 
 **Symptoms**: Control Plane pods failing with database connection errors
 
@@ -1929,7 +2051,7 @@ az postgres flexible-server show \
 # - SSL mode: Ensure sslMode is set to "require" in helm values
 ```
 
-#### 5. Storage Issues (PVC Not Binding)
+#### 6. Storage Issues (PVC Not Binding)
 
 **Symptoms**: PVCs stuck in `Pending` state
 
@@ -1957,7 +2079,7 @@ az storage account show \
 # - VolumeBindingMode: Check if WaitForFirstConsumer (needs pod to be scheduled)
 ```
 
-#### 6. Certificate Errors
+#### 7. Certificate Errors
 
 **Symptoms**: Browser shows certificate errors, ingress TLS not working
 
