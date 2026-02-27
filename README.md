@@ -1,5 +1,8 @@
 # TIBCO Platform on Azure Kubernetes Service (AKS) Workshop
 
+> **Current Release:** [v1.14.0](./releases/v1.14.0.md) | **TIBCO Platform CP Version:** 1.14.0  
+> 📋 **Release History:** See [releases](./releases) folder for all versions
+
 This repository provides comprehensive guides and resources for deploying **TIBCO Platform** on **Azure Kubernetes Service (AKS)** clusters. It covers multiple deployment scenarios from basic AKS cluster setup to full Control Plane and Data Plane deployments with observability.
 
 ## 🎯 What This Repository Helps You Setup
