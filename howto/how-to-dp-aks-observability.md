@@ -1,3 +1,8 @@
+---
+layout: default
+title: TIBCO Platform Observability Setup on AKS
+---
+
 # TIBCO Platform Observability Setup on AKS
 
 **Guide for setting up comprehensive monitoring and observability for TIBCO Platform Data Plane on Azure Kubernetes Service**

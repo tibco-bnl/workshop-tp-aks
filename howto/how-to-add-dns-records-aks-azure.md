@@ -1,3 +1,8 @@
+---
+layout: default
+title: How to Add DNS Records for AKS Ingress in Azure
+---
+
 # How to Add DNS Records for AKS Ingress in Azure
 
 This guide explains how to configure DNS records in Azure DNS for TIBCO Platform ingress routes on Azure Kubernetes Service (AKS).

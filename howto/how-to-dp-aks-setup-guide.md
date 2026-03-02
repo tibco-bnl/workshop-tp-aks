@@ -1,3 +1,8 @@
+---
+layout: default
+title: TIBCO Platform Data Plane Only Setup on AKS
+---
+
 # TIBCO Platform Data Plane Only Setup on AKS
 
 **Document Purpose**: Step-by-step guide for deploying TIBCO Platform Data Plane on Azure Kubernetes Service (AKS) connecting to a SaaS Control Plane or existing remote Control Plane.
