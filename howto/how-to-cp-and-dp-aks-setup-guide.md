@@ -9,7 +9,7 @@ title: TIBCO Platform Control Plane and Data Plane Setup on AKS
 
 **Target Audience**: DevOps engineers, Platform administrators
 
-**Prerequisites**: Review [prerequisites-checklist-for-customer](prerequisites-checklist-for-customer) before starting
+**Prerequisites**: Review [prerequisites-checklist-for-customer](prerequisites-checklist-for-customer.md) before starting
 
 **Estimated Time**: 4-6 hours (first-time installation)
 
@@ -2162,7 +2162,7 @@ You have successfully deployed TIBCO Platform Control Plane and Data Plane on Az
 1. **License Configuration**: Upload TIBCO Platform license in Control Plane UI
 2. **User Management**: Create additional users and assign roles
 3. **Deploy Applications**: Deploy BWCE and Flogo applications via Control Plane
-4. **Observability**: Set up monitoring with Elastic ECK and Prometheus (see [how-to-dp-aks-observability](how-to-dp-aks-observability))
+4. **Observability**: Set up monitoring with Elastic ECK and Prometheus (see [how-to-dp-aks-observability](how-to-dp-aks-observability.md))
 5. **Production Hardening**:
    - Replace self-signed certificates with Let's Encrypt or corporate CA
    - Configure backup and disaster recovery
@@ -2204,9 +2204,9 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 - [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
 - [TIBCO Helm Charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
-- [Prerequisites Checklist](prerequisites-checklist-for-customer)
-- [DNS Configuration Guide](how-to-add-dns-records-aks-azure)
-- [Observability Setup Guide](how-to-dp-aks-observability)
+- [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
+- [DNS Configuration Guide](how-to-add-dns-records-aks-azure.md)
+- [Observability Setup Guide](how-to-dp-aks-observability.md)
 
 ---
 

@@ -305,16 +305,16 @@ spec:
 
 ## Related Documentation
 
-- [Firewall Requirements](../docs/firewall-requirements) - Complete list of required endpoints
-- [Network Security Group Rules](../docs/firewall-requirements#8-network-security-group-nsg-rules-for-azure)
-- [Azure Firewall Rules](../docs/firewall-requirements#9-azure-firewall-application-rules)
-- [Firewall Request Template](../docs/firewall-requirements#15-simplified-firewall-request-template)
+- [Firewall Requirements](../docs/firewall-requirements-aks.md) - Complete list of required endpoints
+- [Network Security Group Rules](../docs/firewall-requirements-aks.md#8-network-security-group-nsg-rules-for-azure)
+- [Azure Firewall Rules](../docs/firewall-requirements-aks.md#9-azure-firewall-application-rules)
+- [Firewall Request Template](../docs/firewall-requirements-aks.md#15-simplified-firewall-request-template)
 
 ## Support
 
 If connectivity tests fail:
 
-1. Review the [firewall requirements document](../docs/firewall-requirements)
+1. Review the [firewall requirements document](../docs/firewall-requirements-aks.md)
 2. Contact your network/security team with the test results
-3. Use the [firewall request template](../docs/firewall-requirements#sample-firewall-request-form) to request access
+3. Use the [firewall request template](../docs/firewall-requirements-aks.md#sample-firewall-request-form) to request access
 4. Re-run tests after firewall changes are applied
