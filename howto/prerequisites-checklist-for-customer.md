@@ -249,6 +249,7 @@ kubectl get storageclass
 #### Option 1: Azure Database for PostgreSQL Flexible Server (Recommended for Production)
 
 **Specifications:**
+
 | Parameter | Recommendation | Notes |
 |-----------|---------------|-------|
 | **SKU** | General Purpose or Memory Optimized | Based on workload |
