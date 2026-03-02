@@ -201,7 +201,7 @@ Add note in Part 9 about observability setup:
 
 For production deployments, set up observability stack:
 
-See [how-to-dp-aks-observability.md](how-to-dp-aks-observability.md) for:
+See [how-to-dp-aks-observability.html](how-to-dp-aks-observability.html) for:
 - Elastic Stack (Elasticsearch, Kibana, APM)
 - Prometheus and Grafana
 - Integration with TIBCO Platform

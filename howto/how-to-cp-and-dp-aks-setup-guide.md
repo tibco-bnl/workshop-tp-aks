@@ -9,7 +9,7 @@ title: TIBCO Platform Control Plane and Data Plane Setup on AKS
 
 **Target Audience**: DevOps engineers, Platform administrators
 
-**Prerequisites**: Review [prerequisites-checklist-for-customer.md](prerequisites-checklist-for-customer.md) before starting
+**Prerequisites**: Review [prerequisites-checklist-for-customer.html](prerequisites-checklist-for-customer.html) before starting
 
 **Estimated Time**: 4-6 hours (first-time installation)
 
@@ -834,7 +834,7 @@ az network dns record-set a list \
 
 **Option B: Using External DNS (Recommended for Production)**
 
-See [how-to-add-dns-records-aks-azure.md](how-to-add-dns-records-aks-azure.md) for detailed External DNS setup.
+See [how-to-add-dns-records-aks-azure.html](how-to-add-dns-records-aks-azure.html) for detailed External DNS setup.
 
 ### Step 6.3: Verify DNS Resolution
 
@@ -2162,7 +2162,7 @@ You have successfully deployed TIBCO Platform Control Plane and Data Plane on Az
 1. **License Configuration**: Upload TIBCO Platform license in Control Plane UI
 2. **User Management**: Create additional users and assign roles
 3. **Deploy Applications**: Deploy BWCE and Flogo applications via Control Plane
-4. **Observability**: Set up monitoring with Elastic ECK and Prometheus (see [how-to-dp-aks-observability.md](how-to-dp-aks-observability.md))
+4. **Observability**: Set up monitoring with Elastic ECK and Prometheus (see [how-to-dp-aks-observability.html](how-to-dp-aks-observability.html))
 5. **Production Hardening**:
    - Replace self-signed certificates with Let's Encrypt or corporate CA
    - Configure backup and disaster recovery
@@ -2204,9 +2204,9 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 - [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
 - [TIBCO Helm Charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
-- [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
-- [DNS Configuration Guide](how-to-add-dns-records-aks-azure.md)
-- [Observability Setup Guide](how-to-dp-aks-observability.md)
+- [Prerequisites Checklist](prerequisites-checklist-for-customer.html)
+- [DNS Configuration Guide](how-to-add-dns-records-aks-azure.html)
+- [Observability Setup Guide](how-to-dp-aks-observability.html)
 
 ---
 

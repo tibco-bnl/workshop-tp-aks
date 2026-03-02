@@ -1275,10 +1275,10 @@ kubectl patch pvc -n elastic-system elasticsearch-data-dp-config-es-es-default-0
 
 ### Related Guides
 
-- [CP and DP Setup Guide](how-to-cp-and-dp-aks-setup-guide.md)
-- [DP-only Setup Guide](how-to-dp-aks-setup-guide.md)
-- [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
-- [DNS Configuration](how-to-add-dns-records-aks-azure.md)
+- [CP and DP Setup Guide](how-to-cp-and-dp-aks-setup-guide.html)
+- [DP-only Setup Guide](how-to-dp-aks-setup-guide.html)
+- [Prerequisites Checklist](prerequisites-checklist-for-customer.html)
+- [DNS Configuration](how-to-add-dns-records-aks-azure.html)
 
 ---
 
