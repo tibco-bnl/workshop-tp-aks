@@ -13,6 +13,8 @@ kramdown:
   hard_wrap: false
   parse_block_html: true  # Required for Mermaid diagrams
   syntax_highlighter: rouge
+  auto_ids: true  # Enable automatic heading IDs for anchor links
+  toc_levels: 1..6  # Table of contents levels
 
 # Site settings
 title: TIBCO Platform on AKS Workshop
