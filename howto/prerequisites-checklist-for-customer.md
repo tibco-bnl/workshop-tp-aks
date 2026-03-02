@@ -146,6 +146,7 @@ AKS uses Azure-managed storage with two primary types:
 - Developer Hub persistent storage
 
 **Specifications:**
+
 | Parameter | Value | Notes |
 |-----------|-------|-------|
 | **Storage Class** | `azure-disk-sc` (Premium_LRS) | For high-performance workloads |
@@ -162,6 +163,7 @@ AKS uses Azure-managed storage with two primary types:
 - Shared configuration files
 
 **Specifications:**
+
 | Parameter | Value | Notes |
 |-----------|-------|-------|
 | **Storage Class** | `azure-files-sc` | Premium_LRS for production |
