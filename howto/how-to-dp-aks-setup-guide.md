@@ -1172,7 +1172,7 @@ You have successfully deployed TIBCO Platform Data Plane on AKS connected to a S
 
 1. **Deploy Production Applications**: Use Control Plane UI to deploy BWCE and Flogo apps
 2. **Configure TLS Certificates**: Replace with Let's Encrypt or corporate CA certificates
-3. **Enable Observability**: Set up log forwarding and metrics collection (see [how-to-dp-aks-observability.html](how-to-dp-aks-observability.html))
+3. **Enable Observability**: Set up log forwarding and metrics collection (see [how-to-dp-aks-observability](how-to-dp-aks-observability))
 4. **Production Hardening**:
    - Enable network policies for pod-to-pod security
    - Configure pod security policies
@@ -1212,10 +1212,10 @@ kubectl scale deployment dp-core-ops -n $TP_DP_NAMESPACE --replicas=3
 ## References
 
 - [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
-- [Prerequisites Checklist](prerequisites-checklist-for-customer.html)
-- [Complete CP+DP Setup Guide](how-to-cp-and-dp-aks-setup-guide.html)
-- [DNS Configuration Guide](how-to-add-dns-records-aks-azure.html)
-- [Observability Setup](how-to-dp-aks-observability.html)
+- [Prerequisites Checklist](prerequisites-checklist-for-customer)
+- [Complete CP+DP Setup Guide](how-to-cp-and-dp-aks-setup-guide)
+- [DNS Configuration Guide](how-to-add-dns-records-aks-azure)
+- [Observability Setup](how-to-dp-aks-observability)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
 
 ---

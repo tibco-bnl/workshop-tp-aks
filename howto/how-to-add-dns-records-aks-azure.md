@@ -574,6 +574,6 @@ After configuring DNS:
 ---
 
 **Related Guides**:
-- [Prerequisites Checklist](./prerequisites-checklist-for-customer.html)
-- [Control Plane Setup Guide](./how-to-cp-and-dp-aks-setup-guide.html)
+- [Prerequisites Checklist](./prerequisites-checklist-for-customer)
+- [Control Plane Setup Guide](./how-to-cp-and-dp-aks-setup-guide)
 - [Certificate Generation Script](../scripts/generate-certificates.sh)

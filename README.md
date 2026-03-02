@@ -1,6 +1,6 @@
 # TIBCO Platform on Azure Kubernetes Service (AKS) Workshop
 
-> **Current Release:** [v1.14.0](./releases/v1.14.0.html) | **TIBCO Platform CP Version:** 1.14.0  
+> **Current Release:** [v1.14.0](./releases/v1.14.0) | **TIBCO Platform CP Version:** 1.14.0  
 > 📋 **Release History:** See `releases` folder for all versions
 
 This repository provides comprehensive guides and resources for deploying **TIBCO Platform** on **Azure Kubernetes Service (AKS)** clusters. It covers multiple deployment scenarios from basic AKS cluster setup to full Control Plane and Data Plane deployments with observability.
@@ -20,7 +20,7 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 
 ### 🏗️ Complete Setup Guides
 
-#### [📖 How to Set Up AKS Cluster with Control Plane and Data Plane](./howto/how-to-cp-and-dp-aks-setup-guide.html)
+#### [📖 How to Set Up AKS Cluster with Control Plane and Data Plane](./howto/how-to-cp-and-dp-aks-setup-guide)
 **Comprehensive guide for complete TIBCO Platform deployment**
 - 🎯 **Scope**: AKS cluster creation + Control Plane + Data Plane on same cluster
 - 🔧 **Features**: 
@@ -33,7 +33,7 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 - 📋 **Use Case**: Workshop environments, evaluation setups, complete standalone deployments
 - ⏱️ **Duration**: 3-4 hours for complete setup
 
-#### [📖 How to Set Up AKS Cluster for Data Plane Only](./howto/how-to-dp-aks-setup-guide.html)
+#### [📖 How to Set Up AKS Cluster for Data Plane Only](./howto/how-to-dp-aks-setup-guide)
 **Streamlined guide for Data Plane-only deployments**
 - 🎯 **Scope**: AKS cluster creation + Data Plane only (connects to SaaS Control Plane)
 - 🔧 **Features**:
@@ -46,7 +46,7 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 
 ### 🔍 Observability Setup
 
-#### [📖 How to Install Observability for Data Plane](./howto/how-to-dp-aks-observability.html)
+#### [📖 How to Install Observability for Data Plane](./howto/how-to-dp-aks-observability)
 **Complete observability stack setup for TIBCO Platform**
 - 🎯 **Scope**: Elastic ECK + Prometheus + Grafana for monitoring and logging
 - 🔧 **Features**:
@@ -60,7 +60,7 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 
 ### 🌐 DNS and Networking
 
-#### [📖 How to Add DNS Records for AKS Ingress](./howto/how-to-add-dns-records-aks-azure.html)
+#### [📖 How to Add DNS Records for AKS Ingress](./howto/how-to-add-dns-records-aks-azure)
 **DNS management for TIBCO Platform services**
 - 🎯 **Scope**: Azure DNS configuration for AKS ingress routing
 - 🔧 **Features**:
@@ -73,7 +73,7 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 
 ### 📋 Prerequisites and Planning
 
-#### [📖 Customer Prerequisites Checklist](./howto/prerequisites-checklist-for-customer.html)
+#### [📖 Customer Prerequisites Checklist](./howto/prerequisites-checklist-for-customer)
 **Comprehensive pre-installation requirements checklist**
 - 🎯 **Scope**: Complete prerequisites for Control Plane and Data Plane installation
 - 🔧 **Features**:
@@ -162,7 +162,7 @@ graph TD
 - ✅ Development and testing environments
 - ✅ Proof of concepts and demos
 
-**Follow:** [Complete Setup Guide](./howto/how-to-cp-and-dp-aks-setup-guide.html)
+**Follow:** [Complete Setup Guide](./howto/how-to-cp-and-dp-aks-setup-guide)
 
 ### Scenario 2: AKS Data Plane Connected to SaaS Control Plane
 ```mermaid
@@ -184,7 +184,7 @@ graph TD
 - ✅ Regional data plane deployments
 - ✅ Connecting to existing SaaS Control Plane
 
-**Follow:** [Data Plane Only Guide](./howto/how-to-dp-aks-setup-guide.html)
+**Follow:** [Data Plane Only Guide](./howto/how-to-dp-aks-setup-guide)
 
 ### Scenario 3: Enhanced Observability Setup
 ```mermaid
@@ -205,7 +205,7 @@ graph TD
 - ✅ Performance optimization
 - ✅ Compliance and audit logging
 
-**Follow:** [Observability Setup Guide](./howto/how-to-dp-aks-observability.html)
+**Follow:** [Observability Setup Guide](./howto/how-to-dp-aks-observability)
 
 ## 🚀 Quick Start
 
@@ -218,11 +218,11 @@ Before you begin, ensure you have:
 - Access to TIBCO container registry
 
 ### Step 1: Choose Your Scenario
-1. **Full Platform Deployment**: Follow the [Complete Setup Guide](./howto/how-to-cp-and-dp-aks-setup-guide.html)
-2. **Data Plane Only**: Follow the [Data Plane Guide](./howto/how-to-dp-aks-setup-guide.html)
+1. **Full Platform Deployment**: Follow the [Complete Setup Guide](./howto/how-to-cp-and-dp-aks-setup-guide)
+2. **Data Plane Only**: Follow the [Data Plane Guide](./howto/how-to-dp-aks-setup-guide)
 
 ### Step 2: Review Prerequisites
-Review the [Prerequisites Checklist](./howto/prerequisites-checklist-for-customer.html) to ensure all requirements are met.
+Review the [Prerequisites Checklist](./howto/prerequisites-checklist-for-customer) to ensure all requirements are met.
 
 ### Step 3: Configure Environment
 Use the [Environment Variables Script](./scripts/aks-env-variables.sh) to set up your environment variables.
@@ -310,16 +310,16 @@ workshop-tp-aks/
 ## 🎓 Learning Path
 
 ### Beginner Path (Evaluation/Workshop)
-1. Review [Prerequisites Checklist](./howto/prerequisites-checklist-for-customer.html)
-2. Follow [Complete Setup Guide](./howto/how-to-cp-and-dp-aks-setup-guide.html)
+1. Review [Prerequisites Checklist](./howto/prerequisites-checklist-for-customer)
+2. Follow [Complete Setup Guide](./howto/how-to-cp-and-dp-aks-setup-guide)
 3. Deploy sample applications
 4. Explore Control Plane UI
 
 ### Intermediate Path (Development)
 1. Review prerequisites
 2. Set up separate AKS clusters for CP and DP
-3. Configure [Observability](./howto/how-to-dp-aks-observability.html)
-4. Implement [DNS automation](./howto/how-to-add-dns-records-aks-azure.html)
+3. Configure [Observability](./howto/how-to-dp-aks-observability)
+4. Implement [DNS automation](./howto/how-to-add-dns-records-aks-azure)
 
 ### Advanced Path (Production)
 1. Design multi-region architecture
