@@ -58,6 +58,21 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 - 📋 **Use Case**: Production monitoring, troubleshooting, performance analysis
 - ⏱️ **Duration**: 1-2 hours
 
+### 🔧 Post-Deployment Capability Configuration
+
+#### [📖 How to Upload Driver Supplements to BW6 Capability](./howto/how-to-upload-bw6-driver-supplements.md)
+**Supplementing Oracle and EMS drivers for TIBCO BusinessWorks 6 (Containers)**
+- 🎯 **Scope**: Upload Oracle Database and EMS client library drivers to BW6 capability
+- 🔧 **Features**:
+  - Oracle Database driver preparation and packaging
+  - EMS client libraries preparation and packaging
+  - Step-by-step upload process via Control Plane UI
+  - Troubleshooting common upload issues
+  - Verification and testing procedures
+- 📋 **Use Case**: Oracle database integration, EMS messaging integration, driver supplementation
+- ⏱️ **Duration**: 15-30 minutes per driver
+- 🎁 **Benefits**: Enables Oracle and EMS connectivity for BW6 applications
+
 ### 🌐 DNS and Networking
 
 #### [📖 How to Add DNS Records for AKS Ingress](./howto/how-to-add-dns-records-aks-azure.md)
