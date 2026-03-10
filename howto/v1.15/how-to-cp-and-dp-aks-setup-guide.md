@@ -1,3 +1,8 @@
+---
+layout: default
+title: How to Set Up AKS Cluster with Control Plane and Data Plane (v1.15.0)
+---
+
 # How to Set Up AKS Cluster with Control Plane and Data Plane (v1.15.0)
 
 > **Version:** 1.15.0 | **Platform:** Azure Kubernetes Service (AKS) | **Last Updated:** March 10, 2026

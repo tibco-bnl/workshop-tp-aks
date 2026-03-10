@@ -14,16 +14,16 @@ This repository provides comprehensive guides and resources for deploying **TIBC
 - ✅ **Latest Features**: Enhanced security, improved network policies, unified chart deployment
 - ✅ **New Capabilities**: Event processing, updated Developer Hub 1.15.14
 - ✅ **Better Observability**: Improved monitoring and logging stack
-- 📘 [Setup Guide: CP + DP (v1.15)](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide.md)
-- 📘 [Setup Guide: DP Only  (v1.15)](./howto/v1.15/how-to-dp-aks-setup-guide.md)
-- 📋 [Release Notes (v1.15.0)](./releases/v1.15.0.md)
+- 📘 [Setup Guide: CP + DP (v1.15)](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide)
+- 📘 [Setup Guide: DP Only  (v1.15)](./howto/v1.15/how-to-dp-aks-setup-guide)
+- 📋 [Release Notes (v1.15.0)](./releases/v1.15.0)
 
-### 📦 Version 1.14.0 (Previous Release - Stable)
+### 📦 Version 1.14.0 (Previous Release)
 - ✅ **Proven Stability**: Production-tested and widely deployed
 - ✅ **Complete Documentation**: Comprehensive battle-tested guides
-- 📘 [Setup Guide: CP + DP (v1.14)](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide.md)
-- 📘 [Setup Guide: DP Only (v1.14)](./howto/v1.14/how-to-dp-aks-setup-guide.md)
-- 📋 [Release Notes (v1.14.0)](./releases/v1.14.0.md)
+- 📘 [Setup Guide: CP + DP (v1.14)](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide)
+- 📘 [Setup Guide: DP Only (v1.14)](./howto/v1.14/how-to-dp-aks-setup-guide)
+- 📋 [Release Notes (v1.14.0)](./releases/v1.14.0)
 
 ### 🔄 Upgrading from v1.14.0 to v1.15.0
 TIBCO provides an automated upgrade script. See the [Upgrade Path section](./releases/v1.15.0.md#upgrade-path) in the v1.15.0 release notes.
@@ -46,23 +46,23 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 ### 🏗️ Version-Specific Setup Guides
 
 #### Version 1.15.0 (Current Release)
-**[📖 How to Set Up AKS Cluster with Control Plane and Data Plane (v1.15)](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide.md)**
+**[📖 How to Set Up AKS Cluster with Control Plane and Data Plane (v1.15)](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide)**
 - 🎯 **Scope**: Complete TIBCO Platform 1.15.0 deployment on AKS
 - 🔧 **New Features**: Enhanced secrets management, improved network policies, unified chart deployment
 - ⏱️ **Duration**: 3-4 hours
 
-**[📖 How to Set Up AKS Cluster for Data Plane Only (v1.15)](./howto/v1.15/how-to-dp-aks-setup-guide.md)**
+**[📖 How to Set Up AKS Cluster for Data Plane Only (v1.15)](./howto/v1.15/how-to-dp-aks-setup-guide)**
 - 🎯 **Scope**: Data Plane 1.15.0 deployment connecting to SaaS Control Plane
 - 🔧 **Features**: Simplified deployment with updated infrastructure charts
 - ⏱️ **Duration**: 1-2 hours
 
 #### Version 1.14.0 (Previous Release)
-**[📖 How to Set Up AKS Cluster with Control Plane and Data Plane (v1.14)](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide.md)**
+**[📖 How to Set Up AKS Cluster with Control Plane and Data Plane (v1.14)](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide)**
 - 🎯 **Scope**: Complete TIBCO Platform 1.14.0 deployment on AKS
 - 📋 **Features**: Azure environment preparation, PostgreSQL, DNS, certificates, CP + DP deployment
 - ⏱️ **Duration**: 3-4 hours
 
-**[📖 How to Set Up AKS Cluster for Data Plane Only (v1.14)](./howto/v1.14/how-to-dp-aks-setup-guide.md)**
+**[📖 How to Set Up AKS Cluster for Data Plane Only (v1.14)](./howto/v1.14/how-to-dp-aks-setup-guide)**
 - 🎯 **Scope**: Data Plane 1.14.0 deployment connecting to SaaS Control Plane
 - 📋 **Features**: Simplified AKS setup, DP configurations, capability provisioning
 - ⏱️ **Duration**: 1-2 hours
