@@ -57,7 +57,7 @@ This guide provides instructions for deploying **TIBCO Platform Data Plane versi
 
 ## What's New in v1.15.0
 
-### Breaking Changes from v1.14.0
+### Breaking Changes
 - ⚠️ **Helm 3.13+ Required**: New label-based deployment tracking
 - ⚠️ **Network Policy Updates**: Enhanced namespace labeling requirements
 - ⚠️ **Infrastructure Chart Changes**: New `dp-core-infrastructure` chart structure

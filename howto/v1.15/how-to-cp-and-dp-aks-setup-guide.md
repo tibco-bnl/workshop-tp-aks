@@ -57,7 +57,7 @@ This guide provides comprehensive instructions for deploying **TIBCO Platform Co
 
 ## What's New in v1.15.0
 
-### Breaking Changes from v1.14.0
+### Breaking Changes
 - ⚠️ **Helm 3.13+ Required**: New label-based deployment tracking
 - ⚠️ **New Secret Requirements**: Session keys and encryption secrets now mandatory
 - ⚠️ **Certificate Structure Changed**: Separate certificates for `my` and `tunnel` domains recommended
