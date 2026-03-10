@@ -11,8 +11,8 @@ This document lists all external URLs and endpoints that need to be accessible f
 
 **📖 Before configuring your firewall, review the official TIBCO Platform documentation:**
 
-- **[TIBCO Platform Whitelisting Requirements](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/whitelisting-requirements.htm)** - Official Control Plane firewall requirements
-- **[Pushing Images to Custom Container Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)** - Container registry authentication and access
+- **[TIBCO Platform Whitelisting Requirements](https://docs.tibco.com/pub/platform-cp/latest/doc/html/UserGuide/whitelisting-requirements.htm)** - Official Control Plane firewall requirements
+- **[Pushing Images to Custom Container Registry](https://docs.tibco.com/pub/platform-cp/latest/doc/html/UserGuide/pushing-images-to-registry.htm)** - Container registry authentication and access
 - **[TIBCO Platform Helm Charts Repository](https://github.com/TIBCOSoftware/tp-helm-charts)** - Official Helm charts and deployment guides
 
 ---
@@ -45,7 +45,7 @@ These registries host the container images used by TIBCO Platform and its depend
 
 **⚠️ IMPORTANT:** This is the main TIBCO container registry. Access requires authentication with JFrog credentials.
 
-**📖 Documentation**: [Pushing Images to Custom Container Registry](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/UserGuide/pushing-images-to-registry.htm)
+**📖 Documentation**: [Pushing Images to Custom Container Registry](https://docs.tibco.com/pub/platform-cp/latest/doc/html/UserGuide/pushing-images-to-registry.htm)
 
 ---
 
@@ -346,7 +346,7 @@ export no_proxy="$NO_PROXY"
 
 After installing the TIBCO Platform Control Plane, configure proxy settings through the UI or via Helm values.
 
-**Reference Documentation**: [TIBCO Platform - Updating Proxy Configuration](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm#UserGuide/updating-proxy-configuration.htm)
+**Reference Documentation**: [TIBCO Platform - Updating Proxy Configuration](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#UserGuide/updating-proxy-configuration.htm)
 
 #### Option 1: Configure via Control Plane UI
 
@@ -827,7 +827,7 @@ If firewall approval is denied or delayed, consider air-gapped deployment:
 ## 17. References
 
 - [TIBCO Platform Helm Charts](https://github.com/TIBCOSoftware/tp-helm-charts)
-- [TIBCO Platform Proxy Configuration](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm#UserGuide/updating-proxy-configuration.htm)
+- [TIBCO Platform Proxy Configuration](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#UserGuide/updating-proxy-configuration.htm)
 - [Azure Kubernetes Service Network Concepts](https://learn.microsoft.com/en-us/azure/aks/concepts-network)
 - [Azure Firewall Application Rules](https://learn.microsoft.com/en-us/azure/firewall/rule-processing)
 - [AKS Outbound Network Rules](https://learn.microsoft.com/en-us/azure/aks/limit-egress-traffic)
