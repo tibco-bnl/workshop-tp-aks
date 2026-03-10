@@ -24,12 +24,6 @@ repository: tibco-bnl/workshop-tp-aks
 # Enable GitHub metadata
 plugins:
   - jekyll-github-metadata
-  - jekyll-relative-links
-
-# Relative links configuration
-relative_links:
-  enabled: true
-  collections: true
 
 # Include files
 include:
