@@ -569,103 +569,458 @@ kubectl create secret docker-registry tibco-jfrog-cred \
 
 ### 9.2 Create Control Plane Values File
 
-Create `cp-values.yaml`:
+Create a comprehensive `cp-values.yaml` file with all required configurations:
 
-```yaml
-# cp-values.yaml for TIBCO Platform Control Plane v1.15.0
+> [!IMPORTANT]
+> **Critical Configuration**: This values file includes **all required configuration sections** based on the official TIBCO Platform deployment requirements:
+> - **Database connection details** (required)
+> - **Email server configuration** (required for user activation)
+> - **Admin user configuration** (required)
+> - **Encryption secret configuration** (required for platform security)
+> - **Session keys** (required for authentication)
+> - **Network configuration** (required for proper cluster communication)
+> - **Storage configuration** (required for persistence)
+> - **Resource requests** (optional, but recommended for production)
+>
+> If any critical sections are missing, the Control Plane deployment will fail.
 
+```bash
+cat > cp-values.yaml <<'EOF'
+# ========================================
+# GLOBAL CONFIGURATION
+# ========================================
 global:
+  external:
+    # Encryption configuration (MANDATORY in v1.15.0)
+    cpEncryptionSecretName: cporch-encryption-secret
+    cpEncryptionSecretKey: CP_ENCRYPTION_SECRET
+    
+    # Cluster network information
+    clusterInfo:
+      nodeCIDR: ${TP_VNET_CIDR}
+      podCIDR: ${TP_VNET_CIDR}
+      serviceCIDR: ${TP_SERVICE_CIDR}
+    
+    # DNS domains
+    dnsDomain: ${CP_MY_DNS_DOMAIN}
+    dnsTunnelDomain: ${CP_TUNNEL_DNS_DOMAIN}
+    
+    # Storage configuration
+    storage:
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azure-files-sc
+    
+    # Database configuration (MANDATORY)
+    db_host: ${CP_DB_HOST}
+    db_name: ${CP_DB_NAME}
+    db_password: ${CP_DB_PASSWORD}
+    db_port: ${CP_DB_PORT}
+    db_secret_name: ${CP_DB_SECRET_NAME}
+    db_ssl_mode: ${CP_DB_SSL_MODE}
+    db_username: ${CP_DB_USERNAME}
+    
+    # Email server configuration (MANDATORY)
+    emailServerType: ${CP_EMAIL_SERVER_TYPE}
+    emailServer:
+      smtp:
+        server: ${CP_EMAIL_SMTP_SERVER}
+        port: ${CP_EMAIL_SMTP_PORT}
+        username: ${CP_EMAIL_SMTP_USERNAME}
+        password: ${CP_EMAIL_SMTP_PASSWORD}
+    
+    # Admin user configuration (MANDATORY)
+    admin:
+      email: ${CP_ADMIN_EMAIL}
+      firstname: ${CP_ADMIN_FIRSTNAME}
+      lastname: ${CP_ADMIN_LASTNAME}
+      customerID: ${CP_ADMIN_CUSTOMER_ID}
+  
   tibco:
-    serviceAccount: control-plane-sa
+    # Container registry configuration
     containerRegistry:
-      url: tibco-jfrog-docker.jfrog.io
-      username: ${TIBCO_REGISTRY_USER}  # Replace
-      password: ${TIBCO_REGISTRY_PASSWORD}  # Replace
+      url: ${TP_CONTAINER_REGISTRY_URL}
+      username: ${TP_CONTAINER_REGISTRY_USER}
+      password: ${TP_CONTAINER_REGISTRY_PASSWORD}
+      repository: ${TP_CONTAINER_REGISTRY_REPOSITORY}
     
-    controlPlaneInstanceId: ${CP_INSTANCE_ID}  # Replace
+    # Control plane instance identifier
+    controlPlaneInstanceId: ${CP_INSTANCE_ID}
     
-    createNetworkPolicy: true
+    # Service account
+    serviceAccount: ${CP_INSTANCE_ID}-sa
+    
+    # Network policies
+    createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
     
     # Logging configuration
     logging:
       fluentbit:
-        enabled: true
-        image:
-          tag: 3.1.9
+        enabled: false
 
-# PostgreSQL external database configuration
-postgreSQL:
-  enabled: false
-  
-externalPostgreSQL:
+# ========================================
+# BOOTSTRAP COMPONENTS
+# ========================================
+hybrid-proxy:
   enabled: true
-  host: tp-postgres-postgresql.postgres.svc.cluster.local
-  port: 5432
-  database: tpcp
-  username: postgres
-  password: ${PG_PASSWORD}  # Replace with actual password
-
-# Storage for EMS
-emsserver:
-  persistence:
-    storageClassName: azure-disk-sc
-
-# Ingress configuration (Traefik)
-ingress:
-  enabled: true
-  ingressClassName: traefik
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-  
-  # Certificate for "my" domain
-  tls:
-    - secretName: my-domain-cert
-      hosts:
-        - "*.my.${CP_INSTANCE_ID}.${TP_DOMAIN}"  # Replace
-  
-  # Tunnel certificate (separate)
-  tunnelTls:
-    secretName: tunnel-domain-cert
+  enableWebHooks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  ingress:
+    enabled: true
+    ingressClassName: ${TP_INGRESS_CLASS}
+    tls:
+      - secretName: ${CP_TUNNEL_TLS_SECRET_NAME}
+        hosts:
+          - '*.${CP_TUNNEL_DNS_DOMAIN}'
     hosts:
-      - "*.tunnel.${CP_INSTANCE_ID}.${TP_DOMAIN}"  # Replace
+      - host: '*.${CP_TUNNEL_DNS_DOMAIN}'
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 105
 
-# MailDev for email notifications (embedded)
-maildev:
+otel-collector:
+  enabled: false
+
+resource-set-operator:
+  enabled: true
+  enableWebHooks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+router-operator:
+  enabled: true
+  enableWebHooks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  tscSessionKey:
+    secretName: session-keys
+    key: TSC_SESSION_KEY
+  domainSessionKey:
+    secretName: session-keys
+    key: DOMAIN_SESSION_KEY
+  ingress:
+    enabled: true
+    ingressClassName: ${TP_INGRESS_CLASS}
+    tls:
+      - secretName: ${CP_MY_TLS_SECRET_NAME}
+        hosts:
+          - '*.${CP_MY_DNS_DOMAIN}'
+    hosts:
+      - host: '*.${CP_MY_DNS_DOMAIN}'
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+
+# ========================================
+# BASE COMPONENTS
+# ========================================
+tp-cp-infra:
+  enabled: true
+  resources:
+    infra-compute-services:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    infra-alerts-services:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+
+tp-cp-o11y:
+  enabled: true
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+tp-cp-configuration:
+  tp-cp-subscription:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+tp-cp-recipes:
   enabled: true
 
-# Developer Hub
-developer-hub:
+tp-cp-core:
+  cronjobs:
+    cpcronjobservice:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+    replicaCount: 1
+  identity-management:
+    idm:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 1024Mi
+    replicaCount: 1
+  identity-provider:
+    replicaCount: 1
+    tpcpidpservice:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+  orchestrator:
+    cporchservice:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 256Mi
+    replicaCount: 1
+  pengine:
+    replicaCount: 1
+    tpcppengineservice:
+      resources:
+        requests:
+          cpu: 300m
+          memory: 128Mi
+  user-subscriptions:
+    cpusersubservice:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 128Mi
+    replicaCount: 1
+  web-server:
+    cpwebserver:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    replicaCount: 1
+
+tp-cp-core-finops:
+  finops-otel-collector:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  finops-service:
+    finopsservice:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+  monitoring-service:
+    monitoringservice:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+    replicaCount: 1
+
+tp-cp-integration:
+  enabled: true
+  tp-cp-integration-common:
+    fileserver:
+      enabled: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+  tp-cp-integration-bw:
+    enabled: true
+    bw-webserver:
+      bwwebserver:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+  tp-cp-integration-flogo:
+    enabled: true
+    flogo-webserver:
+      flogowebserver:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+  tp-cp-bwce-utilities:
+    enabled: true
+  tp-cp-bw5ce-utilities:
+    enabled: true
+  tp-cp-flogo-utilities:
+    enabled: true
+
+tp-cp-tibcohub-contrib:
   enabled: true
 
-# Identity Management
-identity-management:
+tibco-cp-messaging:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+tp-cp-hawk-recipes:
   enabled: true
 
-# Compute services
-compute-services:
+tp-cp-hawk:
   enabled: true
+  tp-cp-hawk-infra-querynode:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+tp-cp-cli:
+  enabled: true
+
+tp-cp-alertmanager:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+tp-cp-prometheus:
+  server:
+    retention: "15d"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+tp-cp-auditsafe:
+  enabled: true
+  auditsafe:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+EOF
 ```
+
+> [!NOTE]
+> **Configuration Notes:**
+> - Replace all `${VARIABLE_NAME}` placeholders with actual values from your environment
+> - Database configuration requires actual PostgreSQL connection details
+> - Email server configuration is mandatory for user activation
+> - Session keys and encryption secrets must be created before deployment (Steps 6 & 7)
+> - TLS secrets must exist in the namespace before deployment (Step 8)
+> - Network CIDR values should match your AKS cluster configuration
+
+> [!TIP]
+> **Alternative: Use envsubst for Variable Substitution**
+> ```bash
+> # If you have all environment variables exported, use envsubst:
+> envsubst < cp-values.yaml > cp-values-filled.yaml
+> 
+> # Then use the filled values file:
+> helm install tp-cp tibco-platform/tibco-cp-base \
+>   --namespace ${TP_CP_NS} \
+>   --values cp-values-filled.yaml \
+>   --labels "layer=0" \
+>   --wait \
+>   --timeout=30m
+> ```
 
 ### 9.3 Deploy Control Plane
 ```bash
 # Deploy Control Plane using tibco-cp-base chart
-helm install tp-cp tibco-platform/tibco-cp-base \
-  --namespace ${TP_CP_NS} \
-  --values cp-values.yaml \
-  --labels "layer=1" \
-  --wait \
-  --timeout=30m
+helm upgrade --install --wait --timeout 1h --create-namespace \
+  -n ${TP_CP_NS} tp-cp tibco-platform/tibco-cp-base \
+  --labels "layer=0" \
+  --values cp-values.yaml
 
 # Check deployment status
 kubectl get pods -n ${TP_CP_NS}
 ```
+
+> [!NOTE]
+> **Label Explanation:** The `--labels "layer=0"` flag is required in v1.15.0 for deployment tracking. Layer 0 indicates base Control Plane infrastructure components.
 
 ### 9.4 Wait for Control Plane Pods to be Ready
 ```bash
 # Wait for all pods to be running (may take 10-15 minutes)
 kubectl wait --for=condition=ready pod --all -n ${TP_CP_NS} --timeout=900s
 ```
+
+### 9.5 Install Capability Charts (Required for BWCE, Flogo, and EMS)
+
+> [!IMPORTANT]
+> **Capability Charts**: To enable BWCE, BW5, and Flogo provisioning, you must install the corresponding capability charts.  These charts extend the Control Plane with specific integration runtime capabilities.
+
+The capability charts (`tibco-cp-bw`, `tibco-cp-flogo`, `tibco-cp-messaging`) use the same configuration values as the base `tibco-cp-base chart. You can either reuse the `cp-values.yaml` file or extract values from the deployed release.
+
+**Option 1: Using existing values file**
+```bash
+# Install BWCE & BW5 capability chart
+helm upgrade --install --wait --timeout 15m \
+  -n ${TP_CP_NS} tibco-cp-bw tibco-platform/tibco-cp-bw \
+  --labels layer=1 \
+  --values cp-values.yaml
+
+# Install Flogo capability chart
+helm upgrade --install --wait --timeout 15m \
+  -n ${TP_CP_NS} tibco-cp-flogo tibco-platform/tibco-cp-flogo \
+  --labels layer=1 \
+  --values cp-values.yaml
+
+# Install EMS (Messaging) capability chart
+helm upgrade --install --wait --timeout 15m \
+  -n ${TP_CP_NS} tibco-cp-messaging tibco-platform/tibco-cp-messaging \
+  --labels layer=1 \
+  --values cp-values.yaml
+```
+
+**Option 2: Extract values from deployed Control Plane release**
+```bash
+# Extract values from the deployed tibco-cp-base release
+helm get values tp-cp -n ${TP_CP_NS} -o yaml > capability-values.yaml
+
+# Install capability charts using extracted values
+helm upgrade --install --wait --timeout 15m \
+  -n ${TP_CP_NS} tibco-cp-bw tibco-platform/tibco-cp-bw \
+  --labels layer=1 \
+  --values capability-values.yaml
+
+helm upgrade --install --wait --timeout 15m \
+  -n ${TP_CP_NS} tibco-cp-flogo tibco-platform/tibco-cp-flogo \
+  --labels layer=1 \
+  --values capability-values.yaml
+
+helm upgrade --install --wait --timeout 15m \
+  -n ${TP_CP_NS} tibco-cp-messaging tibco-platform/tibco-cp-messaging \
+  --labels layer=1 \
+  --values capability-values.yaml
+```
+
+**Verify capability chart installations:**
+```bash
+# Check all Helm releases in the Control Plane namespace
+helm list -n ${TP_CP_NS}
+
+# Expected output should show:
+# - tp-cp (tibco-cp-base)
+# - tibco-cp-bw
+# - tibco-cp-flogo
+# - tibco-cp-messaging
+
+# Verify pods are running
+kubectl get pods -n ${TP_CP_NS} | grep -E 'bw|flogo|messaging'
+```
+
+> [!NOTE]
+> **Chart Version Compatibility**: The capability charts should use the **same version** as the `tibco-cp-base` chart (1.15.0).
+>
+> **Installation Time**: Each capability chart typically takes 5-10 minutes to install. The `--wait` flag ensures Helm waits for all resources to be ready before completing.
+
+> [!TIP]
+> **Selective Installation**: If you only need specific capabilities, you can install only the required capability charts. For example, if you only plan to use BWCE, you can install only `tibco-cp-bw` and skip the others.
 
 ---
 
