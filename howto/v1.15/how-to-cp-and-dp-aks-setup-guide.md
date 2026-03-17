@@ -57,10 +57,16 @@ This guide provides comprehensive instructions for deploying **TIBCO Platform Co
 
 ## What's New in v1.15.0
 
+### Major Architectural Changes
+- 🎯 **DNS Simplification**: Single-level subdomain structure (`admin.example.com` vs `admin.cp1-my.apps.example.com`)
+- 🎯 **Hybrid Connectivity Optional**: `hybrid-proxy` component now optional for standalone deployments
+- 🎯 **Flexible Certificate Management**: Support for single wildcard certificate or separate certificates per subdomain
+- 🎯 **Simplified Configuration**: Fewer environment variables, clearer separation of required vs optional components
+
 ### Breaking Changes
 - ⚠️ **Helm 3.13+ Required**: New label-based deployment tracking
 - ⚠️ **New Secret Requirements**: Session keys and encryption secrets now mandatory
-- ⚠️ **Certificate Structure Changed**: Separate certificates for `my` and `tunnel` domains recommended
+- ⚠️ **DNS Structure Options**: Two supported patterns (simplified and legacy) - see [Configuration Guide](./DNS-CONFIGURATION-QUICK-REFERENCE.md)
 - ⚠️ **Network Policy Updates**: Enhanced namespace labeling requirements
 - ⚠️ **Environment Variable Changes**: New naming conventions (TP_ and CP_ prefixes)
 
@@ -71,12 +77,24 @@ This guide provides comprehensive instructions for deploying **TIBCO Platform Co
 - ✅ **Developer Hub 1.15.14**: Updated with new capabilities
 - ✅ **Observability Service 1.15.19**: Enhanced monitoring integration
 - ✅ **Event Processing**: New addon for event-driven architectures
+- ✅ **Optional Hybrid-Proxy**: Reduce resource usage by 50% when hybrid connectivity not needed
+
+### Resource Savings
+When hybrid connectivity is disabled (`CP_HYBRID_CONNECTIVITY="false"`):
+- **CPU Savings**: ~2 vCPU (hybrid-proxy pods)
+- **Memory Savings**: ~4 Gi RAM
+- **Pod Count**: 3-5 fewer pods
+- **Deployment Time**: 20-30% faster
 
 ### Compatibility
 - **Kubernetes:** 1.32+ (CNCF certified)
 - **Helm:** 3.13+
 - **PostgreSQL:** 16.x
 - **Azure:** AKS with Kubernetes 1.32+
+
+### DNS Architecture Documentation
+- **Changes Overview**: [DNS Simplification Guide](./CHANGES-1.15.0-DNS-SIMPLIFICATION.md)
+- **Quick Reference**: [DNS Configuration Quick Reference](./DNS-CONFIGURATION-QUICK-REFERENCE.md)
 
 ---
 
@@ -237,7 +255,69 @@ Load the environment variables:
 source ~/aks-tp-v15-env.sh
 ```
 
-### 1.3 Create Resource Group
+### 1.3 DNS Configuration Options (New in v1.15.0)
+
+TIBCO Platform 1.15.0 introduces **simplified DNS architecture** that gives you two configuration options. Choose based on your requirements:
+
+#### **Option 1: Simplified DNS (Recommended)**
+- Single-level subdomain structure: `admin.example.com`, `dev.example.com`
+- Single wildcard certificate covers all subdomains: `*.example.com`
+- Hybrid-proxy is **optional** - only needed for hybrid/multi-cloud scenarios
+- **50% resource savings** when hybrid-proxy disabled
+- Easier certificate management and DNS configuration
+
+**Use when:**
+- New deployments
+- Standalone Control Plane and Data Plane in same cluster
+- Workshop or evaluation environments
+- Want simplified configuration
+
+```bash
+# Add to your environment variables file
+export TP_BASE_DNS_DOMAIN="example.com"  # Your base domain
+export CP_ADMIN_HOST_PREFIX="admin"      # Admin UI subdomain
+export CP_SUBSCRIPTION="dev"             # Subscription subdomain
+export CP_HYBRID_CONNECTIVITY="false"    # Set to "true" if hybrid needed
+```
+
+**DNS Records Required:**
+```
+admin.example.com    -> AKS Ingress IP
+dev.example.com      -> AKS Ingress IP
+tunnel.example.com   -> AKS Ingress IP (ONLY if CP_HYBRID_CONNECTIVITY="true")
+```
+
+#### **Option 2: Legacy DNS (Backward Compatible)**
+- Multi-level subdomain structure: `admin.my.cp1.example.com`
+- Separate wildcards for MY and TUNNEL domains
+- Hybrid-proxy typically enabled
+- Compatible with 1.14.x configurations
+
+**Use when:**
+- Upgrading from 1.14.x
+- Need backward compatibility
+- Existing DNS/certificate infrastructure
+
+```bash
+# Add to your environment variables file
+export CP_INSTANCE_ID="cp1"
+export MY_DOMAIN="my.${CP_INSTANCE_ID}.${TP_DOMAIN}"
+export TUNNEL_DOMAIN="tunnel.${CP_INSTANCE_ID}.${TP_DOMAIN}"
+export CP_HYBRID_CONNECTIVITY="true"
+```
+
+**DNS Records Required:**
+```
+*.my.cp1.example.com      -> AKS Ingress IP
+*.tunnel.cp1.example.com  -> AKS Ingress IP
+```
+
+> [!TIP]
+> **Quick Decision Guide:**  
+> Use **Option 1 (Simplified)** for new deployments and set `CP_HYBRID_CONNECTIVITY="false"` unless you need to connect Data Planes from other clouds or on-premises.  
+> See [DNS Configuration Quick Reference](./DNS-CONFIGURATION-QUICK-REFERENCE.md) for detailed guidance.
+
+### 1.4 Create Resource Group
 ```bash
 # Create resource group
 az group create \
@@ -509,12 +589,77 @@ kubectl get secret cporch-encryption-secret -n ${TP_CP_NS}
 
 ## Step 8: Create Certificates
 
-**Changed in v1.15.0:** Separate certificates for `my` and `tunnel` domains are recommended.
+**Changed in v1.15.0:** Choose between simplified single wildcard certificate or separate domain certificates based on your DNS configuration.
 
-### 8.1 Generate Self-Signed Certificates
+> [!IMPORTANT]
+> **Certificate Strategy:**  
+> - **Option 1 (Simplified DNS):** Use single wildcard certificate for `*.example.com`  
+> - **Option 2 (Legacy DNS):** Use separate certificates for `*.my.cp1.example.com` and `*.tunnel.cp1.example.com`
+
+### Configuration 1: Simplified DNS - Single Wildcard Certificate (Recommended)
+
+Use this approach if you configured **Option 1: Simplified DNS** in Step 1.3.
 
 ```bash
-# Set subdomain variables
+# Create temporary certificate directory
+mkdir -p ~/tp-certs
+cd ~/tp-certs
+
+# Generate single wildcard certificate that covers all subdomains
+openssl req -x509 -newkey rsa:4096 -nodes -days 365 \
+  -keyout star.${TP_BASE_DNS_DOMAIN}.key \
+  -out star.${TP_BASE_DNS_DOMAIN}.crt \
+  -subj "/CN=*.${TP_BASE_DNS_DOMAIN}" \
+  -addext "subjectAltName=DNS:*.${TP_BASE_DNS_DOMAIN},DNS:${TP_BASE_DNS_DOMAIN}"
+
+# This certificate covers:
+# - admin.example.com
+# - dev.example.com
+# - tunnel.example.com (if hybrid connectivity enabled)
+# - Any future subdomains under example.com
+
+# Create Kubernetes secret
+kubectl create secret tls base-domain-cert \
+  --namespace ${TP_CP_NS} \
+  --cert=star.${TP_BASE_DNS_DOMAIN}.crt \
+  --key=star.${TP_BASE_DNS_DOMAIN}.key
+
+# Verify the certificate
+kubectl get secret base-domain-cert -n ${TP_CP_NS}
+
+# Optional: View certificate details
+kubectl get secret base-domain-cert -n ${TP_CP_NS} -o jsonpath='{.data.tls\.crt}' | \
+  base64 -d | openssl x509 -text -noout | grep -A2 "Subject:"
+```
+
+> [!TIP]
+> **For Production with Let's Encrypt:**
+> ```bash
+> # Install certbot with Azure DNS plugin
+> pip3 install certbot certbot-dns-azure
+> 
+> # Generate wildcard certificate
+> certbot certonly \
+>   --dns-azure \
+>   --dns-azure-credentials ~/.azure/certbot.ini \
+>   -d "*.${TP_BASE_DNS_DOMAIN}" \
+>   -d "${TP_BASE_DNS_DOMAIN}"
+> 
+> # Create Kubernetes secret from Let's Encrypt certificates
+> kubectl create secret tls base-domain-cert \
+>   --namespace ${TP_CP_NS} \
+>   --cert=/etc/letsencrypt/live/${TP_BASE_DNS_DOMAIN}/fullchain.pem \
+>   --key=/etc/letsencrypt/live/${TP_BASE_DNS_DOMAIN}/privkey.pem
+> ```
+
+---
+
+### Configuration 2: Legacy DNS - Separate Domain Certificates
+
+Use this approach if you configured **Option 2: Legacy DNS** in Step 1.3 or upgrading from 1.14.x.
+
+```bash
+# Set subdomain variables (if not already set)
 export CP_INSTANCE_ID="${TP_CLUSTER_NAME}"
 export MY_DOMAIN="my.${CP_INSTANCE_ID}.${TP_DOMAIN}"
 export TUNNEL_DOMAIN="tunnel.${CP_INSTANCE_ID}.${TP_DOMAIN}"
@@ -534,17 +679,13 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout tunnel-tls.key \
   -out tunnel-tls.crt \
   -subj "/CN=*.${TUNNEL_DOMAIN}"
-```
 
-### 8.2 Create Kubernetes Secrets for Certificates
-```bash
-# Create secret for "my" domain certificate
+# Create secrets for both certificates
 kubectl create secret tls my-domain-cert \
   --namespace ${TP_CP_NS} \
   --cert=my-tls.crt \
   --key=my-tls.key
 
-# Create secret for "tunnel" domain certificate
 kubectl create secret tls tunnel-domain-cert \
   --namespace ${TP_CP_NS} \
   --cert=tunnel-tls.crt \
@@ -553,6 +694,80 @@ kubectl create secret tls tunnel-domain-cert \
 # Verify
 kubectl get secrets -n ${TP_CP_NS} | grep -E 'my-domain-cert|tunnel-domain-cert'
 ```
+
+---
+
+### 8.2 DNS Record Creation
+
+After generating certificates, create DNS records pointing to your AKS ingress IP.
+
+```bash
+# Get the ingress controller external IP
+export INGRESS_IP=$(kubectl get svc -n ingress-traefik traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+# OR for NGINX:
+# export INGRESS_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+echo "Ingress IP: ${INGRESS_IP}"
+```
+
+#### For Simplified DNS (Configuration 1):
+```bash
+# Create A records in Azure DNS
+az network dns record-set a add-record \
+  --resource-group ${DNS_RESOURCE_GROUP} \
+  --zone-name ${TP_BASE_DNS_DOMAIN} \
+  --record-set-name admin \
+  --ipv4-address ${INGRESS_IP}
+
+az network dns record-set a add-record \
+  --resource-group ${DNS_RESOURCE_GROUP} \
+  --zone-name ${TP_BASE_DNS_DOMAIN} \
+  --record-set-name ${CP_SUBSCRIPTION} \
+  --ipv4-address ${INGRESS_IP}
+
+# Add tunnel record ONLY if CP_HYBRID_CONNECTIVITY="true"
+if [ "${CP_HYBRID_CONNECTIVITY}" = "true" ]; then
+  az network dns record-set a add-record \
+    --resource-group ${DNS_RESOURCE_GROUP} \
+    --zone-name ${TP_BASE_DNS_DOMAIN} \
+    --record-set-name tunnel \
+    --ipv4-address ${INGRESS_IP}
+fi
+
+# Verify DNS resolution
+nslookup admin.${TP_BASE_DNS_DOMAIN}
+nslookup ${CP_SUBSCRIPTION}.${TP_BASE_DNS_DOMAIN}
+```
+
+#### For Legacy DNS (Configuration 2):
+```bash
+# Create wildcard A records
+az network dns record-set a add-record \
+  --resource-group ${DNS_RESOURCE_GROUP} \
+  --zone-name ${TP_DOMAIN} \
+  --record-set-name "*.my.${CP_INSTANCE_ID}" \
+  --ipv4-address ${INGRESS_IP}
+
+az network dns record-set a add-record \
+  --resource-group ${DNS_RESOURCE_GROUP} \
+  --zone-name ${TP_DOMAIN} \
+  --record-set-name "*.tunnel.${CP_INSTANCE_ID}" \
+  --ipv4-address ${INGRESS_IP}
+
+# Verify DNS resolution
+nslookup admin.my.${CP_INSTANCE_ID}.${TP_DOMAIN}
+```
+
+> [!NOTE]
+> **Alternative DNS Setup:**  
+> If you don't have access to Azure DNS, you can:
+> 1. Use `/etc/hosts` file for local testing:
+>    ```bash
+>    echo "${INGRESS_IP} admin.${TP_BASE_DNS_DOMAIN}" | sudo tee -a /etc/hosts
+>    echo "${INGRESS_IP} ${CP_SUBSCRIPTION}.${TP_BASE_DNS_DOMAIN}" | sudo tee -a /etc/hosts
+>    ```
+> 2. Configure your organization's DNS server
+> 3. Use a local DNS server like dnsmasq
 
 ---
 
@@ -569,41 +784,76 @@ kubectl create secret docker-registry tibco-jfrog-cred \
 
 ### 9.2 Create Control Plane Values File
 
-Create a comprehensive `cp-values.yaml` file with all required configurations:
-
 > [!IMPORTANT]
-> **Critical Configuration**: This values file includes **all required configuration sections** based on the official TIBCO Platform deployment requirements:
-> - **Database connection details** (required)
-> - **Email server configuration** (required for user activation)
-> - **Admin user configuration** (required)
-> - **Encryption secret configuration** (required for platform security)
-> - **Session keys** (required for authentication)
-> - **Network configuration** (required for proper cluster communication)
-> - **Storage configuration** (required for persistence)
-> - **Resource requests** (optional, but recommended for production)
->
-> If any critical sections are missing, the Control Plane deployment will fail.
+> **Configuration Based on DNS Choice:**  
+> Create the appropriate Helm values file based on your DNS configuration choice from Step 1.3:
+> - **Configuration 1:** For Simplified DNS (recommended)
+> - **Configuration 2:** For Legacy DNS (backward compatible)
+
+---
+
+#### Configuration 1: Simplified DNS Values (Recommended)
+
+Use this configuration if you chose **Option 1: Simplified DNS** in Step 1.3.
+
+**Features:**
+- Single wildcard certificate
+- Hybrid-proxy is optional (controlled by `CP_HYBRID_CONNECTIVITY` variable)
+- Simpler domain structure
+- 50% resource savings when hybrid-proxy disabled
 
 ```bash
-cat > cp-values.yaml <<'EOF'
+# Set required environment variables for simplified configuration
+export CP_INSTANCE_ID="${TP_CLUSTER_NAME}"
+export TP_INGRESS_CLASS="traefik"  # or "nginx"
+
+# Database configuration
+export CP_DB_HOST="${PG_RELEASE_NAME}-postgresql.${PG_NAMESPACE}.svc.cluster.local"
+export CP_DB_PORT="5432"
+export CP_DB_NAME="${PG_DATABASE}"
+export CP_DB_USERNAME="${PG_USER}"
+export CP_DB_PASSWORD="${PG_PASSWORD}"
+export CP_DB_SSL_MODE="disable"
+
+# Email server configuration (REQUIRED - update with your SMTP server)
+export CP_EMAIL_SERVER_TYPE="smtp"
+export CP_EMAIL_SMTP_SERVER="smtp.example.com"
+export CP_EMAIL_SMTP_PORT="587"
+export CP_EMAIL_SMTP_USERNAME="notifications@example.com"
+export CP_EMAIL_SMTP_PASSWORD="your-smtp-password"
+
+# Admin user configuration
+export CP_ADMIN_EMAIL="admin@example.com"
+export CP_ADMIN_FIRSTNAME="Platform"
+export CP_ADMIN_LASTNAME="Admin"
+export CP_ADMIN_CUSTOMER_ID="tibco-platform-v15"
+
+# Network configuration
+export TP_VNET_CIDR="10.244.0.0/16"  # Adjust for your AKS cluster
+export TP_SERVICE_CIDR="10.0.0.0/16"  # Adjust for your AKS cluster
+export TP_ENABLE_NETWORK_POLICY="false"
+
+# DNS and TLS configuration for simplified approach
+export CP_SERVICE_ACCOUNT="${CP_INSTANCE_ID}-sa"
+export CP_TLS_SECRET_NAME="base-domain-cert"  # Single certificate secret
+
+# Create values file for Simplified DNS
+cat > cp-values-simplified.yaml <<'EOF'
 # ========================================
-# GLOBAL CONFIGURATION
+# TIBCO Platform Control Plane v1.15.0
+# Configuration: Simplified DNS
 # ========================================
 global:
   external:
-    # Encryption configuration (MANDATORY in v1.15.0)
+    # Encryption configuration (MANDATORY)
     cpEncryptionSecretName: cporch-encryption-secret
-    cpEncryptionSecretKey: CP_ENCRYPTION_SECRET
+    cpEncryptionSecretKey: CPORCH_ENCRYPTION_KEY
     
     # Cluster network information
     clusterInfo:
-      nodeCIDR: ${TP_VNET_CIDR}
-      podCIDR: ${TP_VNET_CIDR}
-      serviceCIDR: ${TP_SERVICE_CIDR}
-    
-    # DNS domains
-    dnsDomain: ${CP_MY_DNS_DOMAIN}
-    dnsTunnelDomain: ${CP_TUNNEL_DNS_DOMAIN}
+      nodeCIDR: "${TP_VNET_CIDR}"
+      podCIDR: "${TP_VNET_CIDR}"
+      serviceCIDR: "${TP_SERVICE_CIDR}"
     
     # Storage configuration
     storage:
@@ -613,43 +863,35 @@ global:
       storageClassName: azure-files-sc
     
     # Database configuration (MANDATORY)
-    db_host: ${CP_DB_HOST}
-    db_name: ${CP_DB_NAME}
-    db_password: ${CP_DB_PASSWORD}
-    db_port: ${CP_DB_PORT}
-    db_secret_name: ${CP_DB_SECRET_NAME}
-    db_ssl_mode: ${CP_DB_SSL_MODE}
-    db_username: ${CP_DB_USERNAME}
+    db_host: "${CP_DB_HOST}"
+    db_name: "${CP_DB_NAME}"
+    db_password: "${CP_DB_PASSWORD}"
+    db_port: "${CP_DB_PORT}"
+    db_ssl_mode: "${CP_DB_SSL_MODE}"
+    db_username: "${CP_DB_USERNAME}"
     
     # Email server configuration (MANDATORY)
-    emailServerType: ${CP_EMAIL_SERVER_TYPE}
+    emailServerType: "${CP_EMAIL_SERVER_TYPE}"
     emailServer:
       smtp:
-        server: ${CP_EMAIL_SMTP_SERVER}
+        server: "${CP_EMAIL_SMTP_SERVER}"
         port: ${CP_EMAIL_SMTP_PORT}
-        username: ${CP_EMAIL_SMTP_USERNAME}
-        password: ${CP_EMAIL_SMTP_PASSWORD}
+        username: "${CP_EMAIL_SMTP_USERNAME}"
+        password: "${CP_EMAIL_SMTP_PASSWORD}"
     
     # Admin user configuration (MANDATORY)
     admin:
-      email: ${CP_ADMIN_EMAIL}
-      firstname: ${CP_ADMIN_FIRSTNAME}
-      lastname: ${CP_ADMIN_LASTNAME}
-      customerID: ${CP_ADMIN_CUSTOMER_ID}
+      email: "${CP_ADMIN_EMAIL}"
+      firstname: "${CP_ADMIN_FIRSTNAME}"
+      lastname: "${CP_ADMIN_LASTNAME}"
+      customerID: "${CP_ADMIN_CUSTOMER_ID}"
   
   tibco:
-    # Container registry configuration
-    containerRegistry:
-      url: ${TP_CONTAINER_REGISTRY_URL}
-      username: ${TP_CONTAINER_REGISTRY_USER}
-      password: ${TP_CONTAINER_REGISTRY_PASSWORD}
-      repository: ${TP_CONTAINER_REGISTRY_REPOSITORY}
-    
     # Control plane instance identifier
-    controlPlaneInstanceId: ${CP_INSTANCE_ID}
+    controlPlaneInstanceId: "${CP_INSTANCE_ID}"
     
     # Service account
-    serviceAccount: ${CP_INSTANCE_ID}-sa
+    serviceAccount: "${CP_SERVICE_ACCOUNT}"
     
     # Network policies
     createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
@@ -658,12 +900,16 @@ global:
     logging:
       fluentbit:
         enabled: false
+    
+    # Hybrid connectivity (NEW in v1.15.0 - OPTIONAL)
+    hybridConnectivity:
+      enabled: ${CP_HYBRID_CONNECTIVITY}
 
 # ========================================
 # BOOTSTRAP COMPONENTS
 # ========================================
 hybrid-proxy:
-  enabled: true
+  enabled: ${CP_HYBRID_CONNECTIVITY}
   enableWebHooks: false
   resources:
     requests:
@@ -671,20 +917,13 @@ hybrid-proxy:
       memory: 128Mi
   ingress:
     enabled: true
-    ingressClassName: ${TP_INGRESS_CLASS}
-    tls:
-      - secretName: ${CP_TUNNEL_TLS_SECRET_NAME}
-        hosts:
-          - '*.${CP_TUNNEL_DNS_DOMAIN}'
+    ingressClassName: "${TP_INGRESS_CLASS}"
     hosts:
-      - host: '*.${CP_TUNNEL_DNS_DOMAIN}'
+      - host: "tunnel.${TP_BASE_DNS_DOMAIN}"
         paths:
           - path: /
             pathType: Prefix
             port: 105
-
-otel-collector:
-  enabled: false
 
 resource-set-operator:
   enabled: true
@@ -703,15 +942,230 @@ router-operator:
       memory: 128Mi
   tscSessionKey:
     secretName: session-keys
-    key: TSC_SESSION_KEY
+    key: SESSION_KEY
   domainSessionKey:
     secretName: session-keys
-    key: DOMAIN_SESSION_KEY
+    key: SESSION_IV
   ingress:
     enabled: true
-    ingressClassName: ${TP_INGRESS_CLASS}
+    ingressClassName: "${TP_INGRESS_CLASS}"
+    hosts:
+      - host: "${CP_ADMIN_HOST_PREFIX}.${TP_BASE_DNS_DOMAIN}"
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+      - host: "${CP_SUBSCRIPTION}.${TP_BASE_DNS_DOMAIN}"
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+
+# ========================================
+# CORE PLATFORM SERVICES
+# ========================================
+tp-cp-infra:
+  enabled: true
+
+tp-cp-core-administration:
+  enabled: true
+
+tp-cp-core-finops:
+  enabled: true
+
+tp-cp-integration:
+  enabled: true
+  tp-cp-integration-bw:
+    enabled: true
+  tp-cp-integration-flogo:
+    enabled: true
+
+tp-cp-tibcohub-contrib:
+  enabled: true
+
+tibco-cp-messaging:
+  enabled: true
+
+tp-cp-hawk:
+  enabled: true
+
+tp-cp-cli:
+  enabled: true
+
+tp-cp-prometheus:
+  enabled: true
+  server:
+    retention: "15d"
+
+tp-cp-auditsafe:
+  enabled: true
+EOF
+
+# Substitute environment variables
+envsubst < cp-values-simplified.yaml > cp-values.yaml
+```
+
+---
+
+#### Configuration 2: Legacy DNS Values (Backward Compatible)
+
+Use this configuration if you chose **Option 2: Legacy DNS** in Step 1.3 or upgrading from 1.14.x.
+
+```bash
+# Set required environment variables for legacy configuration
+export CP_INSTANCE_ID="${TP_CLUSTER_NAME}"
+export CP_MY_DNS_DOMAIN="my.${CP_INSTANCE_ID}.${TP_DOMAIN}"
+export CP_TUNNEL_DNS_DOMAIN="tunnel.${CP_INSTANCE_ID}.${TP_DOMAIN}"
+export CP_MY_TLS_SECRET_NAME="my-domain-cert"
+export CP_TUNNEL_TLS_SECRET_NAME="tunnel-domain-cert"
+export TP_INGRESS_CLASS="traefik"  # or "nginx"
+
+# Database, email, admin, and network variables (same as above)
+export CP_DB_HOST="${PG_RELEASE_NAME}-postgresql.${PG_NAMESPACE}.svc.cluster.local"
+export CP_DB_PORT="5432"
+export CP_DB_NAME="${PG_DATABASE}"
+export CP_DB_USERNAME="${PG_USER}"
+export CP_DB_PASSWORD="${PG_PASSWORD}"
+export CP_DB_SSL_MODE="disable"
+
+export CP_EMAIL_SERVER_TYPE="smtp"
+export CP_EMAIL_SMTP_SERVER="smtp.example.com"
+export CP_EMAIL_SMTP_PORT="587"
+export CP_EMAIL_SMTP_USERNAME="notifications@example.com"
+export CP_EMAIL_SMTP_PASSWORD="your-smtp-password"
+
+export CP_ADMIN_EMAIL="admin@example.com"
+export CP_ADMIN_FIRSTNAME="Platform"
+export CP_ADMIN_LASTNAME="Admin"
+export CP_ADMIN_CUSTOMER_ID="tibco-platform-v15"
+
+export TP_VNET_CIDR="10.244.0.0/16"
+export TP_SERVICE_CIDR="10.0.0.0/16"
+export TP_ENABLE_NETWORK_POLICY="false"
+export CP_SERVICE_ACCOUNT="${CP_INSTANCE_ID}-sa"
+
+# Create values file for Legacy DNS
+cat > cp-values-legacy.yaml <<'EOF'
+# ========================================
+# TIBCO Platform Control Plane v1.15.0
+# Configuration: Legacy DNS (Backward Compatible)
+# ========================================
+global:
+  external:
+    # Encryption configuration (MANDATORY)
+    cpEncryptionSecretName: cporch-encryption-secret
+    cpEncryptionSecretKey: CPORCH_ENCRYPTION_KEY
+    
+    # Cluster network information
+    clusterInfo:
+      nodeCIDR: "${TP_VNET_CIDR}"
+      podCIDR: "${TP_VNET_CIDR}"
+      serviceCIDR: "${TP_SERVICE_CIDR}"
+    
+    # DNS domains (Legacy structure)
+    dnsDomain: "${CP_MY_DNS_DOMAIN}"
+    dnsTunnelDomain: "${CP_TUNNEL_DNS_DOMAIN}"
+    
+    # Storage configuration
+    storage:
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azure-files-sc
+    
+    # Database configuration (MANDATORY)
+    db_host: "${CP_DB_HOST}"
+    db_name: "${CP_DB_NAME}"
+    db_password: "${CP_DB_PASSWORD}"
+    db_port: "${CP_DB_PORT}"
+    db_ssl_mode: "${CP_DB_SSL_MODE}"
+    db_username: "${CP_DB_USERNAME}"
+    
+    # Email server configuration (MANDATORY)
+    emailServerType: "${CP_EMAIL_SERVER_TYPE}"
+    emailServer:
+      smtp:
+        server: "${CP_EMAIL_SMTP_SERVER}"
+        port: ${CP_EMAIL_SMTP_PORT}
+        username: "${CP_EMAIL_SMTP_USERNAME}"
+        password: "${CP_EMAIL_SMTP_PASSWORD}"
+    
+    # Admin user configuration (MANDATORY)
+    admin:
+      email: "${CP_ADMIN_EMAIL}"
+      firstname: "${CP_ADMIN_FIRSTNAME}"
+      lastname: "${CP_ADMIN_LASTNAME}"
+      customerID: "${CP_ADMIN_CUSTOMER_ID}"
+  
+  tibco:
+    # Control plane instance identifier
+    controlPlaneInstanceId: "${CP_INSTANCE_ID}"
+    
+    # Service account
+    serviceAccount: "${CP_SERVICE_ACCOUNT}"
+    
+    # Network policies
+    createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
+    
+    # Logging configuration
+    logging:
+      fluentbit:
+        enabled: false
+    
+    # Hybrid connectivity (typically enabled for legacy DNS)
+    hybridConnectivity:
+      enabled: true
+
+# ========================================
+# BOOTSTRAP COMPONENTS
+# ========================================
+hybrid-proxy:
+  enabled: true
+  enableWebHooks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  ingress:
+    enabled: true
+    ingressClassName: "${TP_INGRESS_CLASS}"
     tls:
-      - secretName: ${CP_MY_TLS_SECRET_NAME}
+      - secretName: "${CP_TUNNEL_TLS_SECRET_NAME}"
+        hosts:
+          - '*.${CP_TUNNEL_DNS_DOMAIN}'
+    hosts:
+      - host: '*.${CP_TUNNEL_DNS_DOMAIN}'
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 105
+
+resource-set-operator:
+  enabled: true
+  enableWebHooks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+router-operator:
+  enabled: true
+  enableWebHooks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  tscSessionKey:
+    secretName: session-keys
+    key: SESSION_KEY
+  domainSessionKey:
+    secretName: session-keys
+    key: SESSION_IV
+  ingress:
+    enabled: true
+    ingressClassName: "${TP_INGRESS_CLASS}"
+    tls:
+      - secretName: "${CP_MY_TLS_SECRET_NAME}"
         hosts:
           - '*.${CP_MY_DNS_DOMAIN}'
     hosts:
@@ -722,17 +1176,73 @@ router-operator:
             port: 100
 
 # ========================================
-# BASE COMPONENTS
+# CORE PLATFORM SERVICES
 # ========================================
 tp-cp-infra:
   enabled: true
-  resources:
-    infra-compute-services:
-      requests:
-        cpu: 200m
-        memory: 256Mi
-    infra-alerts-services:
-      requests:
+
+tp-cp-core-administration:
+  enabled: true
+
+tp-cp-core-finops:
+  enabled: true
+
+tp-cp-integration:
+  enabled: true
+  tp-cp-integration-bw:
+    enabled: true
+  tp-cp-integration-flogo:
+    enabled: true
+
+tp-cp-tibcohub-contrib:
+  enabled: true
+
+tibco-cp-messaging:
+  enabled: true
+
+tp-cp-hawk:
+  enabled: true
+
+tp-cp-cli:
+  enabled: true
+
+tp-cp-prometheus:
+  enabled: true
+  server:
+    retention: "15d"
+
+tp-cp-auditsafe:
+  enabled: true
+EOF
+
+# Substitute environment variables
+envsubst < cp-values-legacy.yaml > cp-values.yaml
+```
+
+---
+
+> [!NOTE]
+> **Configuration Notes:**
+> - Both configurations require the same mandatory settings (database, email, admin user)
+> - **Simplified DNS** uses single certificate and optional hybrid-proxy
+> - **Legacy DNS** uses separate certificates for MY and TUNNEL domains
+> - Resource requirements are ~50% lower when hybrid-proxy is disabled
+> - Session keys use `SESSION_KEY` and `SESSION_IV` from the secret created in Step 6
+
+> [!TIP]
+> **For Production Deployments:**  
+> Review and customize resource requests/limits based on your workload:
+> ```yaml
+> tp-cp-infra:
+>   resources:
+>     infra-compute-services:
+>       requests:
+>         cpu: 500m
+>         memory: 1Gi
+>       limits:
+>         cpu: 2000m
+>         memory: 4Gi
+> ```
         cpu: 200m
         memory: 256Mi
 
