@@ -11,29 +11,58 @@ title: TIBCO Platform Observability Setup on AKS
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Alternative Approach: TIBCO Platform Observability Helm Chart](#alternative-approach-tibco-platform-observability-helm-chart)
-- [Prerequisites](#prerequisites)
-- [Part 1: Elastic Stack Installation](#part-1-elastic-stack-installation)
-  - [Step 1.1: Install Elastic ECK Operator](#step-11-install-elastic-eck-operator)
-  - [Step 1.2: Deploy Elasticsearch, Kibana, and APM](#step-12-deploy-elasticsearch-kibana-and-apm)
-  - [Step 1.3: Verify Elastic Stack Installation](#step-13-verify-elastic-stack-installation)
-  - [Step 1.4: Access Kibana Dashboard](#step-14-access-kibana-dashboard)
-- [Part 2: Prometheus and Grafana Installation](#part-2-prometheus-and-grafana-installation)
-  - [Step 2.1: Install Prometheus Stack](#step-21-install-prometheus-stack)
-  - [Step 2.2: Verify Prometheus Installation](#step-22-verify-prometheus-installation)
-  - [Step 2.3: Access Grafana Dashboard](#step-23-access-grafana-dashboard)
-- [Part 3: OTEL Collectors Configuration](#part-3-otel-collectors-configuration)
-  - [Step 3.1: Understanding OTEL Collectors](#step-31-understanding-otel-collectors)
-  - [Step 3.2: Configure Trace Collection](#step-32-configure-trace-collection)
-  - [Step 3.3: Configure Metrics Collection](#step-33-configure-metrics-collection)
-- [Part 4: Integration with TIBCO Platform](#part-4-integration-with-tibco-platform)
-  - [Step 4.1: Configure Ingress Trace Collection](#step-41-configure-ingress-trace-collection)
-  - [Step 4.2: Configure Application Traces](#step-42-configure-application-traces)
-  - [Step 4.3: Configure Service Monitors](#step-43-configure-service-monitors)
-- [Part 5: Monitoring Best Practices](#part-5-monitoring-best-practices)
-- [Part 6: Troubleshooting](#part-6-troubleshooting)
-- [References](#references)
+- [TIBCO Platform Observability Setup on AKS](#tibco-platform-observability-setup-on-aks)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Architecture](#architecture)
+    - [Benefits](#benefits)
+  - [Alternative Approach: TIBCO Platform Observability Helm Chart](#alternative-approach-tibco-platform-observability-helm-chart)
+    - [Automated Observability Setup](#automated-observability-setup)
+  - [Prerequisites](#prerequisites)
+    - [Required Components](#required-components)
+    - [Environment Variables](#environment-variables)
+      - [For TIBCO Platform 1.15.0+ (Simplified DNS - Recommended)](#for-tibco-platform-1150-simplified-dns---recommended)
+      - [For TIBCO Platform 1.14.x (Legacy DNS - Backward Compatible)](#for-tibco-platform-114x-legacy-dns---backward-compatible)
+    - [Resource Requirements](#resource-requirements)
+  - [Part 1: Elastic Stack Installation](#part-1-elastic-stack-installation)
+    - [Step 1.1: Install Elastic ECK Operator](#step-11-install-elastic-eck-operator)
+    - [Step 1.2: Deploy Elasticsearch, Kibana, and APM](#step-12-deploy-elasticsearch-kibana-and-apm)
+    - [Step 1.3: Verify Elastic Stack Installation](#step-13-verify-elastic-stack-installation)
+    - [Step 1.4: Access Kibana Dashboard](#step-14-access-kibana-dashboard)
+  - [Part 2: Prometheus and Grafana Installation](#part-2-prometheus-and-grafana-installation)
+    - [Step 2.1: Install Prometheus Stack](#step-21-install-prometheus-stack)
+    - [Step 2.2: Verify Prometheus Installation](#step-22-verify-prometheus-installation)
+    - [Step 2.3: Access Grafana Dashboard](#step-23-access-grafana-dashboard)
+  - [Part 3: OTEL Collectors Configuration](#part-3-otel-collectors-configuration)
+    - [Step 3.1: Understanding OTEL Collectors](#step-31-understanding-otel-collectors)
+    - [Step 3.2: Configure Trace Collection](#step-32-configure-trace-collection)
+    - [Step 3.3: Configure Metrics Collection](#step-33-configure-metrics-collection)
+  - [Part 4: Integration with TIBCO Platform](#part-4-integration-with-tibco-platform)
+    - [Step 4.1: Configure Ingress Trace Collection](#step-41-configure-ingress-trace-collection)
+    - [Step 4.2: Configure Application Traces](#step-42-configure-application-traces)
+    - [Step 4.3: Configure Service Monitors](#step-43-configure-service-monitors)
+  - [Part 5: Monitoring Best Practices](#part-5-monitoring-best-practices)
+    - [5.1: Index Management](#51-index-management)
+    - [5.2: Metrics Retention](#52-metrics-retention)
+    - [5.3: Alerting](#53-alerting)
+    - [5.4: Dashboard Management](#54-dashboard-management)
+    - [5.5: Performance Tuning](#55-performance-tuning)
+  - [Part 6: Troubleshooting](#part-6-troubleshooting)
+    - [Issue 1: Elasticsearch Pods Not Starting](#issue-1-elasticsearch-pods-not-starting)
+    - [Issue 2: Kibana Cannot Connect to Elasticsearch](#issue-2-kibana-cannot-connect-to-elasticsearch)
+    - [Issue 3: No Traces Appearing in Kibana](#issue-3-no-traces-appearing-in-kibana)
+    - [Issue 4: Prometheus Not Scraping Targets](#issue-4-prometheus-not-scraping-targets)
+    - [Issue 5: Grafana Dashboard Shows No Data](#issue-5-grafana-dashboard-shows-no-data)
+    - [Issue 6: High Storage Usage](#issue-6-high-storage-usage)
+  - [References](#references)
+    - [Official Documentation](#official-documentation)
+    - [TIBCO Platform Resources](#tibco-platform-resources)
+    - [Related Guides](#related-guides)
+  - [Summary](#summary)
+    - [What You Deployed](#what-you-deployed)
+    - [Access Information](#access-information)
+    - [Next Steps](#next-steps)
+    - [Useful Commands](#useful-commands)
 
 ---
 
@@ -143,20 +172,52 @@ Before proceeding with the observability setup, ensure you have:
 
 ### Environment Variables
 
+> [!IMPORTANT]
+> **TIBCO Platform 1.15.0 DNS Simplification**  
+> Starting with TIBCO Platform 1.15.0, DNS configuration has been simplified:
+> - **Before (1.14.x)**: Used `TP_DOMAIN` with multi-level subdomains like `kibana.cp1-my.apps.example.com`
+> - **After (1.15.0+)**: Uses `TP_BASE_DNS_DOMAIN` with single-level subdomains like `kibana.example.com`
+>
+> This guide supports **both configurations**. Choose based on your TIBCO Platform version:
+> - **v1.15.0+**: Use `TP_BASE_DNS_DOMAIN` (simplified DNS)
+> - **v1.14.x**: Use `TP_DOMAIN` (legacy DNS)
+
 Ensure these variables are set:
+
+#### For TIBCO Platform 1.15.0+ (Simplified DNS - Recommended)
 
 ```bash
 # Source the environment variables
 source /path/to/aks-env-variables-official.sh
 
-# Verify required variables
+# Verify required variables (v1.15.0+ simplified DNS)
 echo "TP_TIBCO_HELM_CHART_REPO: ${TP_TIBCO_HELM_CHART_REPO}"
-echo "TP_DOMAIN: ${TP_DOMAIN}"
+echo "TP_BASE_DNS_DOMAIN: ${TP_BASE_DNS_DOMAIN}"  # NEW in v1.15.0
 echo "TP_INGRESS_CLASS: ${TP_INGRESS_CLASS}"
 echo "TP_DISK_STORAGE_CLASS: ${TP_DISK_STORAGE_CLASS}"
 echo "TP_CLUSTER_NAME: ${TP_CLUSTER_NAME}"
 echo "DP_NAMESPACE: ${DP_NAMESPACE}"  # If DP is deployed
 ```
+
+#### For TIBCO Platform 1.14.x (Legacy DNS - Backward Compatible)
+
+```bash
+# Source the environment variables
+source /path/to/aks-env-variables-official.sh
+
+# Verify required variables (v1.14.x legacy DNS)
+echo "TP_TIBCO_HELM_CHART_REPO: ${TP_TIBCO_HELM_CHART_REPO}"
+echo "TP_DOMAIN: ${TP_DOMAIN}"  # Legacy variable
+echo "TP_INGRESS_CLASS: ${TP_INGRESS_CLASS}"
+echo "TP_DISK_STORAGE_CLASS: ${TP_DISK_STORAGE_CLASS}"
+echo "TP_CLUSTER_NAME: ${TP_CLUSTER_NAME}"
+echo "DP_NAMESPACE: ${DP_NAMESPACE}"  # If DP is deployed
+```
+
+> [!TIP]
+> **Quick Migration**: If upgrading from 1.14.x to 1.15.0, simply set:  
+> `export TP_BASE_DNS_DOMAIN="${TP_DOMAIN}"`  
+> This maintains your existing DNS structure while using the new variable name.
 
 ### Resource Requirements
 
@@ -226,7 +287,9 @@ helm upgrade --install --wait --timeout 1h --create-namespace --reuse-values \
   -n elastic-system ${TP_ES_RELEASE_NAME} dp-config-es \
   --labels layer=2 \
   --repo "${TP_TIBCO_HELM_CHART_REPO}" --version "^1.0.0" -f - <<EOF
-domain: ${TP_DOMAIN}
+# DNS domain configuration
+# Use TP_BASE_DNS_DOMAIN for v1.15.0+ or TP_DOMAIN for v1.14.x
+domain: ${TP_BASE_DNS_DOMAIN:-${TP_DOMAIN}}
 
 # Elasticsearch configuration
 es:
@@ -375,7 +438,8 @@ kubectl run curl-test --image=curlimages/curl --rm -it --restart=Never -- \
 kubectl get ingress -n elastic-system ${TP_ES_RELEASE_NAME}-kibana \
   -o jsonpath='{.spec.rules[0].host}'
 
-# Expected output: kibana.<TP_DOMAIN>
+# Expected output (v1.15.0+): kibana.<TP_BASE_DNS_DOMAIN>
+# Expected output (v1.14.x): kibana.<TP_DOMAIN>
 ```
 
 **Get Kibana credentials**:
@@ -395,7 +459,9 @@ kubectl get secret ${TP_ES_RELEASE_NAME}-es-elastic-user \
 
 **Access Kibana**:
 
-1. Open browser to `https://kibana.<TP_DOMAIN>`
+1. Open browser to:
+   - **v1.15.0+**: `https://kibana.${TP_BASE_DNS_DOMAIN}`
+   - **v1.14.x**: `https://kibana.${TP_DOMAIN}`
 2. Login with username `elastic` and the password retrieved above
 3. Accept any certificate warnings (if using self-signed certificates)
 
@@ -434,7 +500,7 @@ The `kube-prometheus-stack` Helm chart deploys:
 helm upgrade --install --wait --timeout 1h --create-namespace --reuse-values \
   -n prometheus-system kube-prometheus-stack kube-prometheus-stack \
   --labels layer=2 \
-  --repo "https://prometheus-community.github.io/helm-charts" --version "48.3.4" -f - <<EOF
+  --repo "https://prometheus-community.github.io/helm-charts" --version "69.3.3" -f - <<EOF
 # Grafana configuration
 grafana:
   # Install useful plugins
@@ -448,12 +514,13 @@ grafana:
     enabled: true
     ingressClassName: ${TP_INGRESS_CLASS}
     hosts:
-    - grafana.${TP_DOMAIN}
+    # Use TP_BASE_DNS_DOMAIN for v1.15.0+ or TP_DOMAIN for v1.14.x
+    - grafana.${TP_BASE_DNS_DOMAIN:-${TP_DOMAIN}}
     # Uncomment for TLS (requires cert-manager)
     # tls:
     # - secretName: grafana-tls
     #   hosts:
-    #   - grafana.${TP_DOMAIN}
+    #   - grafana.${TP_BASE_DNS_DOMAIN:-${TP_DOMAIN}}
   
   # Grafana admin credentials (change in production!)
   adminUser: admin
@@ -584,7 +651,8 @@ kubectl get svc -n prometheus-system kube-prometheus-stack-alertmanager
 kubectl get ingress -n prometheus-system kube-prometheus-stack-grafana \
   -o jsonpath='{.spec.rules[0].host}'
 
-# Expected: grafana.<TP_DOMAIN>
+# Expected (v1.15.0+): grafana.<TP_BASE_DNS_DOMAIN>
+# Expected (v1.14.x): grafana.<TP_DOMAIN>
 ```
 
 **Get Grafana credentials**:
@@ -600,7 +668,9 @@ kubectl get secret -n prometheus-system kube-prometheus-stack-grafana \
 
 **Access Grafana**:
 
-1. Open browser to `https://grafana.<TP_DOMAIN>`
+1. Open browser to:
+   - **v1.15.0+**: `https://grafana.${TP_BASE_DNS_DOMAIN}`
+   - **v1.14.x**: `https://grafana.${TP_DOMAIN}`
 2. Login with username `admin` and password
 3. Navigate to **Dashboards** to see pre-installed dashboards:
    - **Kubernetes / Compute Resources / Cluster**
@@ -1302,8 +1372,8 @@ You have successfully set up a comprehensive observability stack for TIBCO Platf
 
 | Component | URL | Credentials |
 |-----------|-----|-------------|
-| Kibana | `https://kibana.<TP_DOMAIN>` | Username: `elastic`<br>Password: From secret |
-| Grafana | `https://grafana.<TP_DOMAIN>` | Username: `admin`<br>Password: `tibco-platform-admin` |
+| Kibana | **v1.15.0+**: `https://kibana.${TP_BASE_DNS_DOMAIN}`<br>**v1.14.x**: `https://kibana.${TP_DOMAIN}` | Username: `elastic`<br>Password: From secret |
+| Grafana | **v1.15.0+**: `https://grafana.${TP_BASE_DNS_DOMAIN}`<br>**v1.14.x**: `https://grafana.${TP_DOMAIN}` | Username: `admin`<br>Password: `tibco-platform-admin` |
 | Prometheus | Port-forward 9090 | N/A |
 
 ### Next Steps
