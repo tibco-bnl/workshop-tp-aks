@@ -1,0 +1,111 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: '*.dp1.kul.atsnl-emea.azure.dataplanes.pro'
+      meta.helm.sh/release-name: dp-config-aks-nginx
+      meta.helm.sh/release-namespace: ingress-system
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+    creationTimestamp: "2025-09-11T14:31:15Z"
+    finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: dp-config-aks-nginx
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: ingress-nginx
+      app.kubernetes.io/part-of: ingress-nginx
+      app.kubernetes.io/version: 1.11.5
+      helm.sh/chart: ingress-nginx-4.11.5
+      k8slens-edit-resource-version: v1
+    name: dp-config-aks-nginx-ingress-nginx-controller
+    namespace: ingress-system
+    resourceVersion: "44712076"
+    uid: 12eeb0a0-eac4-45e7-92c0-fa8e2da5fcf7
+  spec:
+    allocateLoadBalancerNodePorts: true
+    clusterIP: 10.0.58.1
+    clusterIPs:
+    - 10.0.58.1
+    externalTrafficPolicy: Local
+    healthCheckNodePort: 30425
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - appProtocol: http
+      name: http
+      nodePort: 30530
+      port: 80
+      protocol: TCP
+      targetPort: http
+    - appProtocol: https
+      name: https
+      nodePort: 32105
+      port: 443
+      protocol: TCP
+      targetPort: https
+    - appProtocol: http
+      name: ftl
+      nodePort: 32495
+      port: 13031
+      protocol: TCP
+      targetPort: 13031
+    selector:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: dp-config-aks-nginx
+      app.kubernetes.io/name: ingress-nginx
+    sessionAffinity: None
+    type: LoadBalancer
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+        ipMode: VIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: dp-config-aks-nginx
+      meta.helm.sh/release-namespace: ingress-system
+    creationTimestamp: "2025-09-11T14:31:15Z"
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: dp-config-aks-nginx
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: ingress-nginx
+      app.kubernetes.io/part-of: ingress-nginx
+      app.kubernetes.io/version: 1.11.5
+      helm.sh/chart: ingress-nginx-4.11.5
+    name: dp-config-aks-nginx-ingress-nginx-controller-admission
+    namespace: ingress-system
+    resourceVersion: "93647"
+    uid: ec003d6e-a69a-4e8b-b41b-d1e2cecd6cc5
+  spec:
+    clusterIP: 10.0.220.225
+    clusterIPs:
+    - 10.0.220.225
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - appProtocol: https
+      name: https-webhook
+      port: 443
+      protocol: TCP
+      targetPort: webhook
+    selector:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: dp-config-aks-nginx
+      app.kubernetes.io/name: ingress-nginx
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""

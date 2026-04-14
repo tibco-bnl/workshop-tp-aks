@@ -1,0 +1,116 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      konghq.com/https-redirect-status-code: "302"
+      meta.helm.sh/release-name: dp-config-es
+      meta.helm.sh/release-namespace: elastic-system
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    creationTimestamp: "2025-09-29T11:45:47Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: dp-config-es-apm
+    namespace: elastic-system
+    resourceVersion: "44246738"
+    uid: 1191174b-2c7e-4c3e-952b-3e997d63b173
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: apm.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: dp-config-es-apm-http
+              port:
+                name: https
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      konghq.com/https-redirect-status-code: "302"
+      meta.helm.sh/release-name: dp-config-es
+      meta.helm.sh/release-namespace: elastic-system
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    creationTimestamp: "2025-09-29T11:45:47Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: dp-config-es-elastic
+    namespace: elastic-system
+    resourceVersion: "44246812"
+    uid: 6469266f-41a6-4d30-9f7b-c0033966cc1c
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: elastic.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: dp-config-es-es-http
+              port:
+                name: https
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      konghq.com/https-redirect-status-code: "302"
+      meta.helm.sh/release-name: dp-config-es
+      meta.helm.sh/release-namespace: elastic-system
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    creationTimestamp: "2025-09-29T11:45:47Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: dp-config-es-kibana
+    namespace: elastic-system
+    resourceVersion: "44246688"
+    uid: 952da8f4-466a-4c11-a7b7-f4dfa6d18e63
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: kibana.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: dp-config-es-kb-http
+              port:
+                name: https
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+kind: List
+metadata:
+  resourceVersion: ""

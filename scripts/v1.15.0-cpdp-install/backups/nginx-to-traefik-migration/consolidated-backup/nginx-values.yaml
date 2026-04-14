@@ -1,0 +1,30 @@
+USER-SUPPLIED VALUES:
+global:
+  azureAwiAsoDnsClientId: 44887568-cec6-48f9-9e1d-417b60d72e25
+  azureSubscriptionDnsResourceGroup: kul-atsbnl
+  azureSubscriptionId: <YOUR_AZURE_SUBSCRIPTION_ID>  # Get with: az account show --query id -o tsv
+  dnsGlobalTopDomain: kul.atsnl-emea.azure.dataplanes.pro
+  dnsSandboxSubdomain: dp1
+httpIngress:
+  annotations:
+    cert-manager.io/cluster-issuer: cic-cert-subscription-scope-production-main
+    external-dns.alpha.kubernetes.io/hostname: '*.dp1.kul.atsnl-emea.azure.dataplanes.pro'
+  backend:
+    serviceName: dp-config-aks-nginx-ingress-nginx-controller
+  enabled: false
+  ingressClassName: nginx
+ingress-nginx:
+  controller:
+    config:
+      proxy-body-size: 150m
+      proxy-buffer-size: 16k
+      use-forwarded-headers: "true"
+    extraArgs:
+      default-ssl-certificate: ingress-system/tp-certificate-main-ingress
+    service:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: '*.dp1.kul.atsnl-emea.azure.dataplanes.pro'
+        service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+      enableHttp: false
+      type: LoadBalancer
+  enabled: true

@@ -13,7 +13,16 @@ title: TIBCO Platform Control Plane and Data Plane Setup on AKS
 
 **Estimated Time**: 4-6 hours (first-time installation)
 
-**Last Updated**: January 22, 2026
+**Last Updated**: April 10, 2026
+
+**Configuration Files**:
+- Generic template: `scripts/aks-env-variables.sh`
+- dp1-aks-aauk-kul cluster: `scripts/v1.16.0-cpdp-install/aks-env-variables-dp1.sh`
+
+---
+
+> **Using an Existing Cluster?**  
+> This guide covers both new cluster creation and installation on existing clusters. If you already have an AKS cluster with ingress controller, observability stack, and storage configured (like **dp1-aks-aauk-kul**), you can skip Parts 2-7 and jump directly to [Part 8: Control Plane Deployment](#part-8-control-plane-deployment). Use the pre-configured environment file `scripts/v1.16.0-cpdp-install/aks-env-variables-dp1.sh` for existing cluster configurations.
 
 ---
 
@@ -41,11 +50,11 @@ This guide walks through deploying both TIBCO Platform Control Plane and Data Pl
 
 ### What You Will Deploy
 
-- **Azure Kubernetes Service (AKS)** cluster with 3+ nodes
+- **Azure Kubernetes Service (AKS)** cluster with 3+ nodes (or use existing cluster)
 - **Storage Classes** for Azure Disk and Azure Files
-- **Ingress Controller** (Traefik recommended)
+- **Ingress Controller** (Traefik recommended, NGINX deprecated)
 - **Azure Database for PostgreSQL Flexible Server** (or in-cluster PostgreSQL for dev/test)
-- **TIBCO Platform Control Plane** (v1.14.0+)
+- **TIBCO Platform Control Plane** (v1.16.0+)
 - **TIBCO Platform Data Plane** with capabilities (BWCE, Flogo, EMS)
 
 ### Communication Architecture
@@ -136,16 +145,26 @@ Source the environment variables script:
 # Navigate to the workshop directory
 cd /path/to/workshop-tp-aks
 
-# Source the environment variables
+# For new installations, source the generic template:
 source scripts/aks-env-variables.sh
 
+# For existing dp1-aks-aauk-kul cluster (ATSBNL):
+source scripts/v1.16.0-cpdp-install/aks-env-variables-dp1.sh
+
 # Verify variables are set
-echo "Azure Region: $AZURE_REGION"
-echo "AKS Cluster: $AKS_CLUSTER_NAME"
-echo "Control Plane Domain: $TP_CP_MY_DOMAIN"
+echo "Azure Region: $TP_AZURE_REGION"
+echo "AKS Cluster: $TP_CLUSTER_NAME"
+echo "Base DNS: $TP_BASE_DNS_DOMAIN"
+echo "Control Plane Admin: $CP_MY_DNS_DOMAIN"
+
+# Run validation
+validate_prerequisites
+
+# Display full configuration
+show_config
 ```
 
-**Important Variables to Configure**:
+**Example Configuration (Generic Template)**:
 
 ```bash
 # Azure Configuration
@@ -160,13 +179,13 @@ export AKS_NODE_SIZE="Standard_D8s_v3"
 
 # Control Plane Configuration
 export TP_CP_INSTANCE_ID="cp1"
-export TP_CP_NAMESPACE="tibco-cp"
-export TP_CP_MY_DOMAIN="cp1-my.platform.azure.example.com"
-export TP_CP_TUNNEL_DOMAIN="cp1-tunnel.platform.azure.example.com"
+export TP_CP_NAMESPACE="cp1-ns"
+export TP_CP_MY_DOMAIN="admin.cp1.platform.azure.example.com"
+export TP_CP_TUNNEL_DOMAIN="tunnel.cp1.platform.azure.example.com"
 
 # Data Plane Configuration
 export TP_DP_INSTANCE_ID="dp1"
-export TP_DP_NAMESPACE="tibco-dp"
+export TP_DP_NAMESPACE="dp1-ns"
 export TP_DP_DOMAIN="dp1.platform.azure.example.com"
 
 # Storage Configuration
@@ -176,15 +195,69 @@ export AZURE_STORAGE_RESOURCE_GROUP="$AZURE_RESOURCE_GROUP"
 # Database Configuration (Azure PostgreSQL)
 export POSTGRES_HOST="tibco-platform-db.postgres.database.azure.com"
 export POSTGRES_PORT="5432"
-export POSTGRES_DB="tibcoDB"
+export POSTGRES_DB="postgres"
 export POSTGRES_USER="tibcoadmin"
 export POSTGRES_PASSWORD="YourSecurePassword123!"
 
 # Container Registry
 export CONTAINER_REGISTRY_USERNAME="your-username"
 export CONTAINER_REGISTRY_PASSWORD="your-password"
-export CONTAINER_REGISTRY_SERVER="csgprduswrepoedge.jfrog.io"
+export CONTAINER_REGISTRY_SERVER="csgprdusw2reposaas.jfrog.io"
 ```
+
+**Example Configuration (dp1-aks-aauk-kul - ATSBNL Existing Cluster)**:
+
+```bash
+# Azure Configuration
+export TP_SUBSCRIPTION_ID="53d1715b-a804-423d-94fb-cca06a69e1f5"
+export TP_SUBSCRIPTION_NAME="azrpsemeaneth-PresalesEMEANetherlands"
+export TP_AZURE_REGION="westeurope"
+export TP_RESOURCE_GROUP="kul-atsbnl"
+
+# Existing AKS Cluster
+export TP_CLUSTER_NAME="dp1-aks-aauk-kul"
+export TP_KUBERNETES_VERSION="1.32.6"
+
+# v1.16.0 DNS Configuration
+export TP_TOP_LEVEL_DOMAIN="atsnl-emea.azure.dataplanes.pro"
+export TP_SANDBOX="dp1"
+export TP_BASE_DNS_DOMAIN="dp1.atsnl-emea.azure.dataplanes.pro"
+
+# Control Plane (v1.16.0)
+export CP_INSTANCE_ID="cp1"
+export CP_NAMESPACE="cp1-ns"
+export CP_MY_DNS_DOMAIN="admin.dp1.atsnl-emea.azure.dataplanes.pro"
+
+# Data Plane (v1.16.0)
+export DP_INSTANCE_ID="dp1"
+export DP_NAMESPACE="dp1-ns"
+export TP_DOMAIN="dp1.atsnl-emea.azure.dataplanes.pro"
+
+# Ingress (Traefik - migrated from NGINX)
+export TP_INGRESS_CLASS="traefik"
+export INGRESS_LOAD_BALANCER_IP="20.54.225.126"
+
+# Storage
+export TP_DISK_STORAGE_CLASS="azure-disk-sc"
+export TP_FILE_STORAGE_CLASS="azure-files-sc"
+
+# Observability (Existing)
+export ELASTIC_NAMESPACE="elastic-system"
+export PROMETHEUS_NAMESPACE="prometheus-system"
+
+# Database (In-cluster PostgreSQL for dev/test)
+export TP_POSTGRES_HOST="postgresql.tibco-ext.svc.cluster.local"
+export TP_POSTGRES_PORT="5432"
+export TP_POSTGRES_DATABASE="postgres"
+export TP_POSTGRES_USERNAME="postgres"
+
+# Container Registry
+export TP_CONTAINER_REGISTRY="csgprdusw2reposaas.jfrog.io"
+export TP_CONTAINER_REGISTRY_USERNAME="<your-username>"
+export TP_CONTAINER_REGISTRY_PASSWORD="<your-password>"
+```
+
+> **Note**: The dp1-aks-aauk-kul example shows an existing cluster with Traefik ingress controller, observability stack (Elasticsearch 8.17.3, Prometheus 48.3.4), and v1.16.0 DNS architecture. Subscriptions can have custom hostPrefix (e.g., 'ai', 'benelux') creating URLs like {hostPrefix}.dp1.atsnl-emea.azure.dataplanes.pro.
 
 ### Step 1.3: Login to Azure
 

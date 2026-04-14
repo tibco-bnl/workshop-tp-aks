@@ -1,32 +1,44 @@
 # TIBCO Platform on Azure Kubernetes Service (AKS) Workshop
 
-> **Current Release:** [v1.15.0](./releases/v1.15.0) | **TIBCO Platform CP Version:** 1.15.0  
+> **Current Release:** [v1.16.0](./releases/v1.16.0) | **TIBCO Platform CP Version:** 1.16.0  
 > 📋 **Release History:** See `releases` folder for all versions  
-> 🔄 **Upgrading from 1.14.0?** See the [1.15.0 Release Notes](./releases/v1.15.0#upgrade-path)
+> 🔄 **Upgrading from 1.15.0?** See the [1.16.0 Release Notes](./releases/v1.16.0#upgrade-path-from-v1150)
 
 This repository provides comprehensive guides and resources for deploying **TIBCO Platform** on **Azure Kubernetes Service (AKS)** clusters. It covers multiple deployment scenarios from basic AKS cluster setup to full Control Plane and Data Plane deployments with observability.
 
 ## 🎯 Version Selection
 
-**⚠️ Important:** TIBCO Platform version 1.15.0 includes breaking changes from 1.14.0. Choose the appropriate documentation for your deployment:
+**⚠️ Important:** Choose the appropriate documentation version for your deployment:
 
-### 🌟 Version 1.15.0 (Current - Recommended for New Deployments)
-- ✅ **Latest Features**: Enhanced security, improved network policies, unified chart deployment
-- ✅ **New Capabilities**: Event processing, updated Developer Hub 1.15.14
-- ✅ **Better Observability**: Improved monitoring and logging stack
+### 🌟 Version 1.16.0 (Current - Recommended for New Deployments)
+- ✅ **License Management**: View details and receive expiration notifications (90/30/7 days)
+- ✅ **BW6 AI Plugin 6.0.0**: RAG (Retrieval-Augmented Generation) capabilities (Preview)
+- ✅ **Enhanced Monitoring**: Historical logs, audit history, and metrics charts for BW5
+- ✅ **Flogo Init/Sidecar**: Support for init and sidecar containers in deployments
+- ✅ **Developer Hub URL**: Update Developer Hub URL through UI with ingress flexibility
+- 📘 [Setup Guide: CP + DP (v1.16)](./howto/how-to-cp-and-dp-aks-setup-guide)
+- 📘 [Quick Reference (v1.16)](./howto/v1.16/QUICK-REFERENCE)
+- 📋 [Release Notes (v1.16.0)](./releases/v1.16.0)
+- 📋 [Documentation Summary](./howto/v1.16/DOCUMENTATION-SUMMARY)
+
+### 📦 Version 1.15.0 (Previous Release)
+- ✅ **DNS Simplification**: Simplified single-level subdomain architecture
+- ✅ **Enhanced security**: Improved network policies
+- ✅ **New Capabilities**: Event processing, updated Developer Hub
 - 📘 [Setup Guide: CP + DP (v1.15)](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide)
 - 📘 [Setup Guide: DP Only  (v1.15)](./howto/v1.15/how-to-dp-aks-setup-guide)
 - 📋 [Release Notes (v1.15.0)](./releases/v1.15.0)
 
-### 📦 Version 1.14.0 (Previous Release)
+### 📦 Version 1.14.0 (Legacy)
 - ✅ **Proven Stability**: Production-tested and widely deployed
 - ✅ **Complete Documentation**: Comprehensive battle-tested guides
 - 📘 [Setup Guide: CP + DP (v1.14)](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide)
 - 📘 [Setup Guide: DP Only (v1.14)](./howto/v1.14/how-to-dp-aks-setup-guide)
 - 📋 [Release Notes (v1.14.0)](./releases/v1.14.0)
 
-### 🔄 Upgrading from v1.14.0 to v1.15.0
-TIBCO provides an automated upgrade script. See the [Upgrade Path section](./releases/v1.15.0#upgrade-path) in the v1.15.0 release notes.
+### 🔄 Upgrading Between Versions
+- **v1.14.0 → v1.15.0**: See [Upgrade Path](./releases/v1.15.0#upgrade-path)
+- **v1.15.0 → v1.16.0**: See [Upgrade Path](./releases/v1.16.0#upgrade-path-from-v1150)
 
 ---
 
@@ -45,7 +57,18 @@ Configure comprehensive monitoring and logging using Prometheus and Elastic Stac
 
 ### 🏗️ Version-Specific Setup Guides
 
-#### Version 1.15.0 (Current Release)
+#### Version 1.16.0 (Current Release)
+**[📖 How to Set Up AKS Cluster with Control Plane and Data Plane (v1.16)](./howto/how-to-cp-and-dp-aks-setup-guide)**
+- 🎯 **Scope**: Complete TIBCO Platform 1.16.0 deployment on AKS
+- 🔧 **New Features**: AI services endpoint, hybrid connectivity enhancements, MCP servers for BW/Flogo
+- ⏱️ **Duration**: 3-4 hours
+
+**[📖 Quick Reference Guide (v1.16)](./howto/v1.16/QUICK-REFERENCE)**
+- 🎯 **Scope**: Quick reference for v1.16.0 configuration and commands
+- 🔧 **Features**: Essential commands, URLs, troubleshooting tips
+- ⏱️ **Duration**: Quick lookup
+
+#### Version 1.15.0 (Previous Release)
 **[📖 How to Set Up AKS Cluster with Control Plane and Data Plane (v1.15)](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide)**
 - 🎯 **Scope**: Complete TIBCO Platform 1.15.0 deployment on AKS
 - 🔧 **New Features**: Enhanced secrets management, improved network policies, unified chart deployment

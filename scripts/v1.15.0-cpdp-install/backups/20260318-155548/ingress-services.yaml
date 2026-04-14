@@ -1,0 +1,99 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: '*.dp1.atsnl-emea.azure.dataplanes.pro'
+      meta.helm.sh/release-name: traefik
+      meta.helm.sh/release-namespace: ingress-system
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /ping
+    creationTimestamp: "2026-03-18T13:22:45Z"
+    finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+    labels:
+      app.kubernetes.io/instance: traefik-ingress-system
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: traefik
+      helm.sh/chart: traefik-39.0.5
+    name: traefik
+    namespace: ingress-system
+    resourceVersion: "54946805"
+    uid: 92897507-237c-4d30-93c3-28920f9776dc
+  spec:
+    allocateLoadBalancerNodePorts: true
+    clusterIP: 10.0.59.87
+    clusterIPs:
+    - 10.0.59.87
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    loadBalancerIP: 128.251.247.140
+    ports:
+    - name: metrics
+      nodePort: 31989
+      port: 9100
+      protocol: TCP
+      targetPort: metrics
+    - name: web
+      nodePort: 30360
+      port: 80
+      protocol: TCP
+      targetPort: web
+    - name: websecure
+      nodePort: 30296
+      port: 443
+      protocol: TCP
+      targetPort: websecure
+    selector:
+      app.kubernetes.io/instance: traefik-ingress-system
+      app.kubernetes.io/name: traefik
+    sessionAffinity: None
+    type: LoadBalancer
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 20.54.225.126
+        ipMode: VIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: traefik
+      meta.helm.sh/release-namespace: ingress-system
+    creationTimestamp: "2026-03-18T13:22:45Z"
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: traefik-ingress-system
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: traefik
+      helm.sh/chart: traefik-39.0.5
+    name: traefik-metrics
+    namespace: ingress-system
+    resourceVersion: "54945998"
+    uid: 0fb0a40e-2138-4a2a-bc8a-631d58932b17
+  spec:
+    clusterIP: 10.0.248.7
+    clusterIPs:
+    - 10.0.248.7
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: metrics
+      port: 9100
+      protocol: TCP
+      targetPort: metrics
+    selector:
+      app.kubernetes.io/instance: traefik-ingress-system
+      app.kubernetes.io/name: traefik
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""

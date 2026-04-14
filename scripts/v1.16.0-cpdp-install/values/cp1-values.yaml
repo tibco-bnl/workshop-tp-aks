@@ -1,0 +1,305 @@
+################################################################################
+# TIBCO Platform Control Plane Values for AKS
+# Version: 1.16.0
+# Instance: cp1
+# Cluster: dp1-aks-aauk-kul
+# Last Updated: April 10, 2026
+# Based on running production environment in cp1-ns namespace
+#
+# NOTE: For a complete reference with all optional values, see:
+# - cp1-values-enhanced.yaml (comprehensive with all options commented)
+# - https://github.com/TIBCOSoftware/tp-helm-charts/blob/main/charts/tibco-cp-base/values.yaml
+################################################################################
+
+# Global Configuration
+global:
+  tibco:
+    # Admin host prefix for Control Plane UI
+    adminHostPrefix: "admin"
+    
+    # Service Account for Control Plane
+    serviceAccount: "cp1-sa"
+    
+    # Schema Management
+    manageDbSchema: true
+    
+    # Network Policy (disabled for workshop/dev)
+    createNetworkPolicy: false
+    
+    # Advanced Network Policy Configuration (for production)
+    # Uncomment and configure for production security
+    # networkPolicy:
+    #   createDeprecatedPolicies: true
+    #   createClusterScopePolicies: true
+    #   createInternetScopePolicies: true
+    #   database:
+    #     CIDR: "10.0.0.0/16"
+    #     port: "5432"
+    #   logServer:
+    #     CIDR: ""
+    #     port: "9200"
+    #   containerRegistry:
+    #     CIDR: ""
+    #     port: "443"
+    #   emailServer:
+    #     CIDR: ""
+    #     port: "1025"
+    
+    # Single Namespace Mode - REQUIRED for v1.16.0
+    useSingleNamespace: true
+    
+    # Optional: Enable resource constraints (CPU/Memory limits)
+    # enableResourceConstraints: true
+    
+    # Optional: Session timeout for idle sessions (in seconds)
+    # Default: 14400 (4 hours), Range: 600 to 86400
+    # idleSessionTimeoutInSeconds: "14400"
+    
+    # Container Registry Configuration
+    containerRegistry:
+      url: "csgprdusw2reposaas.jfrog.io"
+      username: "tibco-platform-devqa"
+      password: ""  # Set via environment variable or helm --set
+      repository: "tibco-platform-docker-dev"
+    
+    # Hybrid Connectivity (for cloud-edge deployments)
+    hybridConnectivity:
+      enabled: true
+    
+    # Control Plane Instance ID
+    controlPlaneInstanceId: "cp1"
+    
+    # Logging Configuration with FluentBit
+    logging:
+      fluentbit:
+        enabled: true
+    
+    # Database SSL Configuration (disabled for in-cluster PostgreSQL)
+    db_ssl_root_cert_secretname: "cp-db-ssl"
+    db_ssl_root_cert_filename: "cp_db_ssl.cert"
+  
+  external:
+    # PostgreSQL Database Configuration (in tibco-ext namespace)
+    db_host: "postgresql.tibco-ext.svc.cluster.local"
+    # Optional: For read/write split or read replica configuration
+    # db_master_writer_host: ""
+    # db_local_reader_host: ""
+    db_name: "postgres"
+    db_port: "5432"
+    db_username: "postgres"
+    db_password: "postgres"
+    db_secret_name: "cp-db-secret"
+    db_ssl_mode: "disable"  # Options: disable, require, verify-ca, verify-full
+    
+    # Encryption Secret Configuration
+    cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
+    cpEncryptionSecretName: "cporch-encryption-secret"
+    
+    # Email Server Configuration (MailDev in tibco-ext namespace)
+    emailServerType: "smtp"
+    emailServer:
+      smtp:
+        server: "development-mailserver.tibco-ext.svc.cluster.local"
+        port: "1025"
+        username: ""
+        password: ""
+    fromAndReplyToEmailAddress: "cpadmin@tibco.com"
+    
+    # Admin User Configuration
+    admin:
+      customerID: "customerID"
+      email: "cpadmin@tibco.com"
+      firstname: "Platform"
+      lastname: "Admin"
+    
+    # Admin Initial Password (will be stored in tp-cp-web-server secret)
+    adminInitialPassword: "adminpassword"
+    
+    # API-based Initialization (disabled)
+    enable_api_based_initialization: false
+    
+    # DNS Domain Configuration (v1.16.0 simplified)
+    dnsDomain: "dp1.atsnl-emea.azure.dataplanes.pro"
+    dnsTunnelDomain: "dp1.atsnl-emea.azure.dataplanes.pro"
+    
+    # Cluster Network Information
+    clusterInfo:
+      nodeCIDR: "10.4.0.0/16"
+      podCIDR: "10.4.0.0/20"
+      serviceCIDR: "10.0.0.0/16"
+    
+    # Audit Server Configuration (for audit trails)
+    auditserver:
+      index: "tibco-cp-audit"
+    
+    # Log Server Configuration (Elasticsearch for centralized logging)
+    logserver:
+      endpoint: "https://dp-config-es-es-http.elastic-system.svc.cluster.local:9200"
+      index: "tibco-cp-log"
+      username: "elastic"
+      password: "elasticpassword"
+    
+    # Storage Configuration (Azure Files for Control Plane PVC)
+    storage:
+      resources:
+        requests:
+          storage: "10Gi"
+      storageClassName: "azure-files-sc"
+
+# Router Operator Configuration (Main Ingress for CP)
+router-operator:
+  # REQUIRED: Session Keys - Must be created before installation
+  # Create with:
+  # kubectl create secret generic session-keys -n cp1-ns \
+  #   --from-literal=TSC_SESSION_KEY=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c32) \
+  #   --from-literal=DOMAIN_SESSION_KEY=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c32)
+  #
+  # tscSessionKey:
+  #   secretName: "session-keys"
+  #   key: "TSC_SESSION_KEY"
+  # domainSessionKey:
+  #   secretName: "session-keys"
+  #   key: "DOMAIN_SESSION_KEY"
+  
+  ingress:
+    enabled: true
+    ingressClassName: "traefik"
+    hosts:
+      # Subscription endpoint with hostPrefix: ai
+      - host: "ai.dp1.atsnl-emea.azure.dataplanes.pro"
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+      # Admin console endpoint
+      - host: "admin.dp1.atsnl-emea.azure.dataplanes.pro"
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+
+# Hybrid Proxy Configuration (Cloud-Edge - v1.16.0)
+hybrid-proxy:
+  ingress:
+    enabled: true
+    ingressClassName: "traefik"
+    hosts:
+      - host: "ai.dp1.atsnl-emea.azure.dataplanes.pro"
+
+# Resource Requests for Base Components
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# BW Web Server Configuration
+bw-webserver:
+  bwwebserver:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  # BW Management Console Protocol Server
+  bwmcpserver:
+    enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# BWCE Utilities
+bwce-utilities:
+  enabled: true
+
+# BW5CE Utilities
+bw5ce-utilities:
+  enabled: true
+
+# Flogo Web Server Configuration
+flogo-webserver:
+  flogowebserver:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  # Flogo Management Console Protocol Server
+  mcpserver:
+    enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# Flogo Utilities
+flogo-utilities:
+  enabled: true
+
+# Flogo Recipes
+flogo-recipes:
+  enabled: true
+
+# Developer Hub Recipes
+tibcohub-recipes:
+  enabled: true
+
+# Developer Hub Contrib
+tibcohub-contrib:
+  enabled: true
+
+# Hawk Query Node Configuration
+tp-cp-hawk-infra-querynode:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+
+# Prometheus Configuration (CP Internal)
+tp-cp-prometheus:
+  server:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+
+################################################################################
+# End of Control Plane Values
+################################################################################
+#
+# IMPORTANT PREREQUISITES:
+#
+# 1. Session Keys (REQUIRED before installation):
+#    kubectl create secret generic session-keys -n cp1-ns \
+#      --from-literal=TSC_SESSION_KEY=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c32) \
+#      --from-literal=DOMAIN_SESSION_KEY=$(openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c32)
+#
+# 2. Database Secret (if using db_secret_name):
+#    kubectl create secret generic cp-db-secret -n cp1-ns \
+#      --from-literal=username=postgres \
+#      --from-literal=password=postgres
+#
+# 3. Container Registry Secret:
+#    kubectl create secret docker-registry tibco-container-registry-credentials -n cp1-ns \
+#      --docker-server=csgprdusw2reposaas.jfrog.io \
+#      --docker-username=tibco-platform-devqa \
+#      --docker-password=<password> \
+#      --docker-email=<email>
+#
+# 4. Encryption Secret:
+#    kubectl create secret generic cporch-encryption-secret -n cp1-ns \
+#      --from-literal=CP_ENCRYPTION_SECRET=<your-secret-key>
+#
+# OPTIONAL CONFIGURATIONS (see cp1-values-enhanced.yaml for details):
+# - Network policies for production security
+# - Resource limits for components
+# - Gateway API instead of traditional Ingress
+# - OpenTelemetry collector for advanced observability
+# - Multi-region replica configuration
+# - Database read/write split configuration
+# - Custom session timeout
+#
+# For complete documentation:
+# - GitHub: https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-base
+# - Enhanced values: cp1-values-enhanced.yaml
+# - Installation guide: ../README.md
+################################################################################
+

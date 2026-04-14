@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    meta.helm.sh/release-name: external-dns
+    meta.helm.sh/release-namespace: external-dns-system
+  creationTimestamp: "2025-09-11T14:25:22Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: external-dns
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/version: 0.15.1
+    helm.sh/chart: external-dns-1.15.2
+  name: external-dns
+  namespace: external-dns-system
+  resourceVersion: "54689403"
+  uid: a4c63a68-0c0f-4b65-94be-aa6c47207cec
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: external-dns
+      app.kubernetes.io/name: external-dns
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: external-dns
+        app.kubernetes.io/name: external-dns
+    spec:
+      containers:
+      - args:
+        - --log-level=info
+        - --log-format=text
+        - --interval=1m
+        - --source=service
+        - --source=ingress
+        - --policy=upsert-only
+        - --registry=txt
+        - --domain-filter=dp1.kul.atsnl-emea.azure.dataplanes.pro
+        - --provider=azure
+        - --ingress-class=nginx
+        - --txt-wildcard-replacement=wildcard
+        image: registry.k8s.io/external-dns/external-dns:v0.15.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: external-dns
+        ports:
+        - containerPort: 7979
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 6
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/kubernetes
+          name: azure-config-file
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 65534
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: external-dns
+      serviceAccountName: external-dns
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: azure-config-file
+        secret:
+          defaultMode: 420
+          secretName: azure-config-file
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-09-11T14:25:22Z"
+    lastUpdateTime: "2025-09-11T14:25:35Z"
+    message: ReplicaSet "external-dns-7584cc765c" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2026-03-18T01:16:41Z"
+    lastUpdateTime: "2026-03-18T01:16:41Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

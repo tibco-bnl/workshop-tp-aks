@@ -1,0 +1,537 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      meta.helm.sh/release-name: as-grid
+      meta.helm.sh/release-namespace: ai
+      nginx.ingress.kubernetes.io/backend-protocol: GRPC
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,
+        10.4.0.0/16, 93.90.66.59/32, 20.67.24.154/32, 108.142.236.62/32, 157.97.112.70/32,
+        185.54.183.206/32
+    creationTimestamp: "2026-03-11T09:36:29Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: documentstore-ingress
+      app.kubernetes.io/instance: as-grid
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: as-vdb-grpc
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: as-vdb-grpc-0.1.0
+    name: as-grid-as-vdb-grpc-documentstore
+    namespace: ai
+    resourceVersion: "51323486"
+    uid: f4661ba0-2598-4297-ba26-205022ee4d6e
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-documentstore.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: as-grid-as-vdb-grpc-documentstore
+              port:
+                number: 50052
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      meta.helm.sh/release-name: as-grid
+      meta.helm.sh/release-namespace: ai
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,
+        10.4.0.0/16, 93.90.66.59/32, 20.67.24.154/32, 108.142.236.62/32, 157.97.112.70/32,
+        185.54.183.206/32
+    creationTimestamp: "2026-03-11T09:36:29Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: ftlserver-ingress
+      app.kubernetes.io/instance: as-grid
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: as-vdb-grpc
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: as-vdb-grpc-0.1.0
+    name: as-grid-as-vdb-grpc-ftlserver
+    namespace: ai
+    resourceVersion: "51323487"
+    uid: 3fadc06f-c302-41fe-8918-e2dfc396c131
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-ftl-server.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: as-grid-as-vdb-grpc-ftlserver
+              port:
+                number: 13031
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      meta.helm.sh/release-name: as-grid
+      meta.helm.sh/release-namespace: ai
+      nginx.ingress.kubernetes.io/backend-protocol: GRPC
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,
+        10.4.0.0/16, 93.90.66.59/32, 20.67.24.154/32, 108.142.236.62/32, 157.97.112.70/32,
+        185.54.183.206/32
+    creationTimestamp: "2026-03-11T09:36:29Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: vectorstore-ingress
+      app.kubernetes.io/instance: as-grid
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: as-vdb-grpc
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: as-vdb-grpc-0.1.0
+    name: as-grid-as-vdb-grpc-vectorstore
+    namespace: ai
+    resourceVersion: "51323485"
+    uid: d4809f81-293b-4ba1-b4c2-cfadff6fd891
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-vectorstore.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: as-grid-as-vdb-grpc-vectorstore
+              port:
+                number: 50051
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: docling
+      meta.helm.sh/release-namespace: default
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,185.54.183.206/32
+    creationTimestamp: "2026-02-26T14:33:33Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: docling-serve
+    namespace: ai
+    resourceVersion: "51298876"
+    uid: 0339e9e9-d66b-42da-ac7a-c86b26eccbfb
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-docling.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: docling-serve
+              port:
+                number: 5001
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: ollama
+      meta.helm.sh/release-namespace: default
+      nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+      nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,185.54.183.206/32
+    creationTimestamp: "2026-02-27T05:30:27Z"
+    generation: 1
+    labels:
+      app: ai-inference
+      app.kubernetes.io/component: ollama-ingress
+      app.kubernetes.io/instance: ollama
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: ai-workshop-ollama
+      app.kubernetes.io/version: "1.0"
+      cluster: dp1-aks-aauk-kul
+      deployment: cpu-ollama
+      environment: workshop
+      helm.sh/chart: ai-workshop-ollama-1.0.0
+      k8slens-edit-resource-version: v1
+    name: ollama-ai-workshop-ollama
+    namespace: ai
+    resourceVersion: "51298835"
+    uid: f1302f79-12eb-4385-b2aa-33211372e72a
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-ollama.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: ollama-ai-workshop-ollama
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: open-webui
+      meta.helm.sh/release-namespace: ai
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16,185.54.183.206/32
+    creationTimestamp: "2026-02-06T14:32:46Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: open-webui
+      app.kubernetes.io/instance: open-webui
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: open-webui
+      app.kubernetes.io/version: 0.7.2
+      helm.sh/chart: open-webui-10.2.1
+      k8slens-edit-resource-version: v1
+    name: open-webui
+    namespace: ai
+    resourceVersion: "51298762"
+    uid: 2d563932-9625-4887-9625-5bd6f01fce66
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: openwebui.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: open-webui
+              port:
+                name: http
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - openwebui.dp1.atsnl-emea.azure.dataplanes.pro
+      secretName: open-webui-tls
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      meta.helm.sh/release-name: postgresql
+      meta.helm.sh/release-namespace: default
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,
+        10.4.0.0/16, 93.90.66.59/32, 20.67.24.154/32, 108.142.236.62/32, 157.97.112.70/32,
+        185.54.183.206/32
+    creationTimestamp: "2026-03-11T12:54:23Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: pgadmin-ingress
+      app.kubernetes.io/instance: postgresql
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/version: "15.0"
+      helm.sh/chart: postgresql-0.1.0
+    name: postgresql-pgadmin
+    namespace: ai
+    resourceVersion: "51393506"
+    uid: 85acefb3-cbbe-4f9f-8fee-d664db6cc712
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-pgadmin.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: postgresql-pgadmin
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      meta.helm.sh/release-name: postgresql
+      meta.helm.sh/release-namespace: default
+      nginx.ingress.kubernetes.io/tcp-services-configmap: ai/tcp-services
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32, 18.200.217.204/32,
+        108.129.54.220/32, 62.250.248.64/32, 217.120.32.76/32, 86.90.167.198/32, 86.95.114.49/32,
+        10.4.0.0/16, 93.90.66.59/32, 20.67.24.154/32, 108.142.236.62/32, 157.97.112.70/32,
+        185.54.183.206/32
+    creationTimestamp: "2026-03-11T12:59:37Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: postgresql-ingress
+      app.kubernetes.io/instance: postgresql
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/version: "15.0"
+      helm.sh/chart: postgresql-0.1.0
+    name: postgresql-postgresql
+    namespace: ai
+    resourceVersion: "51395638"
+    uid: 26ac2e3f-9004-4089-946f-fd33c619f8bf
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: ai-postgresql.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: postgresql-postgresql
+              port:
+                number: 5432
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      kubernetes.io/ingress.class: nginx
+      meta.helm.sh/release-name: bpm-enterprise
+      meta.helm.sh/release-namespace: bpm
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/session-cookie-expires: "604800"
+      nginx.ingress.kubernetes.io/session-cookie-max-age: "604800"
+      nginx.ingress.kubernetes.io/session-cookie-name: route
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+    creationTimestamp: "2026-02-23T09:07:12Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: bpm-enterprise
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: bpm
+      app.kubernetes.io/version: 5.6.1
+      helm.sh/chart: bpm-0.2.0
+    name: bpm-enterprise-ingress
+    namespace: bpm
+    resourceVersion: "44246980"
+    uid: 8889ba63-c0a4-4902-aa75-94f4ee0d20c4
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: bpm.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: bpm-enterprise
+              port:
+                number: 8181
+          path: /
+          pathType: Prefix
+    tls:
+    - hosts:
+      - bpm.dp1.atsnl-emea.azure.dataplanes.pro
+      secretName: bpm-tls-secret
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      konghq.com/https-redirect-status-code: "302"
+      meta.helm.sh/release-name: dp-config-es
+      meta.helm.sh/release-namespace: elastic-system
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    creationTimestamp: "2025-09-29T11:45:47Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: dp-config-es-apm
+    namespace: elastic-system
+    resourceVersion: "44246738"
+    uid: 1191174b-2c7e-4c3e-952b-3e997d63b173
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: apm.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: dp-config-es-apm-http
+              port:
+                name: https
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      konghq.com/https-redirect-status-code: "302"
+      meta.helm.sh/release-name: dp-config-es
+      meta.helm.sh/release-namespace: elastic-system
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    creationTimestamp: "2025-09-29T11:45:47Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: dp-config-es-elastic
+    namespace: elastic-system
+    resourceVersion: "44246812"
+    uid: 6469266f-41a6-4d30-9f7b-c0033966cc1c
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: elastic.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: dp-config-es-es-http
+              port:
+                name: https
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      konghq.com/https-redirect-status-code: "302"
+      meta.helm.sh/release-name: dp-config-es
+      meta.helm.sh/release-namespace: elastic-system
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    creationTimestamp: "2025-09-29T11:45:47Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      k8slens-edit-resource-version: v1
+    name: dp-config-es-kibana
+    namespace: elastic-system
+    resourceVersion: "44246688"
+    uid: 952da8f4-466a-4c11-a7b7-f4dfa6d18e63
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: kibana.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: dp-config-es-kb-http
+              port:
+                name: https
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: kube-prometheus-stack
+      meta.helm.sh/release-namespace: prometheus-system
+      nginx.ingress.kubernetes.io/whitelist-source-range: 63.34.112.27/32,18.200.217.204/32,108.129.54.220/32,62.250.248.64/32,217.120.32.76/32,86.90.167.198/32,86.95.114.49/32,195.250.152.42/32,31.30.164.224/32,87.213.22.0/24,52.166.251.127/32,10.4.0.0/16
+    creationTimestamp: "2025-09-11T14:39:00Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/instance: kube-prometheus-stack
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/version: 10.0.3
+      helm.sh/chart: grafana-6.58.9
+      k8slens-edit-resource-version: v1
+    name: kube-prometheus-stack-grafana
+    namespace: prometheus-system
+    resourceVersion: "44246974"
+    uid: 7b28d2fc-17af-4cd2-a9b3-85f48e5caef3
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: grafana.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+        - backend:
+            service:
+              name: kube-prometheus-stack-grafana
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 128.251.247.140
+kind: List
+metadata:
+  resourceVersion: ""

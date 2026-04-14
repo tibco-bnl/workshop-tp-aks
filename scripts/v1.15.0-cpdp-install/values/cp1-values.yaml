@@ -1,0 +1,226 @@
+################################################################################
+# TIBCO Platform Control Plane Values for AKS
+# Version: 1.15.0
+# Instance: cp1
+# Cluster: dp1-aks-aauk-kul
+# Generated: March 18, 2026
+# Based on: https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/control-plane
+################################################################################
+
+# Global Configuration
+global:
+  tibco:
+    adminHostPrefix: "admin"
+    serviceAccount: "cp1-sa"
+    manageDbSchema: true
+    createNetworkPolicy: false
+    useSingleNamespace: true  # Force setting to address msg-webserver issue
+    
+    # Container Registry
+    containerRegistry:
+      url: "csgprdeuwrepoedge.jfrog.io"
+      username: "tibco-platform-sub-cn1q0bple0tljgoes3d0"
+      password: ""  # Set via environment variable or helm --set
+      repository: "tibco-platform-docker-prod"
+    
+    # Hybrid Connectivity (Tunnel) - Disabled
+    hybridConnectivity:
+      enabled: false
+    
+    # Control Plane Instance
+    controlPlaneInstanceId: "cp1"
+    
+    # Logging Configuration
+    logging:
+      fluentbit:
+        enabled: false  # Disabled, but logserver enabled for audit trail
+    
+    # Database SSL Configuration (for Azure PostgreSQL)
+    # db_ssl_root_cert_secretname: "db-ssl-root-cert"
+    # db_ssl_root_cert_filename: "db_ssl_root.cert"
+  
+  external:
+    # PostgreSQL Database Configuration (Running in tibco-ext namespace)
+    db_host: "postgresql.tibco-ext.svc.cluster.local"
+    db_name: "postgres"
+    db_port: "5432"
+    db_username: "postgres"
+    db_password: "postgres"
+    db_secret_name: "postgresql"
+    db_ssl_mode: "disable"
+    
+    # Encryption Secret Configuration
+    cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
+    cpEncryptionSecretName: "cporch-encryption-secret"
+    
+    # Email Server Configuration (MailDev in tibco-ext namespace)
+    emailServerType: "smtp"
+    emailServer:
+      smtp:
+        server: "development-mailserver.tibco-ext.svc.cluster.local"
+        port: "1025"
+        username: ""
+        password: ""
+    fromAndReplyToEmailAddress: "noreply@dp1.atsnl-emea.azure.dataplanes.pro"
+    
+    # Admin User Configuration
+    # Note: Password is AUTO-GENERATED in v1.15 and stored in secret tp-cp-web-server
+    admin:
+      customerID: "dp1-customer"
+      email: "admin@tibco.com"
+      firstname: "Platform"
+      lastname: "Admin"
+    
+    # DNS Domain (v1.15.0 simplified - no separate tunnel domain)
+    dnsDomain: "dp1.atsnl-emea.azure.dataplanes.pro"
+    
+    # Cluster Information
+    clusterInfo:
+      nodeCIDR: "10.224.0.0/16"
+      podCIDR: "10.244.0.0/16"
+      serviceCIDR: "10.0.0.0/16"
+    
+    # Audit Server Configuration (Optional - for audit trails)
+    # auditserver:
+    #   index: "audittrail"
+    
+    # Log Server Configuration (Optional - for audit trails)
+    # logserver:
+    #   endpoint: "http://dp-config-es-es-http.elastic-system:9200"
+    #   index: "logserver"
+    #   password: ""
+    #   username: "elastic"
+    
+    # Storage Configuration
+    storage:
+      resources:
+        requests:
+          storage: "10Gi"
+      storageClassName: "azurefile-csi-premium"
+
+# Router Operator Configuration
+router-operator:
+  ingress:
+    enabled: true
+    ingressClassName: "traefik"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      acme.cert-manager.io/http01-ingress-class: "traefik"  # Use traefik for ACME HTTP-01
+    hosts:
+      # Admin console (must be before wildcard for proper routing)
+      - host: "admin.dp1.atsnl-emea.azure.dataplanes.pro"
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+      # Subscription static URL (benelux subscription)
+      - host: "benelux.dp1.atsnl-emea.azure.dataplanes.pro"
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+    tls:
+      - secretName: cp-router-tls
+        hosts:
+          - "admin.dp1.atsnl-emea.azure.dataplanes.pro"  # Specific domain for HTTP-01
+          - "benelux.dp1.atsnl-emea.azure.dataplanes.pro"  # Subscription domain for benelux
+  # Session keys from secret
+  tscSessionKey:
+    secretName: session-keys
+    key: TSC_SESSION_KEY
+  domainSessionKey:
+    secretName: session-keys
+    key: DOMAIN_SESSION_KEY
+
+# FinOps Capability
+tp-cp-core-finops:
+  finops:
+    enabled: true
+
+# BW6 Provisioner
+tp-cp-integration-bwprovisioner:
+  bwprovisioner:
+    enabled: true
+
+# BW5 Provisioner
+tp-cp-integration-bw5provisioner:
+  bw5provisioner:
+    enabled: true
+
+# Flogo Provisioner
+tp-cp-integration-flogoprovisioner:
+  flogoprovisioner:
+    enabled: true
+
+# BW Web Server
+bw-webserver:
+  bwwebserver:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  # MCP Server
+  bwmcpserver:
+    enabled: false  # Enable if needed
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# BWCE Utilities
+bwce-utilities:
+  enabled: true
+
+# BW5CE Utilities
+bw5ce-utilities:
+  enabled: true
+
+# Flogo Web Server
+flogo-webserver:
+  flogowebserver:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  # MCP Server
+  mcpserver:
+    enabled: false  # Enable if needed
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# Flogo Utilities
+flogo-utilities:
+  enabled: true
+
+# Flogo Recipes
+flogo-recipes:
+  enabled: true
+
+# Developer Hub Recipes
+tibcohub-recipes:
+  enabled: true
+
+# Developer Hub Contrib
+tibcohub-contrib:
+  enabled: true
+
+# Messaging Charts
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Hawk Query Node
+tp-cp-hawk-infra-querynode:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+
+# Bootstrap CronJobs
+tp-cp-bootstrap-cronjobs:
+  cronjobs:
+    setupJob:
+      enable: true

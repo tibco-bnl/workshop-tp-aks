@@ -173,24 +173,24 @@ Before proceeding with the observability setup, ensure you have:
 ### Environment Variables
 
 > [!IMPORTANT]
-> **TIBCO Platform 1.15.0 DNS Simplification**  
-> Starting with TIBCO Platform 1.15.0, DNS configuration has been simplified:
+> **TIBCO Platform 1.16.0 DNS Configuration**  
+> Starting with TIBCO Platform 1.15.0 (continuing in 1.16.0), DNS configuration uses simplified single-level subdomains:
 > - **Before (1.14.x)**: Used `TP_DOMAIN` with multi-level subdomains like `kibana.cp1-my.apps.example.com`
-> - **After (1.15.0+)**: Uses `TP_BASE_DNS_DOMAIN` with single-level subdomains like `kibana.example.com`
+> - **After (1.15.0+/1.16.0+)**: Uses `TP_BASE_DNS_DOMAIN` with single-level subdomains like `kibana.example.com`
 >
 > This guide supports **both configurations**. Choose based on your TIBCO Platform version:
-> - **v1.15.0+**: Use `TP_BASE_DNS_DOMAIN` (simplified DNS)
+> - **v1.15.0+ / v1.16.0+**: Use `TP_BASE_DNS_DOMAIN` (simplified DNS)
 > - **v1.14.x**: Use `TP_DOMAIN` (legacy DNS)
 
 Ensure these variables are set:
 
-#### For TIBCO Platform 1.15.0+ (Simplified DNS - Recommended)
+#### For TIBCO Platform 1.15.0+ and 1.16.0+ (Simplified DNS - Recommended)
 
 ```bash
 # Source the environment variables
 source /path/to/aks-env-variables-official.sh
 
-# Verify required variables (v1.15.0+ simplified DNS)
+# Verify required variables (v1.15.0+ / v1.16.0+ simplified DNS)
 echo "TP_TIBCO_HELM_CHART_REPO: ${TP_TIBCO_HELM_CHART_REPO}"
 echo "TP_BASE_DNS_DOMAIN: ${TP_BASE_DNS_DOMAIN}"  # NEW in v1.15.0
 echo "TP_INGRESS_CLASS: ${TP_INGRESS_CLASS}"

@@ -1,0 +1,119 @@
+- app_version: ""
+  chart: overlay-upgrade-data-addon-0.1.0-v20260217-addon-260220-3
+  name: aks-managed-overlay-upgrade-data
+  namespace: kube-system
+  revision: "99356"
+  status: deployed
+  updated: 2026-03-18 14:55:07.11440527 +0000 UTC
+- app_version: ""
+  chart: workload-identity-addon-0.1.0-v20260217-addon-260220-3
+  name: aks-managed-workload-identity
+  namespace: kube-system
+  revision: "99069"
+  status: deployed
+  updated: 2026-03-18 14:55:42.851326102 +0000 UTC
+- app_version: 1.0.0
+  chart: as-vdb-grpc-0.1.0
+  name: as-grid
+  namespace: ai
+  revision: "1"
+  status: deployed
+  updated: 2026-03-11 10:36:27.61857863 +0100 CET
+- app_version: 5.6.1
+  chart: bpm-enterprise-0.2.0
+  name: bpm-enterprise
+  namespace: bpm
+  revision: "5"
+  status: deployed
+  updated: 2026-03-12 15:52:52.937256 +0100 CET
+- app_version: 0.15.0
+  chart: prometheus-jdbc-0.1.0
+  name: bpm-metrics
+  namespace: bpm
+  revision: "1"
+  status: deployed
+  updated: 2026-02-04 20:53:36.704811 +0100 CET
+- app_version: v0.19.0
+  chart: prometheus-postgres-exporter-7.5.0
+  name: bpm-postgres-exporter
+  namespace: bpm
+  revision: "2"
+  status: deployed
+  updated: 2026-02-04 20:53:33.095425 +0100 CET
+- app_version: v1.17.1
+  chart: cert-manager-v1.17.1
+  name: cert-manager
+  namespace: cert-manager
+  revision: "1"
+  status: deployed
+  updated: 2025-09-11 16:13:36.248601 +0200 CEST
+- app_version: latest
+  chart: docling-chart-0.1.0
+  name: docling
+  namespace: default
+  revision: "2"
+  status: deployed
+  updated: 2026-02-27 07:35:28.39618945 +0100 CET
+- app_version: 1.6.0
+  chart: dp-config-aks-1.6.0
+  name: dp-config-aks-storage
+  namespace: storage-system
+  revision: "3"
+  status: deployed
+  updated: 2025-09-12 10:29:37.385521 +0200 CEST
+- app_version: 1.8.0
+  chart: dp-config-es-1.8.0
+  name: dp-config-es
+  namespace: elastic-system
+  revision: "1"
+  status: deployed
+  updated: 2025-09-29 11:45:46.459715755 +0000 UTC
+- app_version: 2.16.0
+  chart: eck-operator-2.16.0
+  name: eck-operator
+  namespace: elastic-system
+  revision: "1"
+  status: deployed
+  updated: 2025-09-11 16:36:39.858161 +0200 CEST
+- app_version: 0.15.1
+  chart: external-dns-1.15.2
+  name: external-dns
+  namespace: external-dns-system
+  revision: "1"
+  status: deployed
+  updated: 2025-09-11 16:25:22.460138 +0200 CEST
+- app_version: v0.66.0
+  chart: kube-prometheus-stack-48.3.4
+  name: kube-prometheus-stack
+  namespace: prometheus-system
+  revision: "1"
+  status: deployed
+  updated: 2025-09-11 16:38:49.596638 +0200 CEST
+- app_version: "1.0"
+  chart: ai-workshop-ollama-1.0.0
+  name: ollama
+  namespace: default
+  revision: "5"
+  status: deployed
+  updated: 2026-02-27 07:37:02.709107268 +0100 CET
+- app_version: 0.7.2
+  chart: open-webui-10.2.1
+  name: open-webui
+  namespace: ai
+  revision: "12"
+  status: deployed
+  updated: 2026-02-06 15:32:45.490065 +0100 CET
+- app_version: "15.0"
+  chart: postgresql-0.1.0
+  name: postgresql
+  namespace: default
+  revision: "7"
+  status: deployed
+  updated: 2026-03-11 15:56:17.939792735 +0100 CET
+- app_version: v3.6.10
+  chart: traefik-39.0.5
+  name: traefik
+  namespace: ingress-system
+  revision: "3"
+  status: deployed
+  updated: 2026-03-18 15:01:33.969128 +0100 CET

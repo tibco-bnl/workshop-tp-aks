@@ -1,0 +1,83 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maildev
+  namespace: tibco-ext
+  labels:
+    app: development-mailserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: development-mailserver
+  template:
+    metadata:
+      labels:
+        app: development-mailserver
+    spec:
+      containers:
+        - name: maildev
+          image: maildev/maildev:latest
+          args: ["-s", "1025", "-w", "1080"]
+          ports:
+            - name: http
+              containerPort: 1080
+              protocol: TCP
+            - name: smtp
+              containerPort: 1025
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: development-mailserver
+  namespace: tibco-ext
+  labels:
+    app: development-mailserver
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 1080
+      targetPort: 1080
+      protocol: TCP
+    - name: smtp
+      port: 1025
+      targetPort: 1025
+      protocol: TCP
+  selector:
+    app: development-mailserver
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maildev
+  namespace: tibco-ext
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    acme.cert-manager.io/http01-ingress-class: "traefik"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: mail.dp1.atsnl-emea.azure.dataplanes.pro
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: development-mailserver
+                port:
+                  number: 1080
+  tls:
+    - secretName: maildev-tls
+      hosts:
+        - mail.dp1.atsnl-emea.azure.dataplanes.pro
