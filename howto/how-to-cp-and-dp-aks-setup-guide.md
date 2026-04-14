@@ -208,9 +208,9 @@ export CONTAINER_REGISTRY_SERVER="csgprdusw2reposaas.jfrog.io"
 **Example Configuration (dp1-aks-aauk-kul - ATSBNL Existing Cluster)**:
 
 ```bash
-# Azure Configuration
-export TP_SUBSCRIPTION_ID="53d1715b-a804-423d-94fb-cca06a69e1f5"
-export TP_SUBSCRIPTION_NAME="azrpsemeaneth-PresalesEMEANetherlands"
+# Azure Configuration - Get from current Azure CLI session
+export TP_SUBSCRIPTION_ID=$(az account show --query id -o tsv 2>/dev/null || echo "")
+export TP_SUBSCRIPTION_NAME=$(az account show --query name -o tsv 2>/dev/null || echo "")
 export TP_AZURE_REGION="westeurope"
 export TP_RESOURCE_GROUP="kul-atsbnl"
 
