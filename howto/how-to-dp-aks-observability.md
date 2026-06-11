@@ -173,24 +173,24 @@ Before proceeding with the observability setup, ensure you have:
 ### Environment Variables
 
 > [!IMPORTANT]
-> **TIBCO Platform 1.16.0 DNS Configuration**  
-> Starting with TIBCO Platform 1.15.0 (continuing in 1.16.0), DNS configuration uses simplified single-level subdomains:
+> **TIBCO Platform 1.15.0+ DNS Configuration**
+> Starting with TIBCO Platform 1.15.0 and continuing through 1.18.0, DNS configuration uses simplified single-level subdomains:
 > - **Before (1.14.x)**: Used `TP_DOMAIN` with multi-level subdomains like `kibana.cp1-my.apps.example.com`
-> - **After (1.15.0+/1.16.0+)**: Uses `TP_BASE_DNS_DOMAIN` with single-level subdomains like `kibana.example.com`
+> - **After (1.15.0+)**: Uses `TP_BASE_DNS_DOMAIN` with single-level subdomains like `kibana.example.com`
 >
 > This guide supports **both configurations**. Choose based on your TIBCO Platform version:
-> - **v1.15.0+ / v1.16.0+**: Use `TP_BASE_DNS_DOMAIN` (simplified DNS)
+> - **v1.15.0+ through v1.18.0**: Use `TP_BASE_DNS_DOMAIN` (simplified DNS)
 > - **v1.14.x**: Use `TP_DOMAIN` (legacy DNS)
 
 Ensure these variables are set:
 
-#### For TIBCO Platform 1.15.0+ and 1.16.0+ (Simplified DNS - Recommended)
+#### For TIBCO Platform 1.15.0+ (Simplified DNS - Recommended)
 
 ```bash
 # Source the environment variables
 source /path/to/aks-env-variables-official.sh
 
-# Verify required variables (v1.15.0+ / v1.16.0+ simplified DNS)
+# Verify required variables (v1.15.0+ simplified DNS)
 echo "TP_TIBCO_HELM_CHART_REPO: ${TP_TIBCO_HELM_CHART_REPO}"
 echo "TP_BASE_DNS_DOMAIN: ${TP_BASE_DNS_DOMAIN}"  # NEW in v1.15.0
 echo "TP_INGRESS_CLASS: ${TP_INGRESS_CLASS}"
@@ -1336,7 +1336,8 @@ kubectl patch pvc -n elastic-system elasticsearch-data-dp-config-es-es-default-0
 
 ### TIBCO Platform Resources
 
-- [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
+- [TIBCO Platform 1.18.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
+- [TIBCO Platform 1.17.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Default.htm)
 - [tp-helm-charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [AKS Workshop - Data Plane](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane)
 - **[Install Observability Tools on AKS (Official Guide)](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane#install-observability-tools)**

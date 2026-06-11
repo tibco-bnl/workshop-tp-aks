@@ -324,7 +324,7 @@ helm rollback kube-prometheus-stack -n prometheus-system
 ## Support
 
 For issues or questions:
-- Check TIBCO Platform documentation: https://docs.tibco.com/pub/platform-cp/latest
+- Check TIBCO Platform 1.15.0 documentation: https://docs.tibco.com/pub/platform-cp/1.15.0
 - View workshop guides: https://github.com/tibco-bnl/workshop-tp-aks
 - Contact TIBCO Support
 

@@ -1211,7 +1211,7 @@ kubectl scale deployment dp-core-ops -n $TP_DP_NAMESPACE --replicas=3
 
 ## References
 
-- [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
+- [TIBCO Platform 1.18.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
 - [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
 - [Complete CP+DP Setup Guide](how-to-cp-and-dp-aks-setup-guide.md)
 - [DNS Configuration Guide](how-to-add-dns-records-aks-azure.md)

@@ -405,7 +405,7 @@ To complete the workshop repository, create the Priority 1 files in this order:
 
 ## 📚 REFERENCE MATERIALS USED
 
-- **Official TIBCO Documentation**: https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm
+- **Official TIBCO Documentation**: https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm
 - **TIBCO Helm Charts GitHub**: https://github.com/TIBCOSoftware/tp-helm-charts
 - **AKS Workshop Content**: https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks
 - **Existing ARO Workshop**: /Users/kul/git/tib/workshop-tp-aro (used as reference template)

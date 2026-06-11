@@ -24,7 +24,7 @@ releases/
 ```
 
 ### Modified Files
-- **README.md** — Updated current release to v1.17.0, version selection section updated
+- **README.md** — v1.17.0 listed as a previous release with version-specific setup, quick reference, and release notes
 
 ---
 

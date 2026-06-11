@@ -457,7 +457,7 @@ Reference: https://github.com/traefik/traefik-helm-chart/tree/v39.0.5
 
 ## References
 
-- **TIBCO Platform v1.15.0 Documentation:** https://docs.tibco.com/pub/platform-cp/latest/
+- **TIBCO Platform v1.15.0 Documentation:** https://docs.tibco.com/pub/platform-cp/1.15.0/
 - **Traefik Helm Chart:** https://github.com/traefik/traefik-helm-chart
 - **External-DNS Documentation:** https://github.com/kubernetes-sigs/external-dns
 - **Cert-Manager Documentation:** https://cert-manager.io/docs/

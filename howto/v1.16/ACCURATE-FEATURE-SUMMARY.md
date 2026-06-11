@@ -1,7 +1,7 @@
 # TIBCO Platform v1.16.0 - Accurate Feature Summary
 
 **Updated**: April 10, 2026  
-**Based on**: [Official TIBCO Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#Release-Notes/new-features.htm) and [GitHub tp-helm-charts releases](https://github.com/TIBCOSoftware/tp-helm-charts/releases)
+**Based on**: [Official TIBCO Platform 1.16.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/Release-Notes/new-features.htm) and [GitHub tp-helm-charts releases](https://github.com/TIBCOSoftware/tp-helm-charts/releases)
 
 ---
 
@@ -130,8 +130,8 @@ subscriptionId: d7bs1l819a2c73fg2ujg
 ## 📚 References
 
 ### Official Documentation
-- [TIBCO Platform 1.16.0 New Features](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#Release-Notes/new-features.htm)
-- [TIBCO Platform Control Plane Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/)
+- [TIBCO Platform 1.16.0 New Features](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/Release-Notes/new-features.htm)
+- [TIBCO Platform Control Plane 1.16.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/)
 
 ### GitHub Repositories
 - [tp-helm-charts releases](https://github.com/TIBCOSoftware/tp-helm-charts/releases)
@@ -139,10 +139,10 @@ subscriptionId: d7bs1l819a2c73fg2ujg
 
 ### Specific Component Documentation
 - [Flogo: Deploying with Helm Charts](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/Subsystems/flogo-capability/flogo-user-guide/deploying-app-build-helm-charts.htm)
-- [Flogo: CLI Commands Reference](https://docs.tibco.com/pub/platform-cp/latest/doc/html/CLI/flogo-cli-commands-reference.htm)
+- [Flogo: CLI Commands Reference](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/CLI/flogo-cli-commands-reference.htm)
 - [Flogo: Application and Build Management APIs](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/Subsystems/flogo-capability/flogo-user-guide/api-apps-and-builds.htm)
-- [Activation Configuration](https://docs.tibco.com/pub/platform-cp/latest/doc/html/UserGuide/configuring-activation-server-url.htm)
-- [Installing tibco-cp-flogo chart](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Installation/installing-flogo-chart.htm)
+- [Activation Configuration](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/UserGuide/configuring-activation-server-url.htm)
+- [Installing tibco-cp-flogo chart](https://docs.tibco.com/pub/platform-cp/1.16.0/doc/html/Installation/installing-flogo-chart.htm)
 
 ---
 

@@ -13,7 +13,9 @@ title: TIBCO Platform Control Plane and Data Plane Setup on AKS
 
 **Estimated Time**: 4-6 hours (first-time installation)
 
-**Last Updated**: April 10, 2026
+**Last Updated**: June 11, 2026
+
+> **Version note:** This is the shared AKS CP+DP baseline guide and contains the captured 1.16.0 environment examples used by this workshop. It now includes compatibility notes for the current 1.18.0 release. For release-specific changes, start with the versioned guides: [v1.16](./v1.16/how-to-cp-and-dp-aks-setup-guide.md), [v1.17](./v1.17/how-to-cp-and-dp-aks-setup-guide.md), or [v1.18](./v1.18/how-to-cp-and-dp-aks-setup-guide.md).
 
 **Configuration Files**:
 - Generic template: `scripts/aks-env-variables.sh`
@@ -29,6 +31,7 @@ title: TIBCO Platform Control Plane and Data Plane Setup on AKS
 ## Table of Contents
 
 - [Overview](#overview)
+- [Release-Specific Notes](#release-specific-notes)
 - [Architecture](#architecture)
 - [Part 1: Environment Preparation](#part-1-environment-preparation)
 - [Part 2: AKS Cluster Setup](#part-2-aks-cluster-setup)
@@ -54,7 +57,7 @@ This guide walks through deploying both TIBCO Platform Control Plane and Data Pl
 - **Storage Classes** for Azure Disk and Azure Files
 - **Ingress Controller** (Traefik recommended, NGINX deprecated)
 - **Azure Database for PostgreSQL Flexible Server** (or in-cluster PostgreSQL for dev/test)
-- **TIBCO Platform Control Plane** (v1.16.0+)
+- **TIBCO Platform Control Plane** (current release: 1.18.0; archived overlays for older releases)
 - **TIBCO Platform Data Plane** with capabilities (BWCE, Flogo, EMS)
 
 ### Communication Architecture
@@ -64,6 +67,18 @@ This guide walks through deploying both TIBCO Platform Control Plane and Data Pl
 - Data Plane establishes secure tunnel via Control Plane's `tunnel` domain
 - BWCE and Flogo applications use ingress controllers registered in DNS for external access
 - VNet peering is **OPTIONAL** and only needed for private/internal-only scenarios
+
+---
+
+## Release-Specific Notes
+
+This guide keeps a common AKS installation flow while the versioned overlays capture release details. Check the following points before using the shared examples for 1.18.0:
+
+- **Email server settings**: In 1.18.0, email server configuration moved out of Control Plane Helm values and into Platform Console. Do not include the deprecated `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, or `global.external.platformEmailNotificationCcAddresses` fields in 1.18.0 values files.
+- **Upgrade assistant**: The 1.18.0 Helm scripts include `scripts/1.18.0/upgrade.sh` for 1.17.0 to 1.18.0 Control Plane upgrades. It validates the deployed version, requires Bash 4+, Helm 3.17+, yq 4.45.4+, jq 1.8+, and removes the deprecated email fields during values generation.
+- **Gateway API**: 1.18.0 adds Gateway API endpoint support for BW5, BW6, Flogo, Developer Hub, and observability-related resources. If you choose Gateway API instead of ingress, validate that the Gateway API CRDs, GatewayClass, Gateway, listeners, and HTTPRoutes exist before provisioning capabilities.
+- **Namespace-level RBAC**: 1.18.0 adds namespace-aware permissions for Data Plane application deployments. Make sure Application Manager/Application Viewer assignments match the namespaces where capabilities and applications will run.
+- **Simplified DNS**: The simplified DNS model remains applicable for 1.18.0. Use one Control Plane base domain when possible, for example `platform.azure.example.com`, with URLs such as `admin.platform.azure.example.com` and `<subscription-host-prefix>.platform.azure.example.com`. In this mode, set `dnsDomain` and `dnsTunnelDomain` to the same value; hybrid tunnel traffic is routed by path under `/infra/tunnel` instead of requiring a second `cp1-tunnel` wildcard domain.
 
 ---
 
@@ -108,7 +123,7 @@ graph TB
     CP -->|PVC| STORAGE
     DP -->|PVC| STORAGE
     
-    DNS -.->|Wildcard Records| LB
+    DNS -.->|Wildcard Records<br/>*.base-domain| LB
 ```
 
 ---
@@ -180,8 +195,10 @@ export AKS_NODE_SIZE="Standard_D8s_v3"
 # Control Plane Configuration
 export TP_CP_INSTANCE_ID="cp1"
 export TP_CP_NAMESPACE="cp1-ns"
-export TP_CP_MY_DOMAIN="admin.cp1.platform.azure.example.com"
-export TP_CP_TUNNEL_DOMAIN="tunnel.cp1.platform.azure.example.com"
+export TP_BASE_DNS_DOMAIN="platform.azure.example.com"
+export TP_CP_MY_DOMAIN="${TP_BASE_DNS_DOMAIN}"
+export TP_CP_TUNNEL_DOMAIN="${TP_BASE_DNS_DOMAIN}"
+# Resulting URLs: https://admin.${TP_BASE_DNS_DOMAIN}, https://<hostPrefix>.${TP_BASE_DNS_DOMAIN}
 
 # Data Plane Configuration
 export TP_DP_INSTANCE_ID="dp1"
@@ -198,6 +215,8 @@ export POSTGRES_PORT="5432"
 export POSTGRES_DB="postgres"
 export POSTGRES_USER="tibcoadmin"
 export POSTGRES_PASSWORD="YourSecurePassword123!"
+export POSTGRES_SSL_MODE="require"
+export POSTGRES_SSL_ROOT_CERT_FILE="/path/to/azure-postgres-ca.pem"
 
 # Container Registry
 export CONTAINER_REGISTRY_USERNAME="your-username"
@@ -457,18 +476,31 @@ storageClass:
   azuredisk:
     enabled: ${TP_DISK_ENABLED}
     name: ${TP_DISK_STORAGE_CLASS}
-    volumeBindingMode: Immediate
+    volumeBindingMode: WaitForFirstConsumer
     reclaimPolicy: "Delete"
+    # For EMS production environments, consider Retain and explicit Premium disk parameters.
+    # reclaimPolicy: "Retain"
     parameters:
       skuName: Premium_LRS
   azurefile:
     enabled: ${TP_FILE_ENABLED}
     name: ${TP_FILE_STORAGE_CLASS}
-    volumeBindingMode: Immediate
+    volumeBindingMode: WaitForFirstConsumer
     reclaimPolicy: "Delete"
+    # For EMS production environments, consider Retain and Premium Azure Files with NFS.
+    # reclaimPolicy: "Retain"
     parameters:
       allowBlobPublicAccess: "false"
+      # storageAccount: ${TP_STORAGE_ACCOUNT_NAME}
+      # resourceGroup: ${TP_STORAGE_ACCOUNT_RESOURCE_GROUP}
       skuName: Premium_LRS
+      # protocol: nfs
+    # mountOptions:
+    #   - soft
+    #   - timeo=300
+    #   - actimeo=1
+    #   - retrans=2
+    #   - _netdev
 EOF
 
 # Verify
@@ -483,8 +515,8 @@ kubectl get storageclass
 
 # Expected output:
 # NAME                    PROVISIONER          RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION
-# azure-disk-sc           disk.csi.azure.com   Delete          Immediate           true
-# azure-files-sc          file.csi.azure.com   Delete          Immediate           true
+# azure-disk-sc           disk.csi.azure.com   Delete          WaitForFirstConsumer true
+# azure-files-sc          file.csi.azure.com   Delete          WaitForFirstConsumer true
 # default (default)       disk.csi.azure.com   Delete          WaitForFirstConsumer true
 # managed-csi             disk.csi.azure.com   Delete          WaitForFirstConsumer true
 # managed-csi-premium     disk.csi.azure.com   Delete          WaitForFirstConsumer true
@@ -569,6 +601,12 @@ traefik:
     limits:
       cpu: "2000m"
       memory: "2Gi"
+  # Uncomment after DP_NAMESPACE exists if Traefik should send traces to the Data Plane collector.
+  # tracing:
+  #   otlp:
+  #     http:
+  #       endpoint: http://otel-userapp-traces.${DP_NAMESPACE}.svc.cluster.local:4318/v1/traces
+  #   serviceName: traefik
 EOF
 ```
 
@@ -765,6 +803,9 @@ export POSTGRES_HOST="postgres-${CP_INSTANCE_ID}-postgresql.${CP_INSTANCE_ID}-ns
 
 DNS is **REQUIRED** for Control Plane and Data Plane communication via secure tunnels.
 
+> [!IMPORTANT]
+> For TIBCO Platform 1.15.0+ and current 1.18.0 installations, prefer the simplified DNS model with one Control Plane base domain. For example, use `platform.azure.example.com` as the base domain and create one wildcard record `*.platform.azure.example.com`. Platform Console is then `https://admin.platform.azure.example.com`, subscriptions use `https://<hostPrefix>.platform.azure.example.com`, and hybrid tunnel traffic uses the same wildcard domain with the `/infra/tunnel` route. Keep separate `cp1-my` and `cp1-tunnel` wildcard domains only for legacy environments or explicit separation requirements.
+
 ### Step 6.1: Create Azure DNS Zone (if needed)
 
 ```bash
@@ -788,19 +829,15 @@ az network dns zone show \
 # Get Load Balancer IP (if not already set)
 export INGRESS_LOAD_BALANCER_IP=$(kubectl get svc dp-config-aks-ingress-traefik -n ingress-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
-# Create wildcard A record for Control Plane MY domain
+# Create one wildcard A record for the simplified Control Plane base domain
 az network dns record-set a add-record \
   --resource-group "$AZURE_RESOURCE_GROUP" \
   --zone-name "platform.azure.example.com" \
-  --record-set-name "*.cp1-my" \
+  --record-set-name "*" \
   --ipv4-address "$INGRESS_LOAD_BALANCER_IP"
 
-# Create wildcard A record for Control Plane TUNNEL domain
-az network dns record-set a add-record \
-  --resource-group "$AZURE_RESOURCE_GROUP" \
-  --zone-name "platform.azure.example.com" \
-  --record-set-name "*.cp1-tunnel" \
-  --ipv4-address "$INGRESS_LOAD_BALANCER_IP"
+# Legacy split-DNS option only: create separate *.cp1-my and *.cp1-tunnel records
+# if your environment intentionally keeps application and tunnel domains separate.
 
 # Create wildcard A record for Data Plane domain (for BWCE/Flogo apps)
 az network dns record-set a add-record \
@@ -824,8 +861,8 @@ See [how-to-add-dns-records-aks-azure](how-to-add-dns-records-aks-azure) for det
 
 ```bash
 # Test DNS resolution (wait 1-2 minutes for propagation)
-nslookup account.cp1-my.platform.azure.example.com
-nslookup tunnel.cp1-tunnel.platform.azure.example.com
+nslookup admin.platform.azure.example.com
+nslookup account.platform.azure.example.com
 nslookup myapp.dp1.platform.azure.example.com
 
 # All should resolve to: $INGRESS_LOAD_BALANCER_IP
@@ -865,11 +902,12 @@ kubectl create secret tls cp-my-tls-cert \
   --key=certs/cp-my-key.pem \
   --namespace $TP_CP_NAMESPACE
 
-# Create TLS secret for TUNNEL domain
-kubectl create secret tls cp-tunnel-tls-cert \
-  --cert=certs/cp-tunnel-cert.crt \
-  --key=certs/cp-tunnel-key.pem \
-  --namespace $TP_CP_NAMESPACE
+# Legacy split-DNS option only: create a separate TUNNEL TLS secret when
+# CP_MY_DNS_DOMAIN and CP_TUNNEL_DNS_DOMAIN use different base domains.
+# kubectl create secret tls cp-tunnel-tls-cert \
+#   --cert=certs/cp-tunnel-cert.crt \
+#   --key=certs/cp-tunnel-key.pem \
+#   --namespace $TP_CP_NAMESPACE
 
 # Verify secrets
 kubectl get secrets -n $TP_CP_NAMESPACE | grep tls
@@ -951,8 +989,13 @@ kubectl label namespace ingress-system networking.platform.tibco.com/non-cp-ns=e
 
 ```bash
 # Set domain variables
-export CP_MY_DNS_DOMAIN="${TP_MAIN_INGRESS_SANDBOX_SUBDOMAIN}.${TP_SANDBOX}.${TP_TOP_LEVEL_DOMAIN}"
-export CP_TUNNEL_DNS_DOMAIN="tunnel.${TP_SANDBOX}.${TP_TOP_LEVEL_DOMAIN}"
+export TP_BASE_DNS_DOMAIN="${TP_BASE_DNS_DOMAIN:-${TP_MAIN_INGRESS_SANDBOX_SUBDOMAIN}.${TP_SANDBOX}.${TP_TOP_LEVEL_DOMAIN}}"
+export CP_MY_DNS_DOMAIN="${TP_BASE_DNS_DOMAIN}"
+export CP_TUNNEL_DNS_DOMAIN="${TP_BASE_DNS_DOMAIN}"
+
+# Legacy split-DNS option:
+# export CP_MY_DNS_DOMAIN="${CP_INSTANCE_ID}-my.${TP_BASE_DNS_DOMAIN}"
+# export CP_TUNNEL_DNS_DOMAIN="${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}"
 
 # Create certificate in CP namespace
 kubectl apply -f - <<EOF
@@ -964,7 +1007,8 @@ metadata:
 spec:
   dnsNames:
   - '*.${CP_MY_DNS_DOMAIN}'
-  - '*.${CP_TUNNEL_DNS_DOMAIN}'
+  # Legacy split-DNS option only:
+  # - '*.${CP_TUNNEL_DNS_DOMAIN}'
   issuerRef:
     kind: ClusterIssuer
     name: cic-cert-subscription-scope-production-main
@@ -1034,15 +1078,34 @@ kubectl create secret docker-registry tibco-container-registry-credentials \
 kubectl get secret tibco-container-registry-credentials -n ${CP_INSTANCE_ID}-ns
 ```
 
-**4. PostgreSQL Database Secret (if using Azure PostgreSQL)**
+**4. PostgreSQL Database Credentials Secret (optional for Azure PostgreSQL)**
+
+The `tibco-cp-base` chart can create `provider-cp-database-credentials` from `db_username` and `db_password` in values. For customer environments, you can instead pre-create the secret and keep credentials out of checked-in values files.
 
 ```bash
-kubectl create secret generic postgres-${CP_INSTANCE_ID}-postgresql \
-  --from-literal=postgres-password="$POSTGRES_PASSWORD" \
+kubectl create secret generic provider-cp-database-credentials \
+  --from-literal=USERNAME="$POSTGRES_USER" \
+  --from-literal=PASSWORD="$POSTGRES_PASSWORD" \
   --namespace ${CP_INSTANCE_ID}-ns
 ```
 
-> **Note**: If using in-cluster PostgreSQL from dp-config-aks, this secret is created automatically.
+**5. PostgreSQL SSL Root Certificate Secret (recommended for Azure PostgreSQL)**
+
+Azure Database for PostgreSQL Flexible Server requires encrypted connections in most customer environments. When `db_ssl_mode` is not `disable`, `tibco-cp-base` expects a Kubernetes secret containing the trusted PostgreSQL CA bundle.
+
+```bash
+# Download or provide the CA bundle required by your Azure PostgreSQL server.
+# Keep the secret key name aligned with global.tibco.db_ssl_root_cert_filename.
+export POSTGRES_SSL_ROOT_CERT_FILE="/path/to/azure-postgres-ca.pem"
+
+kubectl create secret generic db-ssl-root-cert \
+  --from-file=db_ssl_root.cert="${POSTGRES_SSL_ROOT_CERT_FILE}" \
+  --namespace ${CP_INSTANCE_ID}-ns
+
+kubectl get secret db-ssl-root-cert -n ${CP_INSTANCE_ID}-ns
+```
+
+> **Note**: If using in-cluster PostgreSQL from `dp-config-aks`, the PostgreSQL password secret is created by that chart. The Azure PostgreSQL SSL root certificate secret is separate and must be created when `db_ssl_mode` is not `disable`.
 
 ### Step 8.4: Export Additional Variables Required for Chart Values
 
@@ -1060,6 +1123,9 @@ export POSTGRES_PORT=5432
 # Or for Azure PostgreSQL Flexible Server
 # export POSTGRES_HOST="tibco-platform-db.postgres.database.azure.com"
 # export POSTGRES_PORT=5432
+# export POSTGRES_SSL_MODE="require"
+# export POSTGRES_SSL_ROOT_CERT_SECRET="db-ssl-root-cert"
+# export POSTGRES_SSL_ROOT_CERT_FILENAME="db_ssl_root.cert"
 ```
 
 ### Step 8.5: Configure Control Plane Helm Values
@@ -1069,11 +1135,12 @@ Create the official Control Plane values file using the **tibco-cp-base** chart 
 > [!IMPORTANT]
 > **Critical Database Configuration**: The values file below includes **all required configuration sections** including:
 > - **Database connection details** (`db_host`, `db_name`, `db_port`, `db_username`, `db_password`, `db_secret_name`, `db_ssl_mode`)
-> - **Email server configuration** (for user activation and notifications)
 > - **Admin user configuration** (for initial platform administrator)
 > - **Encryption secret configuration** (for platform security)
 > 
 > If any of these sections are missing (especially the database configuration), the Control Plane deployment will fail with errors like "missing DBHost key in ConfigMap provider-cp-database-config".
+>
+> For 1.18.0, email server configuration is no longer supplied through Control Plane Helm values. Configure email in Platform Console after deployment if activation emails, notifications, or reports are required.
 
 ```bash
 cat > cp-values.yaml <<EOF
@@ -1096,24 +1163,20 @@ tp-cp-integration-flogoprovisioner:
   flogoprovisioner:
     enabled: true
 
-router:
-  config:
-    domainSessionKey:
-      secretName: session-keys  # default secret name
-      key: DOMAIN_SESSION_KEY
+hybrid-proxy:
   ingress:
     enabled: true
     ingressClassName: "${TP_INGRESS_CLASS}"
     tls:
       - secretName: tp-certificate-${CP_INSTANCE_ID}
         hosts:
-          - '*.${CP_MY_DNS_DOMAIN}'
+          - '*.${CP_TUNNEL_DNS_DOMAIN}'
     hosts:
-      - host: '*.${CP_MY_DNS_DOMAIN}'
+      - host: '*.${CP_TUNNEL_DNS_DOMAIN}'
         paths:
           - path: /
             pathType: Prefix
-            port: 100
+            port: 105
 
 tp-cp-bootstrap-cronjobs:
   cronjobs:
@@ -1129,21 +1192,19 @@ router-operator:
   domainSessionKey:
     secretName: session-keys  # default secret name
     key: DOMAIN_SESSION_KEY
-
-tunproxy:
-  tunnelIngress:
+  ingress:
     enabled: true
     ingressClassName: "${TP_INGRESS_CLASS}"
     tls:
       - secretName: tp-certificate-${CP_INSTANCE_ID}
         hosts:
-          - '*.${CP_TUNNEL_DNS_DOMAIN}'
+          - '*.${CP_MY_DNS_DOMAIN}'
     hosts:
-      - host: '*.${CP_TUNNEL_DNS_DOMAIN}'
+      - host: '*.${CP_MY_DNS_DOMAIN}'
         paths:
           - path: /
             pathType: Prefix
-            port: 105
+            port: 100
 
 global:
   tibco:
@@ -1155,6 +1216,8 @@ global:
       username: "${TP_CONTAINER_REGISTRY_USER}"
       password: "${TP_CONTAINER_REGISTRY_PASSWORD}"
       repository: "${TP_CONTAINER_REGISTRY_REPOSITORY}"
+    db_ssl_root_cert_secretname: "${POSTGRES_SSL_ROOT_CERT_SECRET:-db-ssl-root-cert}"
+    db_ssl_root_cert_filename: "${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
     
     # Control Plane Instance
     controlPlaneInstanceId: "${CP_INSTANCE_ID}"
@@ -1179,28 +1242,14 @@ global:
       storageClassName: "${TP_FILE_STORAGE_CLASS}"
     
     # Database Configuration
-    db:
-      vendor: "postgres"
-      host: "${POSTGRES_HOST}"
-      port: ${POSTGRES_PORT}
-      sslMode: "disable"  # Use "require" for Azure PostgreSQL
-      sslRootCert: ""
-      # For in-cluster PostgreSQL (dp-config-aks):
-      secretName: "postgres-${CP_INSTANCE_ID}-postgresql"
-      adminUsername: "postgres"
-      adminPasswordKey: "postgres-password"
-      # Uncomment for SSL/TLS database connections (Azure PostgreSQL)
-      # sslRootCertSecretName: "db-ssl-root-cert"
-      # sslRootCertFilename: "db_ssl_root.cert"
-    
-    # Email Server Configuration
-    emailServerType: "smtp"  # Options: smtp, ses, sendgrid
-    emailServer:
-      smtp:
-        server: "development-mailserver.tibco-ext.svc.cluster.local"  # Update for production
-        port: "1025"  # Update for production SMTP
-        username: ""  # Empty for MailDev, set for production
-        password: ""  # Empty for MailDev, set for production
+    db_host: "${POSTGRES_HOST}"
+    db_name: "${POSTGRES_DB:-postgres}"
+    db_port: ${POSTGRES_PORT}
+    db_username: "${POSTGRES_USER:-postgres}"
+    db_password: "${POSTGRES_PASSWORD}"
+    db_secret_name: "provider-cp-database-credentials"
+    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"  # Use "disable" only for dev/test in-cluster PostgreSQL
+    db_ssl_root_cert: "/private/tsc/certificates/${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
     
     # Admin User Configuration
     admin:
@@ -1225,6 +1274,9 @@ global:
 EOF
 ```
 
+> [!NOTE]
+> If you are upgrading older 1.17.x values files, remove these deprecated 1.18.0 fields before deploying: `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, and `global.external.platformEmailNotificationCcAddresses`. The official `tp-helm-charts/scripts/1.18.0/upgrade.sh` assistant performs this cleanup automatically during values generation.
+
 > [!TIP]
 > **Verify Database Configuration After Deployment**: After the chart is installed, verify that the database configuration was correctly applied:
 > ```bash
@@ -1244,17 +1296,19 @@ EOF
 helm repo add tibco-platform ${TP_TIBCO_HELM_CHART_REPO}
 helm repo update
 
+# Set chart version for the current release
+export TP_CP_BASE_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.18.0}"
+
 # Install TIBCO Platform Control Plane
 helm upgrade --install --wait --timeout 30m \
-  -n ${CP_INSTANCE_ID}-ns tibco-platform-cp tibco-platform-cp \
+  -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
   --labels layer=5 \
   --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${TP_CP_BASE_CHART_VERSION}" \
   --values cp-values.yaml
 
 # Monitor deployment
 kubectl get pods -n ${CP_INSTANCE_ID}-ns --watch
-```
-
 ```
 
 **Expected deployment time**: 10-20 minutes
@@ -1304,7 +1358,7 @@ You can reuse the `cp-values.yaml` file you used for the Control Plane installat
 **Option 1: Using existing values file**
 ```bash
 # Set the chart version to match your tibco-cp-base version
-export CP_CAPABILITY_CHART_VERSION="1.14.0"  # Should match your CP version
+export CP_CAPABILITY_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.18.0}"  # Should match your CP version
 
 # Install BWCE & BW5 capability chart
 helm upgrade --install --wait --timeout 15m \
@@ -1333,8 +1387,8 @@ helm upgrade --install --wait --timeout 15m \
 
 **Option 2: Extract values from deployed Control Plane release**
 ```bash
-# Extract values from the deployed tibco-platform-cp release
-helm get values tibco-platform-cp -n ${CP_INSTANCE_ID}-ns -o yaml > capability-charts-values.yaml
+# Extract values from the deployed Control Plane release
+helm get values platform-base -n ${CP_INSTANCE_ID}-ns -o yaml > capability-charts-values.yaml
 
 # Install capability charts using extracted values
 helm upgrade --install --wait --timeout 15m \
@@ -1365,7 +1419,7 @@ helm upgrade --install --wait --timeout 15m \
 helm list -n ${CP_INSTANCE_ID}-ns
 
 # You should see at least these releases:
-# - tibco-platform-cp (or tibco-cp-base)
+# - platform-base (tibco-cp-base)
 # - tibco-cp-bw
 # - tibco-cp-flogo
 # - tibco-cp-messaging
@@ -1380,7 +1434,7 @@ kubectl get pods -n ${CP_INSTANCE_ID}-ns | grep -E 'bw|flogo|messaging'
 > **Installation Time**: Each capability chart typically takes 5-10 minutes to install. The `--wait` flag ensures Helm waits for all resources to be ready before completing.
 
 > [!TIP]
-> **Selective Installation**: If you only need specific capabilities, you can install only the required capability charts. For example, if you only plan to use BWCE, you can install only `tibco-cp-bw` and skip the others.
+> **Selective Installation**: If you only need specific capabilities, install only the required capability charts. For 1.18.0, the published artifact list includes `tibco-cp-bw:1.18.0` and `tibco-cp-flogo:1.18.0`; install Messaging/Hawk/Developer Hub charts only when those capabilities are part of your licensed release and available in the chart repository for that version.
 
 **Common Issues and Troubleshooting:**
 
@@ -1403,7 +1457,7 @@ helm uninstall tibco-cp-bw -n ${CP_INSTANCE_ID}-ns
 ```
 
 **Reference Documentation:**
-- [TIBCO Control Plane User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
+- [TIBCO Control Plane 1.18.0 User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
 - [tibco-cp-bw Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-bw)
 - [tibco-cp-flogo Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-flogo)
 
@@ -1432,8 +1486,14 @@ Open your browser and navigate to the Control Plane URL.
 **Initial Login**: On first access, you'll be prompted to:
 1. Accept the license agreement
 2. Set admin password
-3. Configure email settings (optional)
+3. Configure email server in Platform Console for 1.18.0+ if notifications are required
 4. Upload TIBCO Platform license
+
+### Step 8.9: Configure Email Server in Platform Console (1.18.0+)
+
+For TIBCO Platform Control Plane 1.18.0 and later, configure email after deployment from Platform Console instead of adding SMTP, SES, or SendGrid settings to `cp-values.yaml`.
+
+Use Platform Console to configure the mail provider before enabling workflows that depend on email, such as user activation, alerts, reports, and notifications. Older Helm values fields under `global.external.emailServer*` are deprecated for 1.18.0 and should not be reintroduced during install or upgrade.
 
 ---
 
@@ -1580,11 +1640,12 @@ export TP_SANDBOX="${DP_INSTANCE_ID}"  # Sandbox subdomain
 export TP_INGRESS_CLASS="nginx"  # or "traefik"
 export TP_SERVICE_CIDR="10.0.0.0/16"  # AKS service CIDR
 export TP_POD_CIDR="10.244.0.0/16"  # AKS pod CIDR (adjust based on your cluster)
+export TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION="${TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION:-1.18.3}"
 
 helm upgrade --install --wait --timeout 1h \
   -n ${DP_NAMESPACE} dp-configure-namespace dp-configure-namespace \
   --labels layer=3 \
-  --repo "${TP_TIBCO_HELM_CHART_REPO}" --version "^1.3.0" -f - <<EOF
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" --version "${TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION}" -f - <<EOF
 global:
   tibco:
     dataPlaneId: "${DP_INSTANCE_ID}"
@@ -1673,12 +1734,13 @@ The `dp-core-infrastructure` chart deploys the core Data Plane components includ
 ```bash
 # Set the access key from Control Plane UI
 export TP_DP_ACCESS_KEY="your-access-key-from-cp-ui"
+export TP_DP_CORE_INFRA_CHART_VERSION="${TP_DP_CORE_INFRA_CHART_VERSION:-1.18.4}"
 
 # Deploy dp-core-infrastructure
 helm upgrade --install --wait --timeout 1h \
   -n ${DP_NAMESPACE} dp-core-infrastructure dp-core-infrastructure \
   --labels layer=4 \
-  --repo "${TP_TIBCO_HELM_CHART_REPO}" --version "^1.3.0" -f - <<EOF
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" --version "${TP_DP_CORE_INFRA_CHART_VERSION}" -f - <<EOF
 global:
   tibco:
     dataPlaneId: "${DP_INSTANCE_ID}"
@@ -1763,6 +1825,9 @@ kubectl logs -n ${DP_NAMESPACE} -l app.kubernetes.io/name=tp-provisioner-agent -
 
 With the Data Plane deployed and connected, you now provision capabilities (BWCE, Flogo, etc.) through the Control Plane UI, **NOT** via Helm charts.
 
+> [!NOTE]
+> In 1.18.0, the Control Plane UI may generate updated install commands and values for Data Plane components. Use the generated commands when they differ from this shared guide, especially for namespace-level RBAC, Gateway API endpoint selection, or capability-specific chart versions.
+
 **Steps to provision capabilities**:
 
 1. Login to Control Plane UI
@@ -1777,6 +1842,8 @@ With the Data Plane deployed and connected, you now provision capabilities (BWCE
    - **Storage Class**: `azure-files-sc` (for BWCE/Flogo)
    - **Storage Class**: `azure-disk-sc` (for EMS)
    - **Ingress Class**: `nginx` or `traefik`
+  - **Gateway API**: Select and provide GatewayClass/Gateway/HTTPRoute details if using the 1.18.0 Gateway API endpoint option instead of ingress
+  - **Namespace RBAC**: Confirm the target namespace and role assignments for Application Manager/Application Viewer users
    - **Domain**: Subdomain for app routing (e.g., `apps.${TP_DOMAIN}`)
 7. Click **Provision**
 
@@ -1791,6 +1858,9 @@ kubectl get pods -n ${DP_NAMESPACE} --watch
 # Check for capability-specific deployments
 kubectl get deployments -n ${DP_NAMESPACE}
 kubectl get statefulsets -n ${DP_NAMESPACE}
+
+# If Gateway API is used for app endpoints, verify the generated routes
+kubectl get gatewayclass,gateway,httproute -A
 ```
 
 **Verify capabilities in Control Plane UI**:
@@ -1798,6 +1868,12 @@ kubectl get statefulsets -n ${DP_NAMESPACE}
 1. Navigate to **Clusters** → Select your Data Plane
 2. Click **Capabilities** tab
 3. All provisioned capabilities should show **Status: Ready**
+
+**Verify 1.18.0 namespace-level access**:
+
+1. Confirm Application Manager and Application Viewer roles are assigned to the intended namespaces.
+2. Test with a non-admin user by deploying or viewing an application only in an authorized namespace.
+3. Confirm the same user cannot manage applications in unauthorized namespaces.
 
 ---
 
@@ -1811,8 +1887,9 @@ curl -k -I https://admin.$CP_MY_DNS_DOMAIN
 
 # Expected: HTTP/2 200 or 302 (redirect to login)
 
-# Test Control Plane TUNNEL domain
-curl -k -I https://tunnel.$TP_CP_TUNNEL_DOMAIN
+# Test Control Plane tunnel path. In simplified DNS, CP_MY_DNS_DOMAIN and
+# CP_TUNNEL_DNS_DOMAIN are the same base domain.
+curl -k -I https://admin.$CP_TUNNEL_DNS_DOMAIN/infra/tunnel
 
 # Expected: HTTP/2 200 or similar
 ```
@@ -1874,7 +1951,7 @@ kubectl run dns-test --image=busybox --rm -it --restart=Never -n $TP_DP_NAMESPAC
 # Expected: Should resolve to Load Balancer IP
 
 kubectl run dns-test --image=busybox --rm -it --restart=Never -n $TP_DP_NAMESPACE -- \
-  nslookup tunnel.$TP_CP_TUNNEL_DOMAIN
+  nslookup admin.$CP_TUNNEL_DNS_DOMAIN
 
 # Expected: Should resolve to Load Balancer IP
 ```
@@ -1905,20 +1982,21 @@ echo "DB Port: ${POSTGRES_PORT}"
 
 2. **Ensure the Helm values file includes database configuration:**
 
-The values file (cp-values.yaml) **must** include this section under `global.external`:
+The values file (cp-values.yaml) **must** include the flat database keys under `global.external`:
 ```yaml
 global:
   external:
-    db:
-      vendor: "postgres"
-      host: "${POSTGRES_HOST}"
-      port: ${POSTGRES_PORT}
-      sslMode: "disable"
-      sslRootCert: ""
-      secretName: "postgres-${CP_INSTANCE_ID}-postgresql"
-      adminUsername: "postgres"
-      adminPasswordKey: "postgres-password"
+    db_host: "${POSTGRES_HOST}"
+    db_name: "${POSTGRES_DB:-postgres}"
+    db_port: ${POSTGRES_PORT}
+    db_username: "${POSTGRES_USER:-postgres}"
+    db_password: "${POSTGRES_PASSWORD}"
+    db_secret_name: "provider-cp-database-credentials"
+    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"
+    db_ssl_root_cert: "/private/tsc/certificates/${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
 ```
+
+  For Azure PostgreSQL, also set `global.tibco.db_ssl_root_cert_secretname` and `global.tibco.db_ssl_root_cert_filename`, and create the CA bundle secret shown in [Step 8.3](#step-83-create-required-kubernetes-secrets).
 
 3. **Verify after deployment:**
 ```bash
@@ -1935,9 +2013,10 @@ Update your `cp-values.yaml` file to include the complete database configuration
 
 ```bash
 helm upgrade --install --wait --timeout 30m \
-  -n ${CP_INSTANCE_ID}-ns tibco-platform-cp tibco-platform-cp \
+  -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
   --labels layer=5 \
   --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${TP_CP_BASE_CHART_VERSION:-1.18.0}" \
   --values cp-values.yaml
 ```
 
@@ -2045,7 +2124,7 @@ az postgres flexible-server show \
 # Common fixes:
 # - Firewall blocking: Add AKS subnet to PostgreSQL firewall rules
 # - Wrong credentials: Verify POSTGRES_USER and POSTGRES_PASSWORD
-# - SSL mode: Ensure sslMode is set to "require" in helm values
+# - SSL mode: Ensure db_ssl_mode is set to "require" and the db-ssl-root-cert secret exists
 ```
 
 #### 6. Storage Issues (PVC Not Binding)
@@ -2193,7 +2272,8 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 
 ## References
 
-- [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
+- [TIBCO Platform 1.18.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
+- [TIBCO Platform 1.17.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Default.htm)
 - [TIBCO Helm Charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
 - [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
@@ -2203,5 +2283,5 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: January 22, 2026  
+**Last Updated**: June 11, 2026
 **Maintained By**: TIBCO Platform Team

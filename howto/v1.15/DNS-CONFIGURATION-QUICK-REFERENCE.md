@@ -478,7 +478,7 @@ helm upgrade ${CP_INSTANCE_ID} tibco-platform-local-charts/tibco-platform-cp-cor
 
 ## Reference Links
 
-- [TIBCO Platform CP Documentation](https://docs.tibco.com/pub/platform-cp/latest/)
+- [TIBCO Platform CP 1.15.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.15.0/)
 - [Traefik Ingress Controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
 - [Azure DNS Documentation](https://docs.microsoft.com/en-us/azure/dns/)
 - [Let's Encrypt Documentation](https://letsencrypt.org/docs/)

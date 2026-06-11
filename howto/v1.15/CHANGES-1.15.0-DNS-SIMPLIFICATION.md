@@ -265,7 +265,7 @@ TIBCO Platform 1.15.0 supports multiple ingress controllers on AKS:
 
 ## Reference
 
-- **TIBCO Documentation:** [Platform CP Installation Guide](https://docs.tibco.com/pub/platform-cp/latest/)
+- **TIBCO Documentation:** [Platform CP 1.15.0 Installation Guide](https://docs.tibco.com/pub/platform-cp/1.15.0/)
 - **Helm Charts:** [tp-helm-charts v1.15.0](https://github.com/TIBCOSoftware/tp-helm-charts)
 - **AKS Documentation:** [Azure Kubernetes Service](https://docs.microsoft.com/en-us/azure/aks/)
 

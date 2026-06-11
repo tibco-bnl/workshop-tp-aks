@@ -90,7 +90,7 @@ kubectl apply -f opensearch-cluster.yaml -n elastic-system
 kubectl get pods -n elastic-system -l app=opensearch
 
 # Apply TIBCO Platform index templates
-# See: https://docs.tibco.com/pub/platform-cp/latest/doc/html/UserGuide/jaeger-opensearch-index-template.htm
+# See: https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/UserGuide/jaeger-opensearch-index-template.htm
 ```
 
 ### BW5CE Hawk REST API (Port 8090)

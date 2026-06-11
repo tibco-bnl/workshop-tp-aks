@@ -1416,7 +1416,7 @@ helm uninstall tibco-cp-bw -n ${CP_INSTANCE_ID}-ns
 ```
 
 **Reference Documentation:**
-- [TIBCO Control Plane User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
+- [TIBCO Control Plane 1.14.0 User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
 - [tibco-cp-bw Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-bw)
 - [tibco-cp-flogo Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-flogo)
 
@@ -2201,7 +2201,7 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 
 ## References
 
-- [TIBCO Platform Documentation](https://docs.tibco.com/pub/platform-cp/latest/doc/html/Default.htm)
+- [TIBCO Platform 1.14.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.14.0/doc/html/Default.htm)
 - [TIBCO Helm Charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
 - [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
