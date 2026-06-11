@@ -1,11 +1,11 @@
 # TIBCO Platform 1.17.0 CP and DP Setup on AKS
 
-Use this guide as the 1.17.0 overlay for the common AKS CP+DP setup. The base cluster, DNS, storage, PostgreSQL, certificate, and Traefik steps remain the same as the shared [CP and DP setup guide](../how-to-cp-and-dp-aks-setup-guide.md). Apply the differences below when deploying or upgrading to TIBCO Platform Control Plane 1.17.0.
+Use this guide as the 1.17.0 overlay for the common AKS CP+DP setup. The base cluster, DNS, storage, PostgreSQL, certificate, and Traefik steps remain the same as the shared [CP and DP setup guide](../how-to-cp-and-dp-aks-setup-guide). Apply the differences below when deploying or upgrading to TIBCO Platform Control Plane 1.17.0.
 
 ## Start Here
 
-1. Complete the shared baseline through ingress, storage, PostgreSQL, DNS, and certificates: [../how-to-cp-and-dp-aks-setup-guide.md](../how-to-cp-and-dp-aks-setup-guide.md).
-2. Use 1.16.0 as the direct upgrade source when upgrading an existing environment: [../v1.16/how-to-cp-and-dp-aks-setup-guide.md](../v1.16/how-to-cp-and-dp-aks-setup-guide.md).
+1. Complete the shared baseline through ingress, storage, PostgreSQL, DNS, and certificates: [../how-to-cp-and-dp-aks-setup-guide.md](../how-to-cp-and-dp-aks-setup-guide).
+2. Use 1.16.0 as the direct upgrade source when upgrading an existing environment: [../v1.16/how-to-cp-and-dp-aks-setup-guide.md](../v1.16/how-to-cp-and-dp-aks-setup-guide).
 3. Update Helm repositories before installing or upgrading charts.
 
 ```bash
@@ -80,8 +80,8 @@ BW5, BW6, and Flogo capabilities can use custom Fluentbit configuration. Store a
 
 ## References
 
-- [TIBCO Platform 1.17.0 Release Notes](../../releases/v1.17.0.md)
-- [TIBCO Platform 1.17.0 Quick Reference](QUICK-REFERENCE.md)
+- [TIBCO Platform 1.17.0 Release Notes](../../releases/v1.17.0)
+- [TIBCO Platform 1.17.0 Quick Reference](./QUICK-REFERENCE)
 - [TIBCO Platform Control Plane 1.17.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Default.htm)
 - [Official 1.17.0 New Features](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Release-Notes/new-features.htm)
 - [TIBCO tp-helm-charts repository](https://github.com/TIBCOSoftware/tp-helm-charts)

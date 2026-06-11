@@ -2,72 +2,72 @@
 
 Guides and supporting resources for deploying TIBCO Platform Control Plane and Data Plane on Azure Kubernetes Service.
 
-> **Current release:** [v1.18.0](./releases/v1.18.0.md) | **TIBCO Platform CP:** 1.18.0<br>
-> **Upgrade path:** [1.17.0 to 1.18.0](./releases/v1.18.0.md#upgrade-path-from-v1170)<br>
+> **Current release:** [v1.18.0](./releases/v1.18.0) | **TIBCO Platform CP:** 1.18.0<br>
+> **Upgrade path:** [1.17.0 to 1.18.0](./releases/v1.18.0#upgrade-path-from-v1170)<br>
 > **Official charts:** [TIBCO tp-helm-charts](https://github.com/TIBCOSoftware/tp-helm-charts)
 
 ## Start Here
 
 | Need | Use |
 |------|-----|
-| New CP + DP workshop deployment | [1.18.0 CP + DP setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide.md) |
-| Quick 1.18.0 commands and checks | [1.18.0 quick reference](./howto/v1.18/QUICK-REFERENCE.md) |
-| Data Plane only with SaaS or remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide.md) |
-| Pre-installation readiness | [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer.md) |
-| Observability setup | [Data Plane observability guide](./howto/how-to-dp-aks-observability.md) |
-| DNS records for AKS ingress | [Azure DNS guide](./howto/how-to-add-dns-records-aks-azure.md) |
+| New CP + DP workshop deployment | [1.18.0 CP + DP setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide) |
+| Quick 1.18.0 commands and checks | [1.18.0 quick reference](./howto/v1.18/QUICK-REFERENCE) |
+| Data Plane only with SaaS or remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide) |
+| Pre-installation readiness | [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer) |
+| Observability setup | [Data Plane observability guide](./howto/how-to-dp-aks-observability) |
+| DNS records for AKS ingress | [Azure DNS guide](./howto/how-to-add-dns-records-aks-azure) |
 
 ## Release Matrix
 
 | Version | Status | Highlights | Setup | Release Notes |
 |---------|--------|------------|-------|---------------|
-| 1.18.0 | Current | Gateway API, namespace-level RBAC, Console-managed email, Alert Audit Trail, Developer Hub self-service flows | [Setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide.md) | [Notes](./releases/v1.18.0.md) |
-| 1.17.0 | Previous | Webhook alerts, OpenSearch observability, BW6 lifecycle management, custom Fluentbit, BW5 Hawk REST API | [Setup](./howto/v1.17/how-to-cp-and-dp-aks-setup-guide.md) | [Notes](./releases/v1.17.0.md) |
-| 1.16.0 | Previous | License management, BW6 AI Plugin 6.0.0 preview, enhanced BW5 monitoring, Flogo init/sidecar support | [Setup](./howto/v1.16/how-to-cp-and-dp-aks-setup-guide.md) | [Notes](./releases/v1.16.0.md) |
-| 1.15.0 | Previous | Simplified DNS, network policy updates, capability updates | [Setup](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide.md) | [Notes](./releases/v1.15.0.md) |
-| 1.14.0 | Legacy | Archived baseline workshop guides | [Setup](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide.md) | [Notes](./releases/v1.14.0.md) |
+| 1.18.0 | Current | Gateway API, namespace-level RBAC, Console-managed email, Alert Audit Trail, Developer Hub self-service flows | [Setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.18.0) |
+| 1.17.0 | Previous | Webhook alerts, OpenSearch observability, BW6 lifecycle management, custom Fluentbit, BW5 Hawk REST API | [Setup](./howto/v1.17/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.17.0) |
+| 1.16.0 | Previous | License management, BW6 AI Plugin 6.0.0 preview, enhanced BW5 monitoring, Flogo init/sidecar support | [Setup](./howto/v1.16/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.16.0) |
+| 1.15.0 | Previous | Simplified DNS, network policy updates, capability updates | [Setup](./howto/v1.15/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.15.0) |
+| 1.14.0 | Legacy | Archived baseline workshop guides | [Setup](./howto/v1.14/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.14.0) |
 
 ## Upgrade Paths
 
 | From | To | Guide |
 |------|----|-------|
-| 1.17.0 | 1.18.0 | [Upgrade path](./releases/v1.18.0.md#upgrade-path-from-v1170) |
-| 1.16.0 | 1.17.0 | [Upgrade path](./releases/v1.17.0.md#upgrade-path-from-v1160) |
-| 1.15.0 | 1.16.0 | [Upgrade path](./releases/v1.16.0.md#upgrade-path-from-v1150) |
-| 1.14.0 | 1.15.0 | [Upgrade path](./releases/v1.15.0.md#upgrade-path) |
+| 1.17.0 | 1.18.0 | [Upgrade path](./releases/v1.18.0#upgrade-path-from-v1170) |
+| 1.16.0 | 1.17.0 | [Upgrade path](./releases/v1.17.0#upgrade-path-from-v1160) |
+| 1.15.0 | 1.16.0 | [Upgrade path](./releases/v1.16.0#upgrade-path-from-v1150) |
+| 1.14.0 | 1.15.0 | [Upgrade path](./releases/v1.15.0#upgrade-path) |
 
 ## Deployment Scenarios
 
 | Scenario | Description | Primary Guide |
 |----------|-------------|---------------|
-| CP + DP on one AKS cluster | Complete workshop or evaluation environment with Control Plane and Data Plane in the same AKS cluster | [1.18.0 CP + DP setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide.md) |
-| AKS Data Plane with remote CP | Customer or regional AKS Data Plane connected to SaaS or another remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide.md) |
-| Observability | Prometheus, Elasticsearch/OpenSearch-related logging, Grafana, and monitoring setup | [Observability guide](./howto/how-to-dp-aks-observability.md) |
-| Enterprise network planning | Firewall, proxy, registry, Helm repository, and external endpoint planning | [AKS firewall requirements](./docs/firewall-requirements-aks.md) |
+| CP + DP on one AKS cluster | Complete workshop or evaluation environment with Control Plane and Data Plane in the same AKS cluster | [1.18.0 CP + DP setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide) |
+| AKS Data Plane with remote CP | Customer or regional AKS Data Plane connected to SaaS or another remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide) |
+| Observability | Prometheus, Elasticsearch/OpenSearch-related logging, Grafana, and monitoring setup | [Observability guide](./howto/how-to-dp-aks-observability) |
+| Enterprise network planning | Firewall, proxy, registry, Helm repository, and external endpoint planning | [AKS firewall requirements](./docs/firewall-requirements-aks) |
 
 ## Documentation Index
 
 ### Current Release
 
-- [1.18.0 setup overlay](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide.md)
-- [1.18.0 quick reference](./howto/v1.18/QUICK-REFERENCE.md)
-- [1.18.0 release notes](./releases/v1.18.0.md)
-- [1.18.0 documentation summary](./howto/v1.18/DOCUMENTATION-SUMMARY.md)
+- [1.18.0 setup overlay](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide)
+- [1.18.0 quick reference](./howto/v1.18/QUICK-REFERENCE)
+- [1.18.0 release notes](./releases/v1.18.0)
+- [1.18.0 documentation summary](./howto/v1.18/DOCUMENTATION-SUMMARY)
 
 ### Shared How-To Guides
 
-- [Shared CP + DP baseline guide](./howto/how-to-cp-and-dp-aks-setup-guide.md)
-- [Data Plane only setup](./howto/how-to-dp-aks-setup-guide.md)
-- [Data Plane observability](./howto/how-to-dp-aks-observability.md)
-- [Azure DNS records for AKS ingress](./howto/how-to-add-dns-records-aks-azure.md)
-- [BW6 driver supplements](./howto/how-to-upload-bw6-driver-supplements.md)
-- [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer.md)
+- [Shared CP + DP baseline guide](./howto/how-to-cp-and-dp-aks-setup-guide)
+- [Data Plane only setup](./howto/how-to-dp-aks-setup-guide)
+- [Data Plane observability](./howto/how-to-dp-aks-observability)
+- [Azure DNS records for AKS ingress](./howto/how-to-add-dns-records-aks-azure)
+- [BW6 driver supplements](./howto/how-to-upload-bw6-driver-supplements)
+- [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer)
 
 ### Planning and Network References
 
-- [AKS firewall requirements](./docs/firewall-requirements-aks.md)
-- [EKS firewall requirements](./docs/firewall-requirements-eks.md)
-- [Connectivity test script README](./scripts/README-connectivity-test.md)
+- [AKS firewall requirements](./docs/firewall-requirements-aks)
+- [EKS firewall requirements](./docs/firewall-requirements-eks)
+- [Connectivity test script README](./scripts/README-connectivity-test)
 
 ### Version Archives
 
@@ -89,7 +89,7 @@ Guides and supporting resources for deploying TIBCO Platform Control Plane and D
 | Network | DNS, TLS certificates, ingress controller, and outbound access to required TIBCO/Azure endpoints |
 | Registry | Access to the TIBCO container registry supplied for your entitlement/region |
 
-Review the [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer.md) before installation.
+Review the [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer) before installation.
 
 ## Repository Map
 

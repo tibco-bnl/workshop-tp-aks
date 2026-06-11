@@ -9,8 +9,8 @@ title: How to Set Up AKS Cluster with Control Plane and Data Plane (v1.15.0)
 
 **📌 Important Version Information**
 - This guide is for TIBCO Platform Control Plane **version 1.15.0**
-- For version 1.14.0 documentation, see [v1.14 guide](../v1.14/how-to-cp-and-dp-aks-setup-guide.md)
-- For upgrade instructions from 1.14.0 to 1.15.0, see [Release Notes](../../releases/v1.15.0.md#upgrade-path)
+- For version 1.14.0 documentation, see [v1.14 guide](../v1.14/how-to-cp-and-dp-aks-setup-guide)
+- For upgrade instructions from 1.14.0 to 1.15.0, see [Release Notes](../../releases/v1.15.0#upgrade-path)
 
 ## Table of Contents
 - [Overview](#overview)
@@ -66,7 +66,7 @@ This guide provides comprehensive instructions for deploying **TIBCO Platform Co
 ### Breaking Changes
 - ⚠️ **Helm 3.13+ Required**: New label-based deployment tracking
 - ⚠️ **New Secret Requirements**: Session keys and encryption secrets now mandatory
-- ⚠️ **DNS Structure Options**: Two supported patterns (simplified and legacy) - see [Configuration Guide](./DNS-CONFIGURATION-QUICK-REFERENCE.md)
+- ⚠️ **DNS Structure Options**: Two supported patterns (simplified and legacy) - see [Configuration Guide](./DNS-CONFIGURATION-QUICK-REFERENCE)
 - ⚠️ **Network Policy Updates**: Enhanced namespace labeling requirements
 - ⚠️ **Environment Variable Changes**: New naming conventions (TP_ and CP_ prefixes)
 
@@ -93,8 +93,8 @@ When hybrid connectivity is disabled (`CP_HYBRID_CONNECTIVITY="false"`):
 - **Azure:** AKS with Kubernetes 1.32+
 
 ### DNS Architecture Documentation
-- **Changes Overview**: [DNS Simplification Guide](./CHANGES-1.15.0-DNS-SIMPLIFICATION.md)
-- **Quick Reference**: [DNS Configuration Quick Reference](./DNS-CONFIGURATION-QUICK-REFERENCE.md)
+- **Changes Overview**: [DNS Simplification Guide](./CHANGES-1.15.0-DNS-SIMPLIFICATION)
+- **Quick Reference**: [DNS Configuration Quick Reference](./DNS-CONFIGURATION-QUICK-REFERENCE)
 
 ---
 
@@ -142,7 +142,7 @@ az version
 - Azure AKS knowledge
 - DNS and certificate management
 
-For a complete checklist, see [Prerequisites Checklist](../prerequisites-checklist-for-customer.md).
+For a complete checklist, see [Prerequisites Checklist](../prerequisites-checklist-for-customer).
 
 ---
 
@@ -315,7 +315,7 @@ export CP_HYBRID_CONNECTIVITY="true"
 > [!TIP]
 > **Quick Decision Guide:**  
 > Use **Option 1 (Simplified)** for new deployments and set `CP_HYBRID_CONNECTIVITY="false"` unless you need to connect Data Planes from other clouds or on-premises.  
-> See [DNS Configuration Quick Reference](./DNS-CONFIGURATION-QUICK-REFERENCE.md) for detailed guidance.
+> See [DNS Configuration Quick Reference](./DNS-CONFIGURATION-QUICK-REFERENCE) for detailed guidance.
 
 ### 1.4 Create Resource Group
 ```bash
@@ -1562,7 +1562,7 @@ Create wildcard DNS A records pointing to your ingress IP:
 *.tunnel.${CP_INSTANCE_ID}.${TP_DOMAIN}  -> ${INGRESS_IP}
 ```
 
-For detailed DNS configuration, see [How to Add DNS Records](../how-to-add-dns-records-aks-azure.md).
+For detailed DNS configuration, see [How to Add DNS Records](../how-to-add-dns-records-aks-azure).
 
 ---
 
@@ -1758,7 +1758,7 @@ Your TIBCO Platform Control Plane and Data Plane v1.15.0 are now deployed on AKS
 
 1. **📊 Set Up Observability**
    - Deploy Prometheus and Elastic Stack for monitoring
-   - See [Observability Setup Guide](../how-to-dp-aks-observability.md)
+   - See [Observability Setup Guide](../how-to-dp-aks-observability)
 
 2. **🔒 Configure Production Security**
    - Replace self-signed certificates with CA-signed certificates
@@ -1767,7 +1767,7 @@ Your TIBCO Platform Control Plane and Data Plane v1.15.0 are now deployed on AKS
 
 3. **📦 Deploy BW6 Driver Supplements**
    - Upload Oracle and EMS drivers to BWCE capability
-   - See [BW6 Driver Upload Guide](../how-to-upload-bw6-driver-supplements.md)
+   - See [BW6 Driver Upload Guide](../how-to-upload-bw6-driver-supplements)
 
 4. **🚀 Deploy Your First Application**
    - Use Developer Hub to create and deploy BWCE or Flogo applications
@@ -1786,12 +1786,12 @@ Your TIBCO Platform Control Plane and Data Plane v1.15.0 are now deployed on AKS
 ## Additional Resources
 
 - [TIBCO Platform 1.15.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.15.0/doc/html/Default.htm)
-- [Release Notes v1.15.0](../../releases/v1.15.0.md)
-- [Upgrade from v1.14.0 to v1.15.0](../../releases/v1.15.0.md#upgrade-path)
-- [Prerequisites Checklist](../prerequisites-checklist-for-customer.md)
-- [Observability Setup](../how-to-dp-aks-observability.md)
-- [DNS Configuration](../how-to-add-dns-records-aks-azure.md)
-- [BW6 Driver Supplements](../how-to-upload-bw6-driver-supplements.md)
+- [Release Notes v1.15.0](../../releases/v1.15.0)
+- [Upgrade from v1.14.0 to v1.15.0](../../releases/v1.15.0#upgrade-path)
+- [Prerequisites Checklist](../prerequisites-checklist-for-customer)
+- [Observability Setup](../how-to-dp-aks-observability)
+- [DNS Configuration](../how-to-add-dns-records-aks-azure)
+- [BW6 Driver Supplements](../how-to-upload-bw6-driver-supplements)
 
 ---
 

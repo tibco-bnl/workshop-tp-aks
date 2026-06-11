@@ -25,7 +25,7 @@ The cluster already has:
 
 ## Installation Steps
 
-**Note:** The cluster is currently being migrated from NGINX to Traefik. See [MIGRATION-SUMMARY.md](MIGRATION-SUMMARY.md) for detailed migration status and instructions.
+**Note:** The cluster is currently being migrated from NGINX to Traefik. See [MIGRATION-SUMMARY.md](./MIGRATION-SUMMARY) for detailed migration status and instructions.
 
 ### Path A: Migrate to Traefik (Recommended for v1.15.0) 🔄 IN PROGRESS
 
@@ -62,7 +62,7 @@ Traefik is recommended for v1.15.0 as it provides better cloud-native integratio
 - Automatic DNS updates via external-dns
 - Better observability with Prometheus metrics
 
-See [MIGRATION-SUMMARY.md](MIGRATION-SUMMARY.md) for complete details, troubleshooting, and rollback procedures.
+See [MIGRATION-SUMMARY.md](./MIGRATION-SUMMARY) for complete details, troubleshooting, and rollback procedures.
 
 ### Path B: Continue with NGINX (Alternative)
 

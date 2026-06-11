@@ -302,8 +302,8 @@ After uploading the driver supplements, verify they are available for use:
 - [Supplementing Drivers - TIBCO Platform 1.18.0](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm#Subsystems/bwce-capability/bwce-user-guide/supplementing-drivers.htm)
 
 **Related Workshop Guides**:
-- [TIBCO Platform Data Plane Setup on AKS](how-to-dp-aks-setup-guide.md)
-- [TIBCO Platform Control Plane and Data Plane Setup on AKS](how-to-cp-and-dp-aks-setup-guide.md)
+- [TIBCO Platform Data Plane Setup on AKS](./how-to-dp-aks-setup-guide)
+- [TIBCO Platform Control Plane and Data Plane Setup on AKS](./how-to-cp-and-dp-aks-setup-guide)
 
 ---
 

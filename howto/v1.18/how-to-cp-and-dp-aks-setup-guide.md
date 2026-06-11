@@ -4,7 +4,7 @@ Use this guide as the 1.18.0 overlay for the shared AKS CP+DP setup. The common 
 
 ## Start Here
 
-1. Complete the shared baseline guide for AKS infrastructure and common prerequisites: [../how-to-cp-and-dp-aks-setup-guide.md](../how-to-cp-and-dp-aks-setup-guide.md).
+1. Complete the shared baseline guide for AKS infrastructure and common prerequisites: [../how-to-cp-and-dp-aks-setup-guide.md](../how-to-cp-and-dp-aks-setup-guide).
 2. If upgrading, upgrade 1.16.0 to 1.17.0 first, then apply this 1.18.0 overlay.
 3. Refresh Helm repositories.
 
@@ -102,8 +102,8 @@ Developer Hub adds self-service flows for reusable platform automation. No AKS i
 
 ## References
 
-- [TIBCO Platform 1.18.0 Release Notes](../../releases/v1.18.0.md)
-- [TIBCO Platform 1.18.0 Quick Reference](QUICK-REFERENCE.md)
+- [TIBCO Platform 1.18.0 Release Notes](../../releases/v1.18.0)
+- [TIBCO Platform 1.18.0 Quick Reference](./QUICK-REFERENCE)
 - [TIBCO Platform Control Plane 1.18.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
 - [Official 1.18.0 New Features](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Release-Notes/new-features.htm)
 - [Official 1.18.0 Known Issues](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Release-Notes/known-issues.htm)

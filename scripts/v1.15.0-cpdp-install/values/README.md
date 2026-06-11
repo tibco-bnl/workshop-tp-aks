@@ -100,5 +100,5 @@ These files are version-controlled and should be updated when:
 
 ## See Also
 
-- [INSTALLATION-GUIDE.md](../INSTALLATION-GUIDE.md) - Complete installation guide
-- [ROOT-CAUSE-ANALYSIS.md](../ROOT-CAUSE-ANALYSIS.md) - v1.15.0 breaking changes analysis
+- [INSTALLATION-GUIDE.md](../INSTALLATION-GUIDE) - Complete installation guide
+- [ROOT-CAUSE-ANALYSIS.md](../ROOT-CAUSE-ANALYSIS) - v1.15.0 breaking changes analysis

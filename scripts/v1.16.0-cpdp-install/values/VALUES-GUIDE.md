@@ -291,10 +291,10 @@ Error: could not connect to database
 - [Values Schema](https://github.com/TIBCOSoftware/tp-helm-charts/blob/main/charts/tibco-cp-base/values.yaml)
 
 ### Local Documentation
-- [Installation Guide](../README.md)
-- [Setup Guide](/howto/how-to-cp-and-dp-aks-setup-guide.md)
-- [Release Notes](/releases/v1.16.0.md)
-- [Quick Reference](/howto/v1.16/QUICK-REFERENCE.md)
+- [Installation Guide](../README)
+- [Setup Guide](../../../howto/how-to-cp-and-dp-aks-setup-guide)
+- [Release Notes](../../../releases/v1.16.0)
+- [Quick Reference](../../../howto/v1.16/QUICK-REFERENCE)
 
 ---
 
@@ -309,8 +309,8 @@ Error: could not connect to database
 ---
 
 **Questions or Issues?**
-- Review [Troubleshooting Guide](/docs/troubleshooting-v1.16.md)
-- Check [Known Issues](/releases/v1.16.0.md#known-issues--workarounds)
+- Review [Troubleshooting Guide](../../../docs/troubleshooting-v1.16)
+- Check [Known Issues](../../../releases/v1.16.0#known-issues--workarounds)
 - Consult TIBCO Platform documentation
 
 ---

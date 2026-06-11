@@ -313,9 +313,9 @@ March 17, 2026
 ## Next Steps
 
 ### For Workshop Participants
-1. Review [DNS-CONFIGURATION-QUICK-REFERENCE.md](./DNS-CONFIGURATION-QUICK-REFERENCE.md) to choose your DNS approach
-2. Follow main guide [how-to-cp-and-dp-aks-setup-guide.md](./how-to-cp-and-dp-aks-setup-guide.md) with your chosen configuration
-3. Refer to [CHANGES-1.15.0-DNS-SIMPLIFICATION.md](./CHANGES-1.15.0-DNS-SIMPLIFICATION.md) for detailed technical explanations
+1. Review [DNS-CONFIGURATION-QUICK-REFERENCE.md](./DNS-CONFIGURATION-QUICK-REFERENCE) to choose your DNS approach
+2. Follow main guide [how-to-cp-and-dp-aks-setup-guide.md](./how-to-cp-and-dp-aks-setup-guide) with your chosen configuration
+3. Refer to [CHANGES-1.15.0-DNS-SIMPLIFICATION.md](./CHANGES-1.15.0-DNS-SIMPLIFICATION) for detailed technical explanations
 
 ### For Production Deployments
 1. Evaluate if hybrid connectivity is required for your architecture

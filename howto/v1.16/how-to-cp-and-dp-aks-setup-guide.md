@@ -10,12 +10,12 @@ This is the archived entry point for TIBCO Platform Control Plane 1.16.0 on AKS.
 
 ## 1.16.0 Baseline
 
-- Full setup guide baseline: [../how-to-cp-and-dp-aks-setup-guide.md](../how-to-cp-and-dp-aks-setup-guide.md)
-- Installation scripts and values: [../../scripts/v1.16.0-cpdp-install/README.md](../../scripts/v1.16.0-cpdp-install/README.md)
-- Values guide: [../../scripts/v1.16.0-cpdp-install/values/VALUES-GUIDE.md](../../scripts/v1.16.0-cpdp-install/values/VALUES-GUIDE.md)
-- Release notes: [../../releases/v1.16.0.md](../../releases/v1.16.0.md)
-- Quick reference: [QUICK-REFERENCE.md](QUICK-REFERENCE.md)
-- Documentation summary: [DOCUMENTATION-SUMMARY.md](DOCUMENTATION-SUMMARY.md)
+- Full setup guide baseline: [../how-to-cp-and-dp-aks-setup-guide.md](../how-to-cp-and-dp-aks-setup-guide)
+- Installation scripts and values: [../../scripts/v1.16.0-cpdp-install/README.md](../../scripts/v1.16.0-cpdp-install/README)
+- Values guide: [../../scripts/v1.16.0-cpdp-install/values/VALUES-GUIDE.md](../../scripts/v1.16.0-cpdp-install/values/VALUES-GUIDE)
+- Release notes: [../../releases/v1.16.0.md](../../releases/v1.16.0)
+- Quick reference: [QUICK-REFERENCE.md](./QUICK-REFERENCE)
+- Documentation summary: [DOCUMENTATION-SUMMARY.md](./DOCUMENTATION-SUMMARY)
 
 ## Important 1.16.0 Settings
 
@@ -32,8 +32,8 @@ This is the archived entry point for TIBCO Platform Control Plane 1.16.0 on AKS.
 
 ## Upgrade Next Steps
 
-- For 1.16.0 to 1.17.0 changes, review [../../releases/v1.17.0.md](../../releases/v1.17.0.md) and [../v1.17/how-to-cp-and-dp-aks-setup-guide.md](../v1.17/how-to-cp-and-dp-aks-setup-guide.md).
-- For 1.17.0 to 1.18.0 changes, review [../../releases/v1.18.0.md](../../releases/v1.18.0.md) and [../v1.18/how-to-cp-and-dp-aks-setup-guide.md](../v1.18/how-to-cp-and-dp-aks-setup-guide.md).
+- For 1.16.0 to 1.17.0 changes, review [../../releases/v1.17.0.md](../../releases/v1.17.0) and [../v1.17/how-to-cp-and-dp-aks-setup-guide.md](../v1.17/how-to-cp-and-dp-aks-setup-guide).
+- For 1.17.0 to 1.18.0 changes, review [../../releases/v1.18.0.md](../../releases/v1.18.0) and [../v1.18/how-to-cp-and-dp-aks-setup-guide.md](../v1.18/how-to-cp-and-dp-aks-setup-guide).
 
 ## Official References
 

@@ -315,7 +315,7 @@ kubectl port-forward -n cp1-ns svc/cp-router 8080:80
 ## Upgrade from v1.15.0
 
 If upgrading from v1.15.0, see the upgrade guide:
-[Upgrade Guide v1.15.0 to v1.16.0](/howto/v1.16/UPGRADE-1.15-TO-1.16.md)
+[Upgrade Guide v1.15.0 to v1.16.0](../../howto/v1.16/UPGRADE-1.15-TO-1.16)
 
 ### Key Changes
 - Container registry URL changed
@@ -326,15 +326,15 @@ If upgrading from v1.15.0, see the upgrade guide:
 ## Additional Resources
 
 - **Official Documentation**: [TIBCO Platform Helm Charts](https://github.com/TIBCOSoftware/tp-helm-charts)
-- **Release Notes**: [v1.16.0 Release Notes](/releases/v1.16.0.md)
-- **Setup Guide**: [Complete AKS Setup Guide](/howto/v1.16/how-to-cp-and-dp-aks-setup-guide.md)
+- **Release Notes**: [v1.16.0 Release Notes](../../releases/v1.16.0)
+- **Setup Guide**: [Complete AKS Setup Guide](../../howto/v1.16/how-to-cp-and-dp-aks-setup-guide)
 - **Architecture**: [Platform Architecture Diagrams](/docs/diagrams/)
 
 ## Support
 
 For issues or questions:
-1. Check [Troubleshooting Guide](/docs/troubleshooting-v1.16.md)
-2. Review [Known Issues](/releases/v1.16.0.md#known-issues--workarounds)
+1. Check [Troubleshooting Guide](../../docs/troubleshooting-v1.16)
+2. Review [Known Issues](../../releases/v1.16.0#known-issues--workarounds)
 3. Check TIBCO Community forums
 4. Contact TIBCO Support
 

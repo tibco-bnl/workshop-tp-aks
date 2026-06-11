@@ -9,13 +9,13 @@ title: TIBCO Platform Control Plane and Data Plane Setup on AKS
 
 **Target Audience**: DevOps engineers, Platform administrators
 
-**Prerequisites**: Review [prerequisites-checklist-for-customer](prerequisites-checklist-for-customer.md) before starting
+**Prerequisites**: Review [prerequisites-checklist-for-customer](./prerequisites-checklist-for-customer) before starting
 
 **Estimated Time**: 4-6 hours (first-time installation)
 
 **Last Updated**: June 11, 2026
 
-> **Version note:** This is the shared AKS CP+DP baseline guide and contains the captured 1.16.0 environment examples used by this workshop. It now includes compatibility notes for the current 1.18.0 release. For release-specific changes, start with the versioned guides: [v1.16](./v1.16/how-to-cp-and-dp-aks-setup-guide.md), [v1.17](./v1.17/how-to-cp-and-dp-aks-setup-guide.md), or [v1.18](./v1.18/how-to-cp-and-dp-aks-setup-guide.md).
+> **Version note:** This is the shared AKS CP+DP baseline guide and contains the captured 1.16.0 environment examples used by this workshop. It now includes compatibility notes for the current 1.18.0 release. For release-specific changes, start with the versioned guides: [v1.16](./v1.16/how-to-cp-and-dp-aks-setup-guide), [v1.17](./v1.17/how-to-cp-and-dp-aks-setup-guide), or [v1.18](./v1.18/how-to-cp-and-dp-aks-setup-guide).
 
 **Configuration Files**:
 - Generic template: `scripts/aks-env-variables.sh`
@@ -2233,7 +2233,7 @@ You have successfully deployed TIBCO Platform Control Plane and Data Plane on Az
 1. **License Configuration**: Upload TIBCO Platform license in Control Plane UI
 2. **User Management**: Create additional users and assign roles
 3. **Deploy Applications**: Deploy BWCE and Flogo applications via Control Plane
-4. **Observability**: Set up monitoring with Elastic ECK and Prometheus (see [how-to-dp-aks-observability](how-to-dp-aks-observability.md))
+4. **Observability**: Set up monitoring with Elastic ECK and Prometheus (see [how-to-dp-aks-observability](./how-to-dp-aks-observability))
 5. **Production Hardening**:
    - Replace self-signed certificates with Let's Encrypt or corporate CA
    - Configure backup and disaster recovery
@@ -2276,9 +2276,9 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 - [TIBCO Platform 1.17.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Default.htm)
 - [TIBCO Helm Charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
-- [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
-- [DNS Configuration Guide](how-to-add-dns-records-aks-azure.md)
-- [Observability Setup Guide](how-to-dp-aks-observability.md)
+- [Prerequisites Checklist](./prerequisites-checklist-for-customer)
+- [DNS Configuration Guide](./how-to-add-dns-records-aks-azure)
+- [Observability Setup Guide](./how-to-dp-aks-observability)
 
 ---
 

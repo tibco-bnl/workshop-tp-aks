@@ -21,7 +21,7 @@ title: TIBCO Platform Data Plane Only Setup on AKS (v1.15.0)
 > - 🎯 **Enhanced Ingress**: Azure Load Balancer health probes and private LB support
 > - 🎯 **Custom Certificates**: Improved certificate handling for Data Plane applications
 > - 🎯 **Storage Management**: Helm-based storage class configuration
-> - For version 1.14.x guide, see [v1.14 documentation](../how-to-dp-aks-setup-guide.md)
+> - For version 1.14.x guide, see [v1.14 documentation](../how-to-dp-aks-setup-guide)
 
 ---
 
@@ -868,7 +868,7 @@ cat ${DEFAULT_INGRESS_CERT_FILE} ${DEFAULT_INGRESS_KEY_FILE} > combined-cert.pem
 
 **Option 2: Use Let's Encrypt with cert-manager** (Recommended for production):
 
-See [how-to-use-letsencrypt-certificates](how-to-use-letsencrypt-certificates.md) for detailed setup.
+See [how-to-use-letsencrypt-certificates](./how-to-use-letsencrypt-certificates) for detailed setup.
 
 ### Step 8.2: Create Custom Certificate Secret
 
@@ -1319,7 +1319,7 @@ echo "Diagnostics package created: tibco-dp-diagnostics.tar.gz"
 
 This section covers deploying Elasticsearch, Kibana, and Prometheus for comprehensive observability of Data Plane applications. This is optional but highly recommended for production deployments.
 
-> **💡 Tip**: For detailed observability setup with complete OTEL collector configuration, see the dedicated [Data Plane Observability Guide](how-to-dp-aks-observability.md).
+> **💡 Tip**: For detailed observability setup with complete OTEL collector configuration, see the dedicated [Data Plane Observability Guide](./how-to-dp-aks-observability).
 
 ### Step 12.1: Install Elastic Cloud on Kubernetes (ECK) Operator
 
@@ -1559,7 +1559,7 @@ echo "Grafana: https://grafana.${TP_BASE_DNS_DOMAIN} (user: admin, password: adm
 echo "Prometheus: http://prometheus-kube-prometheus-prometheus.${PROMETHEUS_NAMESPACE}:9090 (in-cluster)"
 ```
 
-> **📚 For Complete Configuration**: See [how-to-dp-aks-observability.md](how-to-dp-aks-observability.md) for:
+> **📚 For Complete Configuration**: See [how-to-dp-aks-observability.md](./how-to-dp-aks-observability) for:
 > - OTEL collector configuration for Data Plane applications
 > - Custom Grafana dashboards for BWCE/Flogo metrics
 > - Log forwarding configuration
@@ -1830,7 +1830,7 @@ You have successfully deployed TIBCO Platform Data Plane on AKS connected to a S
 
 1. **Deploy Production Applications**: Use Control Plane UI to deploy BWCE and Flogo apps
 2. **Configure TLS Certificates**: Replace with Let's Encrypt or corporate CA certificates
-3. **Enable Observability**: Set up log forwarding and metrics collection (see [how-to-dp-aks-observability](how-to-dp-aks-observability.md))
+3. **Enable Observability**: Set up log forwarding and metrics collection (see [how-to-dp-aks-observability](./how-to-dp-aks-observability))
 4. **Production Hardening**:
    - Enable network policies for pod-to-pod security
    - Configure pod security policies
@@ -1870,10 +1870,10 @@ kubectl scale deployment dp-core-ops -n $TP_DP_NAMESPACE --replicas=3
 ## References
 
 - [TIBCO Platform 1.15.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.15.0/doc/html/Default.htm)
-- [Prerequisites Checklist](prerequisites-checklist-for-customer.md)
-- [Complete CP+DP Setup Guide](how-to-cp-and-dp-aks-setup-guide.md)
-- [DNS Configuration Guide](how-to-add-dns-records-aks-azure.md)
-- [Observability Setup](how-to-dp-aks-observability.md)
+- [Prerequisites Checklist](./prerequisites-checklist-for-customer)
+- [Complete CP+DP Setup Guide](./how-to-cp-and-dp-aks-setup-guide)
+- [DNS Configuration Guide](./how-to-add-dns-records-aks-azure)
+- [Observability Setup](./how-to-dp-aks-observability)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)
 
 ---

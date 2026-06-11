@@ -297,10 +297,10 @@ releases/
 ## 10. References
 
 ### Internal Documentation
-- [v1.16.0 Release Notes](/releases/v1.16.0.md)
-- [v1.16.0 Installation Guide](/scripts/v1.16.0-cpdp-install/README.md)
-- [Main Setup Guide](/howto/how-to-cp-and-dp-aks-setup-guide.md)
-- [v1.15.0 Release Notes](/releases/v1.15.0.md) (for comparison)
+- [v1.16.0 Release Notes](../../releases/v1.16.0)
+- [v1.16.0 Installation Guide](../../scripts/v1.16.0-cpdp-install/README)
+- [Main Setup Guide](../how-to-cp-and-dp-aks-setup-guide)
+- [v1.15.0 Release Notes](../../releases/v1.15.0) (for comparison)
 
 ### External Resources
 - [TIBCO Platform Helm Charts](https://github.com/TIBCOSoftware/tp-helm-charts)

@@ -222,9 +222,9 @@ kubectl scale deployment/cp-router -n cp1-ns --replicas=2
 
 ## Support Resources
 
-- **Documentation**: [workshop-tp-aks repository](/README.md)
-- **Release Notes**: [v1.16.0 Release Notes](/releases/v1.16.0.md)
-- **Installation Guide**: [v1.16.0 Setup](/scripts/v1.16.0-cpdp-install/README.md)
+- **Documentation**: [workshop-tp-aks repository](../../README)
+- **Release Notes**: [v1.16.0 Release Notes](../../releases/v1.16.0)
+- **Installation Guide**: [v1.16.0 Setup](../../scripts/v1.16.0-cpdp-install/README)
 - **TIBCO Docs**: https://docs.tibco.com/
 
 ---
