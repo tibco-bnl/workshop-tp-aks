@@ -9,7 +9,7 @@ This guide explains how to configure DNS records in Azure DNS for TIBCO Platform
 
 **Target Audience**: Infrastructure administrators responsible for DNS management
 
-**Last Updated**: January 22, 2026
+**Last Updated**: June 11, 2026
 
 ---
 
@@ -32,8 +32,8 @@ TIBCO Platform on AKS requires DNS records to route traffic from external domain
 
 ### Why DNS Records Are Needed
 
-1. **Control Plane Access**: Users access Control Plane UI via `*.cp1-my.domain.com`
-2. **Hybrid Connectivity**: Data Planes connect via `*.cp1-tunnel.domain.com`
+1. **Control Plane Access**: Users access Platform Console and subscription URLs through one base domain, for example `*.platform.azure.example.com`
+2. **Hybrid Connectivity**: Data Planes connect through the same base domain; tunnel traffic is routed by path under `/infra/tunnel`
 3. **Data Plane Services**: Applications accessible via `*.services.dp1.domain.com`
 
 ---
@@ -60,10 +60,30 @@ TIBCO Platform on AKS requires DNS records to route traffic from external domain
 
 ### Control Plane DNS Requirements
 
+For current TIBCO Platform releases, use the simplified Control Plane DNS scheme unless you have an existing deployment that already separates access and tunnel domains.
+
 | Domain Type | Pattern | Example | Purpose |
 |------------|---------|---------|---------|
-| **MY Domain** | `*.{instanceId}-my.{domain}` | `*.cp1-my.platform.azure.example.com` | Control Plane UI and APIs |
-| **TUNNEL Domain** | `*.{instanceId}-tunnel.{domain}` | `*.cp1-tunnel.platform.azure.example.com` | Hybrid connectivity |
+| **Simplified CP Domain** | `*.{base-domain}` | `*.platform.azure.example.com` | Platform Console, subscription URLs, APIs, and hybrid tunnel path |
+| **Legacy MY Domain** | `*.{instanceId}-my.{domain}` | `*.cp1-my.platform.azure.example.com` | Older split-domain Control Plane UI and APIs |
+| **Legacy TUNNEL Domain** | `*.{instanceId}-tunnel.{domain}` | `*.cp1-tunnel.platform.azure.example.com` | Older split-domain hybrid connectivity |
+
+With simplified DNS, set both Helm values to the same base domain:
+
+```yaml
+global:
+  external:
+    dnsDomain: platform.azure.example.com
+    dnsTunnelDomain: platform.azure.example.com
+```
+
+The resulting URLs use the same wildcard DNS record:
+
+```text
+admin.platform.azure.example.com              # Platform Console
+<subscription>.platform.azure.example.com     # Subscription URL
+<subscription>.platform.azure.example.com/infra/tunnel  # Hybrid tunnel path
+```
 
 ### Data Plane DNS Requirements
 
@@ -74,23 +94,32 @@ TIBCO Platform on AKS requires DNS records to route traffic from external domain
 
 ### Wildcard vs Specific Records
 
-#### Option 1: Wildcard DNS (Recommended)
+#### Option 1: Simplified Wildcard DNS (Recommended)
 
 **Pros:**
-- Single record covers all subdomains
+- Single record covers Platform Console, subscriptions, and tunnel path routing
 - Easier to manage
 - Supports dynamic subscription creation
+- Matches current simplified Control Plane DNS configuration
 
 **Cons:**
 - May not be allowed by some corporate policies
 - Less granular control
 
 ```
+*.platform.azure.example.com → <Load-Balancer-IP>
+```
+
+#### Option 2: Legacy Split Wildcard DNS
+
+Use this only for older deployments or when your organization intentionally separates access and tunnel ownership.
+
+```
 *.cp1-my.platform.azure.example.com → <Load-Balancer-IP>
 *.cp1-tunnel.platform.azure.example.com → <Load-Balancer-IP>
 ```
 
-#### Option 2: Specific Records
+#### Option 3: Specific Records
 
 **Pros:**
 - Explicit control over each hostname
@@ -101,8 +130,8 @@ TIBCO Platform on AKS requires DNS records to route traffic from external domain
 - More maintenance overhead
 
 ```
-admin.cp1-my.platform.azure.example.com → <Load-Balancer-IP>
-subscription1.cp1-my.platform.azure.example.com → <Load-Balancer-IP>
+admin.platform.azure.example.com → <Load-Balancer-IP>
+subscription1.platform.azure.example.com → <Load-Balancer-IP>
 ```
 
 ---
@@ -140,33 +169,46 @@ echo "Load Balancer IP: $LB_IP"
 # Azure DNS configuration
 export TP_DNS_RESOURCE_GROUP="dns-resource-group"  # Resource group with DNS zone
 export TP_DNS_ZONE_NAME="azure.example.com"        # Your DNS zone name
-export TP_PLATFORM_SUBDOMAIN="platform"            # Subdomain for platform
+export TP_PLATFORM_SUBDOMAIN="platform"            # Subdomain for platform under the DNS zone
 
-# Control Plane domains
-export CP_MY_DOMAIN="${CP_INSTANCE_ID}-my.${TP_PLATFORM_SUBDOMAIN}"
-export CP_TUNNEL_DOMAIN="${CP_INSTANCE_ID}-tunnel.${TP_PLATFORM_SUBDOMAIN}"
+# Simplified Control Plane domain
+export TP_BASE_DNS_DOMAIN="${TP_PLATFORM_SUBDOMAIN}.${TP_DNS_ZONE_NAME}"
+export TP_CP_RECORD_SET="*.${TP_PLATFORM_SUBDOMAIN}"
+
+# Use this same value for global.external.dnsDomain and global.external.dnsTunnelDomain
+echo "Control Plane base domain: ${TP_BASE_DNS_DOMAIN}"
 ```
 
 ### Step 3: Create Wildcard DNS Records
 
 ```bash
-# Create A record for MY domain
+# Create one wildcard A record for the simplified Control Plane domain
+az network dns record-set a add-record \
+  --resource-group "$TP_DNS_RESOURCE_GROUP" \
+  --zone-name "$TP_DNS_ZONE_NAME" \
+  --record-set-name "$TP_CP_RECORD_SET" \
+  --ipv4-address "$LB_IP"
+
+echo "Created DNS record: *.${TP_BASE_DNS_DOMAIN} -> $LB_IP"
+```
+
+For a legacy split-domain deployment, create separate records instead:
+
+```bash
+export CP_MY_DOMAIN="${CP_INSTANCE_ID}-my.${TP_PLATFORM_SUBDOMAIN}"
+export CP_TUNNEL_DOMAIN="${CP_INSTANCE_ID}-tunnel.${TP_PLATFORM_SUBDOMAIN}"
+
 az network dns record-set a add-record \
   --resource-group "$TP_DNS_RESOURCE_GROUP" \
   --zone-name "$TP_DNS_ZONE_NAME" \
   --record-set-name "*.${CP_MY_DOMAIN}" \
   --ipv4-address "$LB_IP"
 
-echo "✓ Created DNS record: *.${CP_MY_DOMAIN}.${TP_DNS_ZONE_NAME} → $LB_IP"
-
-# Create A record for TUNNEL domain
 az network dns record-set a add-record \
   --resource-group "$TP_DNS_RESOURCE_GROUP" \
   --zone-name "$TP_DNS_ZONE_NAME" \
   --record-set-name "*.${CP_TUNNEL_DOMAIN}" \
   --ipv4-address "$LB_IP"
-
-echo "✓ Created DNS record: *.${CP_TUNNEL_DOMAIN}.${TP_DNS_ZONE_NAME} → $LB_IP"
 ```
 
 ### Step 4: Verify DNS Record Creation
@@ -182,7 +224,7 @@ az network dns record-set a list \
 az network dns record-set a show \
   --resource-group "$TP_DNS_RESOURCE_GROUP" \
   --zone-name "$TP_DNS_ZONE_NAME" \
-  --name "*.${CP_MY_DOMAIN}"
+  --name "$TP_CP_RECORD_SET"
 ```
 
 ---
@@ -218,15 +260,23 @@ Copy the EXTERNAL-IP value.
 1. In the DNS zone page, click **+ Record set**
 2. Fill in the record details:
 
-**For MY Domain Wildcard Record:**
-   - **Name**: `*.cp1-my.platform` (adjust based on your naming)
+**For simplified Control Plane DNS:**
+  - **Name**: `*.platform` (adjust based on your chosen base domain)
    - **Type**: A
    - **TTL**: 300 (or your preferred TTL)
    - **IP address**: Paste the Load Balancer IP
 
 3. Click **OK** to create the record
 
-4. Repeat for TUNNEL domain:
+For a legacy split-domain deployment, create two wildcard records instead:
+
+4. Create the MY domain record:
+  - **Name**: `*.cp1-my.platform`
+  - **Type**: A
+  - **TTL**: 300
+  - **IP address**: Same Load Balancer IP
+
+5. Create the TUNNEL domain record:
    - **Name**: `*.cp1-tunnel.platform`
    - **Type**: A
    - **TTL**: 300
@@ -345,18 +395,15 @@ metadata:
   name: tibco-cp-ingress
   namespace: cp1-ns
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: "*.cp1-my.platform.azure.example.com,*.cp1-tunnel.platform.azure.example.com"
+    external-dns.alpha.kubernetes.io/hostname: "*.platform.azure.example.com"
 spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - "*.cp1-my.platform.azure.example.com"
-    secretName: tp-certificate-my
-  - hosts:
-    - "*.cp1-tunnel.platform.azure.example.com"
-    secretName: tp-certificate-tunnel
+    - "*.platform.azure.example.com"
+    secretName: tp-certificate-platform
   rules:
-  - host: "*.cp1-my.platform.azure.example.com"
+  - host: "*.platform.azure.example.com"
     http:
       paths:
       - path: /
@@ -377,14 +424,14 @@ External DNS will automatically create the DNS records in Azure DNS!
 ### Test DNS Resolution
 
 ```bash
-# Test MY domain
-nslookup admin.cp1-my.platform.azure.example.com
+# Test Platform Console domain
+nslookup admin.platform.azure.example.com
 
-# Test TUNNEL domain
-nslookup admin.cp1-tunnel.platform.azure.example.com
+# Test subscription domain
+nslookup subscription1.platform.azure.example.com
 
 # Test with dig (more detailed)
-dig +short admin.cp1-my.platform.azure.example.com
+dig +short admin.platform.azure.example.com
 ```
 
 Expected output: The Load Balancer IP address
@@ -393,7 +440,7 @@ Expected output: The Load Balancer IP address
 
 ```bash
 # Test if ingress responds (before TIBCO Platform deployment)
-curl -k https://admin.cp1-my.platform.azure.example.com
+curl -k https://admin.platform.azure.example.com
 
 # Expected: 404 or default backend response (not connection error)
 ```
@@ -405,7 +452,7 @@ curl -k https://admin.cp1-my.platform.azure.example.com
 az network dns record-set a list \
   --resource-group "$TP_DNS_RESOURCE_GROUP" \
   --zone-name "$TP_DNS_ZONE_NAME" \
-  --query "[?name=='*.cp1-my.platform' || name=='*.cp1-tunnel.platform']" \
+  --query "[?name=='*.platform']" \
   --output table
 ```
 
@@ -425,7 +472,7 @@ az network dns record-set a list \
    az network dns record-set a show \
      --resource-group "$TP_DNS_RESOURCE_GROUP" \
      --zone-name "$TP_DNS_ZONE_NAME" \
-     --name "*.cp1-my.platform"
+     --name "*.platform"
    ```
 
 2. **Verify DNS zone delegation**:
@@ -443,7 +490,7 @@ az network dns record-set a list \
 3. **Use Azure DNS name servers directly**:
    ```bash
    # Query Azure DNS directly
-   nslookup admin.cp1-my.platform.azure.example.com ns1-01.azure-dns.com
+  nslookup admin.platform.azure.example.com ns1-01.azure-dns.com
    ```
 
 ### Load Balancer IP Not Available
@@ -517,9 +564,10 @@ az network dns record-set a list \
 
 For flexibility and ease of management, use wildcard DNS records:
 ```
-*.cp1-my.platform.azure.example.com
-*.cp1-tunnel.platform.azure.example.com
+*.platform.azure.example.com
 ```
+
+Use separate `*.cp1-my...` and `*.cp1-tunnel...` records only for legacy split-domain deployments.
 
 ### 2. Implement External DNS
 
