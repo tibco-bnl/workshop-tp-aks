@@ -9,7 +9,7 @@ title: TIBCO Platform on AKS - Customer Prerequisites Checklist
 
 **Target Audience**: Customer IT teams responsible for Azure infrastructure preparation
 
-**Last Updated**: January 22, 2026
+**Last Updated**: June 12, 2026
 
 ---
 
@@ -105,7 +105,7 @@ Before TIBCO implementation team arrives on-site or begins remote installation, 
 
 | Network Configuration | Requirement | Details |
 |----------------------|-------------|---------|
-| **Control Plane Connectivity** | HTTPS (443) to CP domains | Both `my` and `tunnel` domains via DNS |
+| **Control Plane Connectivity** | HTTPS (443) to CP domain | Simplified DNS uses one base domain; legacy deployments may still use separate `my` and `tunnel` domains |
 | **Internet Access** | Outbound HTTPS (443) | To pull container images |
 | **DNS Resolution** | **REQUIRED** - Internal and external | Must resolve Control Plane domains. CP and DP communicate via secure tunnels using DNS |
 | **Application Ingress** | DNS records for BWCE/Flogo apps | Capabilities use ingress controllers registered in DNS for external access |
@@ -116,8 +116,8 @@ Before TIBCO implementation team arrives on-site or begins remote installation, 
 | Source | Destination | Port | Protocol | Purpose |
 |--------|------------|------|----------|---------|
 | User Browser | Control Plane Ingress | 443 | HTTPS | Control Plane UI access |
-| Data Plane | Control Plane (`my` domain) | 443 | HTTPS | Platform API communication |
-| Data Plane | Control Plane (`tunnel` domain) | 443 | HTTPS | Hybrid connectivity |
+| Data Plane | Control Plane base domain | 443 | HTTPS | Platform API communication |
+| Data Plane | Control Plane tunnel route | 443 | HTTPS | Hybrid connectivity; simplified DNS uses the same base domain with `/infra/tunnel` |
 | Control Plane Pods | PostgreSQL | 5432 | TCP | Database access |
 | Control Plane Pods | Container Registry | 443 | HTTPS | Image pulls |
 | AKS Nodes | Azure Storage | 443/445 | HTTPS/SMB | Azure Files access |
@@ -300,7 +300,36 @@ curl -o BaltimoreCyberTrustRoot.crt.pem \
 
 ## 6. DNS and Domain Requirements (Control Plane)
 
-### Azure DNS Zones Required
+### Simplified DNS (Recommended for Current Releases)
+
+For TIBCO Platform 1.15.0 and later, including the current 1.18.0 workshop flow, use one Control Plane base domain when your DNS and certificate policies allow it.
+
+| DNS Purpose | Pattern | Example | DNS Records Needed |
+|-------------|---------|---------|-------------------|
+| **Control Plane base domain** | `*.{base-domain}` | `*.platform.azure.example.com` | One wildcard A/CNAME record to the ingress load balancer |
+
+Expected host patterns:
+
+```text
+admin.platform.azure.example.com                  # Platform Console
+<subscription>.platform.azure.example.com         # Subscription portal and APIs
+<subscription>.platform.azure.example.com/infra/tunnel  # Hybrid connectivity tunnel path
+```
+
+Use the same base domain for both Control Plane Helm values:
+
+```yaml
+global:
+  external:
+    dnsDomain: platform.azure.example.com
+    dnsTunnelDomain: platform.azure.example.com
+```
+
+`dnsDomain` and `dnsTunnelDomain` can be the same value in simplified DNS, but they represent different routing roles. `dnsDomain` is for normal Control Plane router traffic. `dnsTunnelDomain` tells the platform what public domain to advertise for hybrid connectivity tunnel traffic handled by `hybrid-proxy`. In the baseline AKS Ingress model, tunnel traffic uses the subscription host and `/infra/tunnel` path, so no separate tunnel domain or certificate is required.
+
+### Legacy Split DNS (Backward Compatible)
+
+Use separate `my` and `tunnel` domains only for existing older deployments, strict separation requirements, or environments where DNS and certificate ownership must remain separate.
 
 | DNS Zone Purpose | Pattern | Example | DNS Records Needed |
 |-----------------|---------|---------|-------------------|
@@ -309,8 +338,8 @@ curl -o BaltimoreCyberTrustRoot.crt.pem \
 
 ### Azure DNS Configuration
 
-| Requirement | Details |
-|-------------|---------|
+| Requirement | Details | Example/Notes |
+|-------------|---------|---------------|
 | **Azure DNS Zone** | Public Azure DNS zone created | e.g., `azure.example.com` |
 | **Resource Group** | DNS zone resource group | For DNS record management |
 | **DNS Zone Access** | Contributor role on DNS zone | To create A/CNAME records |
@@ -324,18 +353,23 @@ curl -o BaltimoreCyberTrustRoot.crt.pem \
 
 ### Wildcard vs Specific DNS Records
 
-**Option 1: Wildcard DNS** (Easier, Recommended)
+**Option 1: Simplified Wildcard DNS** (Recommended)
 ```
-*.cp1-my.azure.example.com → <LoadBalancer-Public-IP>
-*.cp1-tunnel.azure.example.com → <LoadBalancer-Public-IP>
+*.platform.azure.example.com -> <LoadBalancer-Public-IP>
 ```
 
-**Option 2: Specific Hostnames** (Required if wildcards not allowed)
+**Option 2: Legacy Split Wildcard DNS**
 ```
-admin.cp1-my.azure.example.com → <LoadBalancer-Public-IP>
-subscription1.cp1-my.azure.example.com → <LoadBalancer-Public-IP>
-subscription2.cp1-my.azure.example.com → <LoadBalancer-Public-IP>
-# (Pattern repeats for tunnel domain)
+*.cp1-my.azure.example.com -> <LoadBalancer-Public-IP>
+*.cp1-tunnel.azure.example.com -> <LoadBalancer-Public-IP>
+```
+
+**Option 3: Specific Hostnames** (Required if wildcards are not allowed)
+```
+admin.platform.azure.example.com -> <LoadBalancer-Public-IP>
+subscription1.platform.azure.example.com -> <LoadBalancer-Public-IP>
+subscription2.platform.azure.example.com -> <LoadBalancer-Public-IP>
+# For legacy split DNS, repeat the specific records under the tunnel domain.
 ```
 
 **Note**: If wildcard DNS is not allowed, provide list of expected subscription names in advance.
@@ -367,20 +401,24 @@ Required Information:
 
 ### Certificate SAN Examples
 
-**Option 1: Wildcard Certificates** (Easier, Recommended)
+**Option 1: Simplified Wildcard Certificate** (Recommended)
+```
+DNS: *.platform.azure.example.com
+DNS: platform.azure.example.com
+```
+
+**Option 2: Legacy Split Wildcard Certificates**
 ```
 DNS: *.cp1-my.azure.example.com
 DNS: *.cp1-tunnel.azure.example.com
 ```
 
-**Option 2: Specific Hostnames** (If wildcards not allowed by PKI policy)
+**Option 3: Specific Hostnames** (If wildcards are not allowed by PKI policy)
 ```
-DNS: admin.cp1-my.azure.example.com
-DNS: subscription1.cp1-my.azure.example.com
-DNS: subscription2.cp1-my.azure.example.com
-DNS: admin.cp1-tunnel.azure.example.com
-DNS: subscription1.cp1-tunnel.azure.example.com
-DNS: subscription2.cp1-tunnel.azure.example.com
+DNS: admin.platform.azure.example.com
+DNS: subscription1.platform.azure.example.com
+DNS: subscription2.platform.azure.example.com
+# For legacy split DNS, include the corresponding cp1-my and cp1-tunnel names.
 ```
 
 ### Azure Certificate Options
