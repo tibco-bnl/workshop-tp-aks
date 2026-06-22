@@ -488,12 +488,32 @@ Please provide **before installation day**:
 curl -u "username:password" https://<registry-url>/v2/_catalog
 ```
 
-### Azure Container Registry (Optional)
+### Custom / Internal Registry (Air-Gapped or Private Registry Environments)
 
-If mirroring TIBCO images to Azure Container Registry (ACR):
-- [ ] ACR created in same region as AKS
-- [ ] AKS has pull access to ACR (via managed identity or attach)
-- [ ] TIBCO images imported/mirrored to ACR
+If your AKS cluster cannot reach the TIBCO JFrog registry directly, you must pre-mirror all images to an accessible private registry (such as Azure Container Registry) before installation.
+
+> **⚠️ Important**: Do **not** use standard `docker push`, `podman push`, `docker save`, or `podman save` to transfer BusinessWorks plugin images. These commands silently re-compress image layers and corrupt the GZIP headers required by the `bwce-utilities` extraction container, causing `tar: invalid tar header checksum` failures during BW capability deployment.
+
+Use the **official TIBCO sync script** or one of these registry-to-registry copy methods that preserve original layer compression:
+
+| Tool | Best For |
+|------|----------|
+| `sync-images.sh` (official TIBCO script) | All images at once — recommended starting point |
+| `docker buildx imagetools create` | Docker environments, per-image copy |
+| `skopeo copy --format v2s2` | Scripted copy, Podman environments |
+| `skopeo dir://` | Air-gapped / physical data transfer |
+
+📖 **Full guide**: [How to Push TIBCO Platform Images to a Custom Container Registry](./how-to-sync-images) — covers all copy methods, ACR setup, air-gapped staging, and image integrity verification.
+
+### Azure Container Registry (ACR) Checklist
+
+If using Azure Container Registry as your private registry:
+
+- [ ] ACR created in the same region as the AKS cluster
+- [ ] AKS granted pull access to ACR via managed identity (`az aks update --attach-acr`)
+- [ ] TIBCO images mirrored to ACR using a bit-perfect copy method (see guide above)
+- [ ] Image integrity verified using GZIP header inspection (see sync guide)
+- [ ] Kubernetes image pull secret created if not using managed identity attachment
 
 ---
 

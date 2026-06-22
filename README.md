@@ -69,6 +69,10 @@ Guides and supporting resources for deploying TIBCO Platform Control Plane and D
 - [EKS firewall requirements](./docs/firewall-requirements-eks)
 - [Connectivity test script README](./scripts/README-connectivity-test)
 
+### Image Synchronization
+
+- [How to push TIBCO Platform images to a custom container registry](./howto/how-to-sync-images) — official `sync-images.sh` script, `docker buildx imagetools`, `skopeo`, air-gapped staging, ACR setup, and image integrity verification
+
 ### Version Archives
 
 - [v1.17 docs](./howto/v1.17/)
