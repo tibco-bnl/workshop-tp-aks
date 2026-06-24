@@ -40,6 +40,7 @@ Guides and supporting resources for deploying TIBCO Platform Control Plane and D
 
 | Scenario | Description | Primary Guide |
 |----------|-------------|---------------|
+| Architecture and topology planning | Choose CP/DP topology, DTAP cluster organization, subscription strategy, and deployment flavor | [Topology options](./howto/topology-options) |
 | CP + DP on one AKS cluster | Complete workshop or evaluation environment with Control Plane and Data Plane in the same AKS cluster | [1.18.0 CP + DP setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide) |
 | AKS Data Plane with remote CP | Customer or regional AKS Data Plane connected to SaaS or another remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide) |
 | Observability | Prometheus, Elasticsearch/OpenSearch-related logging, Grafana, and monitoring setup | [Observability guide](./howto/how-to-dp-aks-observability) |
@@ -56,6 +57,7 @@ Guides and supporting resources for deploying TIBCO Platform Control Plane and D
 
 ### Shared How-To Guides
 
+- [Topology options](./howto/topology-options) — CP/DP topology patterns, DTAP organization, subscription strategies, API Gateway, and deployment flavors
 - [Shared CP + DP baseline guide](./howto/how-to-cp-and-dp-aks-setup-guide)
 - [Data Plane only setup](./howto/how-to-dp-aks-setup-guide)
 - [Data Plane observability](./howto/how-to-dp-aks-observability)
