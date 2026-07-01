@@ -1289,6 +1289,79 @@ EOF
 > 
 > If the DBHost is missing from the ConfigMap, it indicates the database configuration was not included in the Helm values, and you'll need to redeploy with the corrected configuration.
 
+---
+
+### Alternative: Gateway API Configuration (tibco-cp-base with HTTPRoutes)
+
+> [!NOTE]
+> **When to use this:** Choose the Gateway API path if you have NGINX Gateway Fabric (or another Gateway API controller) installed and want `HTTPRoute` resources instead of classic `Ingress` objects for hybrid-proxy and router-operator. The rest of the `cp-values.yaml` (database, admin user, storage, etc.) remains unchanged — create a second override file and pass both files to `helm upgrade`.
+
+Set the gateway env vars (already added to `aks-env-variables.sh`):
+
+```bash
+echo "TP_GATEWAY_NAME=${TP_GATEWAY_NAME}"           # e.g. tp-ngf-gateway
+echo "TP_GATEWAY_NAMESPACE=${TP_GATEWAY_NAMESPACE}" # e.g. ingress-system
+echo "TP_GATEWAY_CLASS=${TP_GATEWAY_CLASS}"         # e.g. nginx
+```
+
+Create the Gateway API override file:
+
+```bash
+cat > cp-gateway-api-values.yaml <<EOF
+hybrid-proxy:
+  enabled: true
+  gatewayRoute:
+    enabled: true
+    controllerName: ${TP_GATEWAY_CLASS}
+    hostnames:
+    - '${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}'  # Dedicated tunnel back-channel
+    parentRefs:
+    - name: ${TP_GATEWAY_NAME}
+      namespace: ${TP_GATEWAY_NAMESPACE}
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: '*.${TP_BASE_DNS_DOMAIN}'
+
+otel-collector:
+  enabled: true
+
+router-operator:
+  gatewayRoute:
+    enabled: true
+    controllerName: ${TP_GATEWAY_CLASS}
+    hostnames:
+    - '*.${TP_BASE_DNS_DOMAIN}'  # Wildcard captures all current and future subscriptions
+    parentRefs:
+    - name: ${TP_GATEWAY_NAME}
+      namespace: ${TP_GATEWAY_NAMESPACE}
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: '*.${TP_BASE_DNS_DOMAIN}'
+EOF
+```
+
+Install `tibco-cp-base` with both files (the base values plus the Gateway API override):
+
+```bash
+helm upgrade --install --wait --timeout 30m \
+  -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${TP_CP_BASE_CHART_VERSION}" \
+  --values cp-values.yaml \
+  --values cp-gateway-api-values.yaml
+```
+
+Verify the generated HTTPRoutes:
+
+```bash
+kubectl get httproute -n ${CP_INSTANCE_ID}-ns
+kubectl describe httproute -n ${CP_INSTANCE_ID}-ns
+```
+
+> [!TIP]
+> The `*.${TP_BASE_DNS_DOMAIN}` wildcard hostname on `router-operator` captures admin, subscription, and any future portal hostnames without requiring individual entries. The `hybrid-proxy` uses an explicit `${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}` hostname so the tunnel back-channel stays isolated from the wildcard.
+
+---
+
 ### Step 8.6: Deploy Control Plane
 
 ```bash

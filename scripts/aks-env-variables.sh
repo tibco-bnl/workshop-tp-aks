@@ -117,6 +117,20 @@ export TP_MAIN_INGRESS_CONTROLLER="traefik"
 # export TP_SECONDARY_INGRESS_CLASS="kong"  # Only for BWCE and Flogo apps
 
 ################################################################################
+# Gateway API Configuration (Optional — for Gateway API instead of Ingress)
+################################################################################
+
+# Set TP_GATEWAY_API_ENABLED="true" to use Gateway API HTTPRoute resources instead
+# of classic Ingress objects for the tibco-cp-base hybrid-proxy and router-operator.
+# Requires NGINX Gateway Fabric (or another Gateway API controller) installed in the cluster.
+# Reference: https://gateway-api.sigs.k8s.io/
+
+export TP_GATEWAY_API_ENABLED="false"         # Set "true" to activate Gateway API routing
+export TP_GATEWAY_NAME="tp-ngf-gateway"       # Gateway resource name (created during NGF setup)
+export TP_GATEWAY_NAMESPACE="ingress-system"  # Namespace where the Gateway resource lives
+export TP_GATEWAY_CLASS="nginx"               # GatewayClass name; NGINX Gateway Fabric uses "nginx"
+
+################################################################################
 # DNS Configuration
 ################################################################################
 
