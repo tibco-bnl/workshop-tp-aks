@@ -1133,19 +1133,318 @@ export POSTGRES_PORT=5432
 Create the official Control Plane values file using the **tibco-cp-base** chart structure:
 
 > [!IMPORTANT]
-> **Critical Database Configuration**: The values file below includes **all required configuration sections** including:
-> - **Database connection details** (`db_host`, `db_name`, `db_port`, `db_username`, `db_password`, `db_secret_name`, `db_ssl_mode`)
-> - **Admin user configuration** (for initial platform administrator)
-> - **Encryption secret configuration** (for platform security)
-> 
-> If any of these sections are missing (especially the database configuration), the Control Plane deployment will fail with errors like "missing DBHost key in ConfigMap provider-cp-database-config".
+> **Critical Database Configuration**: The values file below includes **all required configuration sections** including database connection details, admin user configuration, and encryption secret configuration. If any of these sections are missing (especially the database configuration), the Control Plane deployment will fail with errors like "missing DBHost key in ConfigMap provider-cp-database-config".
 >
 > For 1.18.0, email server configuration is no longer supplied through Control Plane Helm values. Configure email in Platform Console after deployment if activation emails, notifications, or reports are required.
 
+Choose the values file that matches your DNS approach and ingress controller. Each file is **self-contained** — one file per combination, one `helm` command.
+
+| DNS approach | Ingress / routing | Values file |
+|:-------------|:-----------------|:------------|
+| Simplified DNS | Traefik | `cp-values-simplified-traefik.yaml` |
+| Simplified DNS | NGINX Gateway Fabric (Gateway API) | `cp-values-simplified-gateway-api.yaml` |
+| Legacy DNS | Traefik | `cp-values-legacy-traefik.yaml` |
+| Legacy DNS | NGINX Gateway Fabric (Gateway API) | `cp-values-legacy-gateway-api.yaml` |
+
+Set the variable for your chosen file:
+
 ```bash
-cat > cp-values.yaml <<EOF
-# TIBCO Platform Control Plane Values for AKS
-# Based on: https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/control-plane
+# Set to your chosen combination — e.g. for simplified DNS + Traefik:
+export CP_VALUES_FILE="cp-values-simplified-traefik.yaml"
+```
+
+> [!NOTE]
+> If you are upgrading older 1.17.x values files, remove these deprecated 1.18.0 fields before deploying: `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, and `global.external.platformEmailNotificationCcAddresses`.
+
+---
+
+#### 🔷 Simplified DNS + Traefik (Option A)
+
+Simplified DNS uses one base domain (`TP_BASE_DNS_DOMAIN`) for all traffic. To avoid routing ambiguity between `hybrid-proxy` and `router-operator` on the same wildcard, the tunnel gets a dedicated specific subdomain (`${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}`). This subdomain is covered by your existing `*.${CP_MY_DNS_DOMAIN}` = `*.${TP_BASE_DNS_DOMAIN}` wildcard certificate — no extra certificate needed.
+
+```bash
+cat > cp-values-simplified-traefik.yaml <<EOF
+# =============================================================================
+# TIBCO CP BASE — Simplified DNS + Traefik Ingress (AKS)
+# One base domain (TP_BASE_DNS_DOMAIN) for all traffic.
+# Tunnel gets a dedicated subdomain: ${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}
+# Certificate: *.${CP_MY_DNS_DOMAIN} covers the tunnel subdomain.
+# =============================================================================
+
+tp-cp-core-finops:
+  finops:
+    enabled: true
+
+tp-cp-integration-bwprovisioner:
+  bwprovisioner:
+    enabled: true
+
+tp-cp-integration-bw5provisioner:
+  bw5provisioner:
+    enabled: true
+
+tp-cp-integration-flogoprovisioner:
+  flogoprovisioner:
+    enabled: true
+
+hybrid-proxy:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: "${TP_INGRESS_CLASS}"
+    tls:
+      - secretName: tp-certificate-${CP_INSTANCE_ID}
+        hosts:
+          - '*.${CP_MY_DNS_DOMAIN}'
+    hosts:
+      - host: '*.${CP_MY_DNS_DOMAIN}'
+        paths:
+          - path: /infra/tunnel
+            pathType: Prefix
+            port: 105
+
+tp-cp-bootstrap-cronjobs:
+  cronjobs:
+    setupJob:
+      enable: true
+
+router-operator:
+  enabled: true
+  tscSessionKey:
+    secretName: session-keys
+    key: TSC_SESSION_KEY
+  domainSessionKey:
+    secretName: session-keys
+    key: DOMAIN_SESSION_KEY
+  ingress:
+    enabled: true
+    ingressClassName: "${TP_INGRESS_CLASS}"
+    tls:
+      - secretName: tp-certificate-${CP_INSTANCE_ID}
+        hosts:
+          - '*.${CP_MY_DNS_DOMAIN}'
+    hosts:
+      - host: '*.${CP_MY_DNS_DOMAIN}'
+        paths:
+          - path: /
+            pathType: Prefix
+            port: 100
+
+global:
+  tibco:
+    createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
+    adminHostPrefix: "${CP_ADMIN_HOST_PREFIX:-admin}"
+    hybridConnectivity:
+      enabled: true
+    containerRegistry:
+      url: "${TP_CONTAINER_REGISTRY_URL}"
+      username: "${TP_CONTAINER_REGISTRY_USER}"
+      password: "${TP_CONTAINER_REGISTRY_PASSWORD}"
+      repository: "${TP_CONTAINER_REGISTRY_REPOSITORY}"
+    db_ssl_root_cert_secretname: "${POSTGRES_SSL_ROOT_CERT_SECRET:-db-ssl-root-cert}"
+    db_ssl_root_cert_filename: "${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
+    controlPlaneInstanceId: "${CP_INSTANCE_ID}"
+    serviceAccount: "${CP_INSTANCE_ID}-sa"
+  
+  external:
+    clusterInfo:
+      nodeCIDR: "${TP_VNET_CIDR}"
+      podCIDR: "${TP_POD_CIDR}"
+      serviceCIDR: "${TP_SERVICE_CIDR}"
+    
+    # Simplified DNS: same base domain for router and tunnel.
+    # Tunnel traffic is discriminated by /infra/tunnel path on the wildcard Ingress rule.
+    dnsDomain: "${TP_BASE_DNS_DOMAIN}"
+    dnsTunnelDomain: "${TP_BASE_DNS_DOMAIN}"
+    
+    storage:
+      pvcName: "control-plane-pvc"
+      resources:
+        requests:
+          storage: "10Gi"
+      storageClassName: "${TP_FILE_STORAGE_CLASS}"
+    
+    db_host: "${POSTGRES_HOST}"
+    db_name: "${POSTGRES_DB:-postgres}"
+    db_port: ${POSTGRES_PORT}
+    db_username: "${POSTGRES_USER:-postgres}"
+    db_password: "${POSTGRES_PASSWORD}"
+    db_secret_name: "provider-cp-database-credentials"
+    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"
+    db_ssl_root_cert: "/private/tsc/certificates/${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
+    
+    admin:
+      email: "admin@example.com"
+      firstname: "Platform"
+      lastname: "Admin"
+      customerID: "customer-id"
+    
+    cpEncryptionSecretName: "cporch-encryption-secret"
+    cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
+    
+    environment: "production"
+EOF
+```
+
+---
+
+#### 🔷 Simplified DNS + NGINX Gateway Fabric / Gateway API (Option B)
+
+> [!IMPORTANT]
+> **Why Gateway API uses hostname separation instead of path-based routing:**
+>
+> With Traefik Ingress (Option A), the ingress controller merges all rules into a shared rule set. Giving `hybrid-proxy` a specific subdomain (`${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}`) and `router-operator` a wildcard (`*.${TP_BASE_DNS_DOMAIN}`) lets the controller route by specificity — the specific host wins over the wildcard.
+>
+> With Gateway API, each service has its own independent `HTTPRoute` resource. If both `HTTPRoute` objects claim the same wildcard hostname (`*.${TP_BASE_DNS_DOMAIN}`), the Gateway controller's choice between them is implementation-specific and unreliable. The `tibco-cp-base` chart also does not expose a configurable path prefix for its generated HTTPRoute rules.
+>
+> The idiomatic Gateway API solution is **hostname separation**: `hybrid-proxy` gets a dedicated subdomain as its HTTPRoute hostname; `router-operator` gets the wildcard. The Gateway controller dispatches by hostname first — unambiguous across all implementations.
+>
+> **Certificate:** your `*.${CP_MY_DNS_DOMAIN}` wildcard covers `${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}` — no extra certificate needed.
+
+```bash
+cat > cp-values-simplified-gateway-api.yaml <<EOF
+# =============================================================================
+# TIBCO CP BASE — Simplified DNS + NGINX Gateway Fabric (Gateway API, AKS)
+#
+# Routing strategy: hostname separation.
+# hybrid-proxy    → ${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}  (HTTPRoute)
+# router-operator → *.${CP_MY_DNS_DOMAIN}                            (HTTPRoute)
+#
+# Certificate: *.${CP_MY_DNS_DOMAIN} covers the tunnel subdomain.
+# =============================================================================
+
+tp-cp-core-finops:
+  finops:
+    enabled: true
+
+tp-cp-integration-bwprovisioner:
+  bwprovisioner:
+    enabled: true
+
+tp-cp-integration-bw5provisioner:
+  bw5provisioner:
+    enabled: true
+
+tp-cp-integration-flogoprovisioner:
+  flogoprovisioner:
+    enabled: true
+
+hybrid-proxy:
+  enabled: true
+  ingress:
+    enabled: false      # Ingress disabled — HTTPRoute takes over
+  gatewayRoute:
+    enabled: true
+    controllerName: "${TP_GATEWAY_CLASS}"
+    hostnames:
+    - '${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}'
+    parentRefs:
+    - name: "${TP_GATEWAY_NAME}"
+      namespace: "${TP_GATEWAY_NAMESPACE}"
+
+otel-collector:
+  enabled: true
+
+tp-cp-bootstrap-cronjobs:
+  cronjobs:
+    setupJob:
+      enable: true
+
+router-operator:
+  enabled: true
+  tscSessionKey:
+    secretName: session-keys
+    key: TSC_SESSION_KEY
+  domainSessionKey:
+    secretName: session-keys
+    key: DOMAIN_SESSION_KEY
+  ingress:
+    enabled: false      # Ingress disabled — HTTPRoute takes over
+  gatewayRoute:
+    enabled: true
+    controllerName: "${TP_GATEWAY_CLASS}"
+    hostnames:
+    - '*.${CP_MY_DNS_DOMAIN}'
+    parentRefs:
+    - name: "${TP_GATEWAY_NAME}"
+      namespace: "${TP_GATEWAY_NAMESPACE}"
+
+global:
+  tibco:
+    createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
+    adminHostPrefix: "${CP_ADMIN_HOST_PREFIX:-admin}"
+    hybridConnectivity:
+      enabled: true
+    containerRegistry:
+      url: "${TP_CONTAINER_REGISTRY_URL}"
+      username: "${TP_CONTAINER_REGISTRY_USER}"
+      password: "${TP_CONTAINER_REGISTRY_PASSWORD}"
+      repository: "${TP_CONTAINER_REGISTRY_REPOSITORY}"
+    db_ssl_root_cert_secretname: "${POSTGRES_SSL_ROOT_CERT_SECRET:-db-ssl-root-cert}"
+    db_ssl_root_cert_filename: "${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
+    controlPlaneInstanceId: "${CP_INSTANCE_ID}"
+    serviceAccount: "${CP_INSTANCE_ID}-sa"
+  
+  external:
+    clusterInfo:
+      nodeCIDR: "${TP_VNET_CIDR}"
+      podCIDR: "${TP_POD_CIDR}"
+      serviceCIDR: "${TP_SERVICE_CIDR}"
+    
+    # Gateway API uses hostname separation for the tunnel.
+    # dnsTunnelDomain is the dedicated tunnel subdomain — covered by existing wildcard cert.
+    dnsDomain: "${TP_BASE_DNS_DOMAIN}"
+    dnsTunnelDomain: "${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}"
+    
+    storage:
+      pvcName: "control-plane-pvc"
+      resources:
+        requests:
+          storage: "10Gi"
+      storageClassName: "${TP_FILE_STORAGE_CLASS}"
+    
+    db_host: "${POSTGRES_HOST}"
+    db_name: "${POSTGRES_DB:-postgres}"
+    db_port: ${POSTGRES_PORT}
+    db_username: "${POSTGRES_USER:-postgres}"
+    db_password: "${POSTGRES_PASSWORD}"
+    db_secret_name: "provider-cp-database-credentials"
+    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"
+    db_ssl_root_cert: "/private/tsc/certificates/${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
+    
+    admin:
+      email: "admin@example.com"
+      firstname: "Platform"
+      lastname: "Admin"
+      customerID: "customer-id"
+    
+    cpEncryptionSecretName: "cporch-encryption-secret"
+    cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
+    
+    environment: "production"
+EOF
+```
+
+Verify the generated HTTPRoutes after deployment:
+
+```bash
+kubectl get httproute -n ${CP_INSTANCE_ID}-ns
+kubectl describe httproute -n ${CP_INSTANCE_ID}-ns
+```
+
+---
+
+#### 🔶 Legacy DNS + Traefik (Option C)
+
+Legacy DNS uses separate domains for router (`CP_MY_DNS_DOMAIN`) and tunnel (`CP_TUNNEL_DNS_DOMAIN`). Wildcard hosts cover all subdomains of each domain. Two wildcard certificates are required.
+
+```bash
+cat > cp-values-legacy-traefik.yaml <<EOF
+# =============================================================================
+# TIBCO CP BASE — Legacy DNS + Traefik Ingress (AKS)
+# Two separate domains: CP_MY_DNS_DOMAIN (router) and CP_TUNNEL_DNS_DOMAIN (tunnel).
+# Two wildcard certificates required.
+# =============================================================================
 
 tp-cp-core-finops:
   finops:
@@ -1185,12 +1484,11 @@ tp-cp-bootstrap-cronjobs:
 
 router-operator:
   enabled: true
-  # SecretNames for environment variables TSC_SESSION_KEY and DOMAIN_SESSION_KEY
   tscSessionKey:
-    secretName: session-keys  # default secret name
+    secretName: session-keys
     key: TSC_SESSION_KEY
   domainSessionKey:
-    secretName: session-keys  # default secret name
+    secretName: session-keys
     key: DOMAIN_SESSION_KEY
   ingress:
     enabled: true
@@ -1209,8 +1507,6 @@ router-operator:
 global:
   tibco:
     createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
-    
-    # Container Registry
     containerRegistry:
       url: "${TP_CONTAINER_REGISTRY_URL}"
       username: "${TP_CONTAINER_REGISTRY_USER}"
@@ -1218,22 +1514,18 @@ global:
       repository: "${TP_CONTAINER_REGISTRY_REPOSITORY}"
     db_ssl_root_cert_secretname: "${POSTGRES_SSL_ROOT_CERT_SECRET:-db-ssl-root-cert}"
     db_ssl_root_cert_filename: "${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
-    
-    # Control Plane Instance
     controlPlaneInstanceId: "${CP_INSTANCE_ID}"
     serviceAccount: "${CP_INSTANCE_ID}-sa"
   
   external:
     clusterInfo:
       nodeCIDR: "${TP_VNET_CIDR}"
-      podCIDR: "${TP_POD_CIDR}"  # Optional: Kubernetes Pod CIDR
-      serviceCIDR: "${TP_SERVICE_CIDR}"  # Optional: Kubernetes Service CIDR
+      podCIDR: "${TP_POD_CIDR}"
+      serviceCIDR: "${TP_SERVICE_CIDR}"
     
-    # DNS Domains
     dnsDomain: "${CP_MY_DNS_DOMAIN}"
     dnsTunnelDomain: "${CP_TUNNEL_DNS_DOMAIN}"
     
-    # Storage Configuration
     storage:
       pvcName: "control-plane-pvc"
       resources:
@@ -1241,116 +1533,153 @@ global:
           storage: "10Gi"
       storageClassName: "${TP_FILE_STORAGE_CLASS}"
     
-    # Database Configuration
     db_host: "${POSTGRES_HOST}"
     db_name: "${POSTGRES_DB:-postgres}"
     db_port: ${POSTGRES_PORT}
     db_username: "${POSTGRES_USER:-postgres}"
     db_password: "${POSTGRES_PASSWORD}"
     db_secret_name: "provider-cp-database-credentials"
-    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"  # Use "disable" only for dev/test in-cluster PostgreSQL
+    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"
     db_ssl_root_cert: "/private/tsc/certificates/${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
     
-    # Admin User Configuration
     admin:
-      email: "admin@example.com"  # Replace with actual admin email
+      email: "admin@example.com"
       firstname: "Platform"
       lastname: "Admin"
-      customerID: "customer-id"  # Replace with actual customer ID
+      customerID: "customer-id"
     
-    # Encryption Secret Configuration
     cpEncryptionSecretName: "cporch-encryption-secret"
     cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
     
-    # Optional: Audit Server Configuration
-    # auditserver:
-    #   index: "audittrail"
-    #   endpoint: ""
-    #   username: ""
-    #   password: ""
-    
-    # Environment
     environment: "production"
 EOF
 ```
 
-> [!NOTE]
-> If you are upgrading older 1.17.x values files, remove these deprecated 1.18.0 fields before deploying: `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, and `global.external.platformEmailNotificationCcAddresses`. The official `tp-helm-charts/scripts/1.18.0/upgrade.sh` assistant performs this cleanup automatically during values generation.
-
-> [!TIP]
-> **Verify Database Configuration After Deployment**: After the chart is installed, verify that the database configuration was correctly applied:
-> ```bash
-> # Check if the ConfigMap contains the DBHost key
-> kubectl get configmap provider-cp-database-config -n ${CP_INSTANCE_ID}-ns -o yaml | grep -i "host"
-> 
-> # Expected output should show:
-> #   DBHost: postgres-cp1-postgresql.cp1-ns.svc.cluster.local  (or your DB host)
-> ```
-> 
-> If the DBHost is missing from the ConfigMap, it indicates the database configuration was not included in the Helm values, and you'll need to redeploy with the corrected configuration.
-
 ---
 
-### Alternative: Gateway API Configuration (tibco-cp-base with HTTPRoutes)
+#### 🔶 Legacy DNS + NGINX Gateway Fabric / Gateway API (Option D)
 
-> [!NOTE]
-> **When to use this:** Choose the Gateway API path if you have NGINX Gateway Fabric (or another Gateway API controller) installed and want `HTTPRoute` resources instead of classic `Ingress` objects for hybrid-proxy and router-operator. The rest of the `cp-values.yaml` (database, admin user, storage, etc.) remains unchanged — create a second override file and pass both files to `helm upgrade`.
-
-Set the gateway env vars (already added to `aks-env-variables.sh`):
+Legacy DNS with separate domains already provides natural hostname separation for Gateway API. `hybrid-proxy` claims `*.${CP_TUNNEL_DNS_DOMAIN}` and `router-operator` claims `*.${CP_MY_DNS_DOMAIN}` — each HTTPRoute has a distinct hostname domain.
 
 ```bash
-echo "TP_GATEWAY_NAME=${TP_GATEWAY_NAME}"           # e.g. tp-ngf-gateway
-echo "TP_GATEWAY_NAMESPACE=${TP_GATEWAY_NAMESPACE}" # e.g. ingress-system
-echo "TP_GATEWAY_CLASS=${TP_GATEWAY_CLASS}"         # e.g. nginx
-```
+cat > cp-values-legacy-gateway-api.yaml <<EOF
+# =============================================================================
+# TIBCO CP BASE — Legacy DNS + NGINX Gateway Fabric (Gateway API, AKS)
+#
+# Routing strategy: separate domains — natural hostname separation.
+# hybrid-proxy    → *.${CP_TUNNEL_DNS_DOMAIN}  (HTTPRoute)
+# router-operator → *.${CP_MY_DNS_DOMAIN}       (HTTPRoute)
+#
+# Two wildcard certificates required: *.${CP_MY_DNS_DOMAIN} and *.${CP_TUNNEL_DNS_DOMAIN}.
+# =============================================================================
 
-Create the Gateway API override file:
+tp-cp-core-finops:
+  finops:
+    enabled: true
 
-```bash
-cat > cp-gateway-api-values.yaml <<EOF
+tp-cp-integration-bwprovisioner:
+  bwprovisioner:
+    enabled: true
+
+tp-cp-integration-bw5provisioner:
+  bw5provisioner:
+    enabled: true
+
+tp-cp-integration-flogoprovisioner:
+  flogoprovisioner:
+    enabled: true
+
 hybrid-proxy:
-  enabled: true
+  ingress:
+    enabled: false      # Ingress disabled — HTTPRoute takes over
   gatewayRoute:
     enabled: true
-    controllerName: ${TP_GATEWAY_CLASS}
+    controllerName: "${TP_GATEWAY_CLASS}"
     hostnames:
-    - '${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}'  # Dedicated tunnel back-channel
+    - '*.${CP_TUNNEL_DNS_DOMAIN}'
     parentRefs:
-    - name: ${TP_GATEWAY_NAME}
-      namespace: ${TP_GATEWAY_NAMESPACE}
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: '*.${TP_BASE_DNS_DOMAIN}'
+    - name: "${TP_GATEWAY_NAME}"
+      namespace: "${TP_GATEWAY_NAMESPACE}"
 
 otel-collector:
   enabled: true
 
+tp-cp-bootstrap-cronjobs:
+  cronjobs:
+    setupJob:
+      enable: true
+
 router-operator:
+  enabled: true
+  tscSessionKey:
+    secretName: session-keys
+    key: TSC_SESSION_KEY
+  domainSessionKey:
+    secretName: session-keys
+    key: DOMAIN_SESSION_KEY
+  ingress:
+    enabled: false      # Ingress disabled — HTTPRoute takes over
   gatewayRoute:
     enabled: true
-    controllerName: ${TP_GATEWAY_CLASS}
+    controllerName: "${TP_GATEWAY_CLASS}"
     hostnames:
-    - '*.${TP_BASE_DNS_DOMAIN}'  # Wildcard captures all current and future subscriptions
+    - '*.${CP_MY_DNS_DOMAIN}'
     parentRefs:
-    - name: ${TP_GATEWAY_NAME}
-      namespace: ${TP_GATEWAY_NAMESPACE}
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: '*.${TP_BASE_DNS_DOMAIN}'
+    - name: "${TP_GATEWAY_NAME}"
+      namespace: "${TP_GATEWAY_NAMESPACE}"
+
+global:
+  tibco:
+    createNetworkPolicy: ${TP_ENABLE_NETWORK_POLICY}
+    containerRegistry:
+      url: "${TP_CONTAINER_REGISTRY_URL}"
+      username: "${TP_CONTAINER_REGISTRY_USER}"
+      password: "${TP_CONTAINER_REGISTRY_PASSWORD}"
+      repository: "${TP_CONTAINER_REGISTRY_REPOSITORY}"
+    db_ssl_root_cert_secretname: "${POSTGRES_SSL_ROOT_CERT_SECRET:-db-ssl-root-cert}"
+    db_ssl_root_cert_filename: "${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
+    controlPlaneInstanceId: "${CP_INSTANCE_ID}"
+    serviceAccount: "${CP_INSTANCE_ID}-sa"
+  
+  external:
+    clusterInfo:
+      nodeCIDR: "${TP_VNET_CIDR}"
+      podCIDR: "${TP_POD_CIDR}"
+      serviceCIDR: "${TP_SERVICE_CIDR}"
+    
+    dnsDomain: "${CP_MY_DNS_DOMAIN}"
+    dnsTunnelDomain: "${CP_TUNNEL_DNS_DOMAIN}"
+    
+    storage:
+      pvcName: "control-plane-pvc"
+      resources:
+        requests:
+          storage: "10Gi"
+      storageClassName: "${TP_FILE_STORAGE_CLASS}"
+    
+    db_host: "${POSTGRES_HOST}"
+    db_name: "${POSTGRES_DB:-postgres}"
+    db_port: ${POSTGRES_PORT}
+    db_username: "${POSTGRES_USER:-postgres}"
+    db_password: "${POSTGRES_PASSWORD}"
+    db_secret_name: "provider-cp-database-credentials"
+    db_ssl_mode: "${POSTGRES_SSL_MODE:-require}"
+    db_ssl_root_cert: "/private/tsc/certificates/${POSTGRES_SSL_ROOT_CERT_FILENAME:-db_ssl_root.cert}"
+    
+    admin:
+      email: "admin@example.com"
+      firstname: "Platform"
+      lastname: "Admin"
+      customerID: "customer-id"
+    
+    cpEncryptionSecretName: "cporch-encryption-secret"
+    cpEncryptionSecretKey: "CP_ENCRYPTION_SECRET"
+    
+    environment: "production"
 EOF
 ```
 
-Install `tibco-cp-base` with both files (the base values plus the Gateway API override):
-
-```bash
-helm upgrade --install --wait --timeout 30m \
-  -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
-  --labels layer=5 \
-  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
-  --version "${TP_CP_BASE_CHART_VERSION}" \
-  --values cp-values.yaml \
-  --values cp-gateway-api-values.yaml
-```
-
-Verify the generated HTTPRoutes:
+Verify the generated HTTPRoutes after deployment:
 
 ```bash
 kubectl get httproute -n ${CP_INSTANCE_ID}-ns
@@ -1358,7 +1687,11 @@ kubectl describe httproute -n ${CP_INSTANCE_ID}-ns
 ```
 
 > [!TIP]
-> The `*.${TP_BASE_DNS_DOMAIN}` wildcard hostname on `router-operator` captures admin, subscription, and any future portal hostnames without requiring individual entries. The `hybrid-proxy` uses an explicit `${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}` hostname so the tunnel back-channel stays isolated from the wildcard.
+> **Verify Database Configuration After Deployment**: After the chart is installed, verify that the database configuration was correctly applied:
+> ```bash
+> kubectl get configmap provider-cp-database-config -n ${CP_INSTANCE_ID}-ns -o yaml | grep -i "host"
+> ```
+> If the DBHost is missing from the ConfigMap, it indicates the database configuration was not included in the Helm values, and you'll need to redeploy with the corrected configuration.
 
 ---
 
@@ -1378,7 +1711,7 @@ helm upgrade --install --wait --timeout 30m \
   --labels layer=5 \
   --repo "${TP_TIBCO_HELM_CHART_REPO}" \
   --version "${TP_CP_BASE_CHART_VERSION}" \
-  --values cp-values.yaml
+  --values ${CP_VALUES_FILE}
 
 # Monitor deployment
 kubectl get pods -n ${CP_INSTANCE_ID}-ns --watch
