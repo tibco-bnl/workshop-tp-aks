@@ -1695,6 +1695,23 @@ kubectl describe httproute -n ${CP_INSTANCE_ID}-ns
 
 ---
 
+### Enterprise / Restricted Namespace Environments
+
+> **Applies to:** Security-hardened AKS clusters where the pipeline service account cannot create arbitrary namespaces, ClusterRoles, or NetworkPolicy resources.
+>
+> Add the following two flags under `global.tibco` in your values file. `useSingleNamespace: true` restricts the entire TIBCO Control Plane footprint — microservices, ingress routes, and jobs — to a single pre-provisioned namespace. `createNetworkPolicy: false` prevents failures when the pipeline SA lacks RBAC to create NetworkPolicy resources:
+>
+> ```yaml
+> global:
+>   tibco:
+>     controlPlaneInstanceId: "cp1"
+>     serviceAccount: "cp1-sa"
+>     useSingleNamespace: true    # Restricts all CP resources to one namespace
+>     createNetworkPolicy: false  # Disable if SA cannot create NetworkPolicy resources
+> ```
+>
+> See [Troubleshooting — Single-Namespace Restriction](#8-single-namespace-restriction-enterprise--hardened-environments) for full context.
+
 ### Step 8.6: Deploy Control Plane
 
 ```bash
@@ -1706,7 +1723,7 @@ helm repo update
 export TP_CP_BASE_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.18.0}"
 
 # Install TIBCO Platform Control Plane
-helm upgrade --install --wait --timeout 30m \
+helm upgrade --install --wait --timeout 1h \
   -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
   --labels layer=5 \
   --repo "${TP_TIBCO_HELM_CHART_REPO}" \
@@ -1717,7 +1734,9 @@ helm upgrade --install --wait --timeout 30m \
 kubectl get pods -n ${CP_INSTANCE_ID}-ns --watch
 ```
 
-**Expected deployment time**: 10-20 minutes
+> **CRD pre-apply (skip-crds):** If the cluster does not yet have TIBCO CRDs registered, Helm will print `WARNING: This chart or one of its subcharts contains CRDs. Rendering may fail`. Apply the CRDs manually before running the command above, then add `--skip-crds`. See [Troubleshooting — CRD Rendering Warning](#9-crd-rendering-warning-and---skip-crds-flag).
+
+**Expected deployment time**: 10-30 minutes
 
 ### Step 8.7: Verify Control Plane Deployment
 
@@ -2586,6 +2605,104 @@ kubectl describe certificate <cert-name> -n $TP_CP_NAMESPACE
 # - Wrong domain: Verify certificate CN/SAN matches domain
 # - Let's Encrypt challenge failed: Check ingress is accessible from internet
 ```
+
+#### 8. Single-Namespace Restriction (Enterprise / Hardened Environments)
+
+**Error:** Helm installation fails during ClusterRole or namespace creation because the pipeline service account does not have permission to create namespaces or cluster-scoped resources.
+
+**Cause:** By default, the TIBCO Control Plane chart assumes a multi-namespace topology. Enterprise AKS clusters often restrict pipeline service accounts to a single pre-provisioned namespace.
+
+**Fix:** Add `useSingleNamespace: true` and `createNetworkPolicy: false` under `global.tibco` in your values file:
+
+```yaml
+global:
+  tibco:
+    controlPlaneInstanceId: "cp1"
+    serviceAccount: "cp1-sa"
+    useSingleNamespace: true    # Restricts all CP resources to one namespace
+    createNetworkPolicy: false  # Disable if SA cannot create NetworkPolicy resources
+```
+
+---
+
+#### 9. CRD Rendering Warning and `--skip-crds` Flag
+
+**Error:** `WARNING: This chart or one of its subcharts contains CRDs. Rendering may fail or contain inaccuracies.` followed by parser failures from sub-charts.
+
+**Cause:** TIBCO Platform bundles Custom Resource Definitions. When those CRDs are not yet registered in the cluster, Helm cannot validate sub-chart resource mappings.
+
+**Fix:** Apply CRDs to the cluster first, then add `--skip-crds` to the Helm install:
+
+```bash
+# Step 1: Apply CRDs to the cluster
+kubectl apply -f /path/to/tibco-cp-base-1.18.0-extracted/crds/
+
+# Step 2: Install with --skip-crds
+helm upgrade --install --wait --timeout 1h \
+  -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
+  --labels layer=5 \
+  --repo "${TP_TIBCO_HELM_CHART_REPO}" \
+  --version "${TP_CP_BASE_CHART_VERSION}" \
+  --skip-crds \
+  --values ${CP_VALUES_FILE}
+```
+
+---
+
+#### 10. PodSecurityPolicy Nil Pointer Error
+
+**Error:** `nil pointer evaluating interface {}.enabled` referencing `psp.yaml` inside the `tp-cp-prometheus` sub-chart.
+
+**Cause:** PodSecurityPolicies are deprecated and removed in Kubernetes v1.25+. The `tp-cp-prometheus` sub-chart evaluates `podSecurityPolicy.enabled`, but when the parent block is completely absent from your values file the Helm template engine crashes with a nil pointer.
+
+**Fix:**
+
+```yaml
+tp-cp-prometheus:
+  podSecurityPolicy:
+    enabled: false
+```
+
+---
+
+#### 11. Database Password Parsing Failure (Special Characters)
+
+**Error:** `yaml: did not find expected key` or `did not find expected node content` on Helm template files.
+
+**Cause:** The database password contains special characters (`$`, `%`, `(`, etc.) that conflict with Helm's internal token evaluator when wrapped in double quotes.
+
+**Fix:** Wrap the password in single quotes and escape any dollar signs as `$$`:
+
+```yaml
+global:
+  external:
+    db_password: 'myP@$$word(2024)'
+```
+
+---
+
+#### 12. Malformed Environment Variable Tokens and Indentation Errors
+
+**Error:** `yaml: did not find expected key` caused by unreplaced `${TOKEN}` strings or misaligned indentation.
+
+**Cause:** Pipeline tokens such as `${TP_EMAIL_SERVER_CIDR}` were left unreplaced, or indentation in the `networkPolicy` block was shifted.
+
+**Fix:** Replace any unreplaced `${TOKEN}` with `""` and verify correct indentation under `global.tibco`:
+
+```yaml
+global:
+  tibco:
+    createNetworkPolicy: false
+    networkPolicy:
+      database:
+        CIDR: ""
+        port: "5432"
+      emailServer:
+        CIDR: ""
+        port: "587"
+```
+
+---
 
 ### Collecting Diagnostic Information
 
