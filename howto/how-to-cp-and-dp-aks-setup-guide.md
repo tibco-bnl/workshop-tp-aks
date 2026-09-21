@@ -57,7 +57,7 @@ This guide walks through deploying both TIBCO Platform Control Plane and Data Pl
 - **Storage Classes** for Azure Disk and Azure Files
 - **Ingress Controller** (Traefik recommended, NGINX deprecated)
 - **Azure Database for PostgreSQL Flexible Server** (or in-cluster PostgreSQL for dev/test)
-- **TIBCO Platform Control Plane** (current release: 1.18.0; archived overlays for older releases)
+- **TIBCO Platform Control Plane** (current release: 1.20.0; archived overlays for older releases)
 - **TIBCO Platform Data Plane** with capabilities (BWCE, Flogo, EMS)
 
 ### Communication Architecture
@@ -72,13 +72,18 @@ This guide walks through deploying both TIBCO Platform Control Plane and Data Pl
 
 ## Release-Specific Notes
 
-This guide keeps a common AKS installation flow while the versioned overlays capture release details. Check the following points before using the shared examples for 1.18.0:
+This guide keeps a common AKS installation flow while the versioned overlays capture release details. Check the following points before using the shared examples for 1.20.0 (see the [v1.20 overlay](./v1.20/how-to-cp-and-dp-aks-setup-guide) and, when upgrading from 1.18.0, the [v1.19 overlay](./v1.19/how-to-cp-and-dp-aks-setup-guide)):
 
-- **Email server settings**: In 1.18.0, email server configuration moved out of Control Plane Helm values and into Platform Console. Do not include the deprecated `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, or `global.external.platformEmailNotificationCcAddresses` fields in 1.18.0 values files.
-- **Upgrade assistant**: The 1.18.0 Helm scripts include `scripts/1.18.0/upgrade.sh` for 1.17.0 to 1.18.0 Control Plane upgrades. It validates the deployed version, requires Bash 4+, Helm 3.17+, yq 4.45.4+, jq 1.8+, and removes the deprecated email fields during values generation.
-- **Gateway API**: 1.18.0 adds Gateway API endpoint support for BW5, BW6, Flogo, Developer Hub, and observability-related resources. If you choose Gateway API instead of ingress, validate that the Gateway API CRDs, GatewayClass, Gateway, listeners, and HTTPRoutes exist before provisioning capabilities.
-- **Namespace-level RBAC**: 1.18.0 adds namespace-aware permissions for Data Plane application deployments. Make sure Application Manager/Application Viewer assignments match the namespaces where capabilities and applications will run.
-- **Simplified DNS**: The simplified DNS model remains applicable for 1.18.0. Use one Control Plane base domain when possible, for example `platform.azure.example.com`, with URLs such as `admin.platform.azure.example.com` and `<subscription-host-prefix>.platform.azure.example.com`. In this mode, set `dnsDomain` and `dnsTunnelDomain` to the same value; hybrid tunnel traffic is routed by path under `/infra/tunnel` instead of requiring a second `cp1-tunnel` wildcard domain.
+- **Chart versions**: `tibco-cp-base` 1.20.0, `dp-configure-namespace` 1.20.0, `dp-core-infrastructure` 1.20.3. Capability charts `tibco-cp-bw`, `tibco-cp-flogo`, `tibco-cp-devhub` 1.20.0, `tibco-cp-hawk` 1.20.8; `tibco-cp-messaging` has no 1.20.0 release and stays at 1.19.23.
+- **Removed value**: `global.tibco.networkPolicy.createDeprecatedPolicies` was removed from `tibco-cp-base` in 1.19.0 (and `networkPolicy.createDeprecatedPolicies` from `dp-configure-namespace` 1.19.10). Delete it from existing values files and saved Data Plane commands.
+- **New value**: `global.tibco.disabledInfraCapabilities` (1.20.0, chart default `[MFTADAPTER]`) removes capability IDs from every Data Plane type's mandatory infra capability list. Set `[]` to keep MFT enabled.
+- **otel-collector default**: the chart default for `otel-collector.enabled` is `false` in 1.20.0 (it was `true` in 1.19.0). The examples in this guide set it explicitly; `true` requires a reachable log server.
+- **Email server settings**: since 1.18.0, email server configuration lives in Platform Console. Do not include the deprecated `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, or `global.external.platformEmailNotificationCcAddresses` fields.
+- **Upgrade assistants**: `scripts/1.19.0/upgrade.sh` (1.18.0 to 1.19.0) and `scripts/1.20.0/upgrade.sh` (1.19.0 to 1.20.0) in `tp-helm-charts` validate the deployed version, require Bash 4+, Helm 3.17+, yq 4.45.4+, jq 1.8+, and perform no value transformations. Upgrades must go one minor version at a time. 1.20.0 adds Control Plane rollback via `helm rollback`; record `helm history` before upgrading.
+- **Gateway API**: since `tibco-cp-base` 1.19.0 the `hybrid-proxy` HTTPRoute renders `/infra/tunnel` itself and omits the catch-all `/` when `dnsDomain == dnsTunnelDomain` (PCP-21362 fixed), so simplified DNS works with one shared wildcard hostname. If you choose Gateway API instead of ingress, validate that the Gateway API CRDs, GatewayClass, Gateway, listeners, and HTTPRoutes exist before provisioning capabilities.
+- **Namespace-level RBAC**: since 1.18.0, Application Manager/Application Viewer assignments must match the namespaces where capabilities and applications will run. `dp-configure-namespace` 1.19.10+ also creates RBAC for the Infra MCP Server and MCP Gateway capabilities (`rbac.infraMcp`, `rbac.mcpGateway`).
+- **Simplified DNS**: the simplified DNS model remains applicable for 1.20.0. Use one Control Plane base domain when possible, for example `platform.azure.example.com`, with URLs such as `admin.platform.azure.example.com` and `<subscription-host-prefix>.platform.azure.example.com`. In this mode, set `dnsDomain` and `dnsTunnelDomain` to the same value; hybrid tunnel traffic is routed by path under `/infra/tunnel` instead of requiring a second `cp1-tunnel` wildcard domain.
+- **Kubernetes version**: TIBCO certifies AKS 1.33 as the highest version for the Control Plane cluster in 1.20.0; the upstream `tp-helm-charts` AKS workshop uses `TP_KUBERNETES_VERSION="1.35"`, Azure CLI 2.88.0, kubectl v1.34.3, and pins `aks-preview` to 21.0.0b10.
 
 ---
 
@@ -804,7 +809,7 @@ export POSTGRES_HOST="postgres-${CP_INSTANCE_ID}-postgresql.${CP_INSTANCE_ID}-ns
 DNS is **REQUIRED** for Control Plane and Data Plane communication via secure tunnels.
 
 > [!IMPORTANT]
-> For TIBCO Platform 1.15.0+ and current 1.18.0 installations, prefer the simplified DNS model with one Control Plane base domain. For example, use `platform.azure.example.com` as the base domain and create one wildcard record `*.platform.azure.example.com`. Platform Console is then `https://admin.platform.azure.example.com`, subscriptions use `https://<hostPrefix>.platform.azure.example.com`, and hybrid tunnel traffic uses the same wildcard domain with the `/infra/tunnel` route. Keep separate `cp1-my` and `cp1-tunnel` wildcard domains only for legacy environments or explicit separation requirements.
+> For TIBCO Platform 1.15.0+ and current 1.20.0 installations, prefer the simplified DNS model with one Control Plane base domain. For example, use `platform.azure.example.com` as the base domain and create one wildcard record `*.platform.azure.example.com`. Platform Console is then `https://admin.platform.azure.example.com`, subscriptions use `https://<hostPrefix>.platform.azure.example.com`, and hybrid tunnel traffic uses the same wildcard domain with the `/infra/tunnel` route. Keep separate `cp1-my` and `cp1-tunnel` wildcard domains only for legacy environments or explicit separation requirements.
 
 ### Step 6.1: Create Azure DNS Zone (if needed)
 
@@ -1135,7 +1140,7 @@ Create the official Control Plane values file using the **tibco-cp-base** chart 
 > [!IMPORTANT]
 > **Critical Database Configuration**: The values file below includes **all required configuration sections** including database connection details, admin user configuration, and encryption secret configuration. If any of these sections are missing (especially the database configuration), the Control Plane deployment will fail with errors like "missing DBHost key in ConfigMap provider-cp-database-config".
 >
-> For 1.18.0, email server configuration is no longer supplied through Control Plane Helm values. Configure email in Platform Console after deployment if activation emails, notifications, or reports are required.
+> Since 1.18.0, email server configuration is no longer supplied through Control Plane Helm values. Configure email in Platform Console after deployment if activation emails, notifications, or reports are required.
 
 Choose the values file that matches your DNS approach and ingress controller. Each file is **self-contained** — one file per combination, one `helm` command.
 
@@ -1154,7 +1159,7 @@ export CP_VALUES_FILE="cp-values-simplified-traefik.yaml"
 ```
 
 > [!NOTE]
-> If you are upgrading older 1.17.x values files, remove these deprecated 1.18.0 fields before deploying: `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, and `global.external.platformEmailNotificationCcAddresses`.
+> If you are upgrading older 1.17.x values files, remove these fields (deprecated since 1.18.0) before deploying: `global.external.emailServerType`, `global.external.emailServer`, `global.external.fromAndReplyToEmailAddress`, `global.external.cronJobReportsEmailAlias`, and `global.external.platformEmailNotificationCcAddresses`.
 
 ---
 
@@ -1291,16 +1296,14 @@ EOF
 #### 🔷 Simplified DNS + NGINX Gateway Fabric / Gateway API (Option B)
 
 > [!NOTE]
-> **Hostname separation required in 1.18:** the chart always generates both `PathPrefix: /infra/tunnel`
-> and `PathPrefix: /` for `hybrid-proxy`. Assign `hybrid-proxy` a dedicated tunnel subdomain hostname
-> (`${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}`) and set `dnsTunnelDomain` to that subdomain.
-> The Gateway controller dispatches by hostname first — requests to the tunnel subdomain go to
-> `hybrid-proxy`, all other requests match the wildcard and go to `router-operator`.
+> **Shared wildcard hostname (tibco-cp-base 1.19.0 and later):** with `dnsDomain == dnsTunnelDomain` the chart
+> renders only `PathPrefix: /infra/tunnel` for `hybrid-proxy` and `PathPrefix: /` for `router-operator`, so both
+> HTTPRoutes attach to `*.${CP_MY_DNS_DOMAIN}` on the same Gateway (fix for PCP-21362). The longer `/infra/tunnel`
+> match wins for tunnel traffic; no dedicated tunnel subdomain, extra DNS record, or extra certificate is needed.
 >
-> **From `tibco-cp-base` 1.19.0+ (upcoming):** setting `dnsDomain == dnsTunnelDomain` eliminates the
-> `/` catch-all, allowing shared `*.${CP_MY_DNS_DOMAIN}` without hostname separation.
->
-> The `*.${CP_MY_DNS_DOMAIN}` wildcard certificate already covers the tunnel subdomain — no extra cert needed.
+> The chart does not read a `gatewayRoute.rules` value in any version — do not add explicit rules.
+> If you are still on `tibco-cp-base` 1.18.x, keep the hostname-separation layout from the
+> [1.18 overlay](./v1.18/how-to-cp-and-dp-aks-setup-guide) (dedicated `${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}` hostname).
 >
 > To confirm your installed GatewayClass name: `kubectl get gatewayclass`
 
@@ -1309,16 +1312,14 @@ cat > cp-values-simplified-gateway-api.yaml <<EOF
 # =============================================================================
 # TIBCO CP BASE — Simplified DNS + NGINX Gateway Fabric (Gateway API, AKS)
 #
-# Routing strategy: hostname separation (required in 1.18).
-# hybrid-proxy    → ${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}  (HTTPRoute)
-# router-operator → *.${CP_MY_DNS_DOMAIN}                            (HTTPRoute)
+# Routing strategy (tibco-cp-base 1.19.0+): shared wildcard hostname.
+# hybrid-proxy    → *.${CP_MY_DNS_DOMAIN}  (HTTPRoute, chart renders PathPrefix:/infra/tunnel)
+# router-operator → *.${CP_MY_DNS_DOMAIN}  (HTTPRoute, chart renders PathPrefix:/)
 #
-# In 1.18, the chart only generates PathPrefix:/ for hybrid-proxy (PCP-21362).
-# PathPrefix:/infra/tunnel is missing — must be added explicitly in rules below.
-# Gateway dispatches by hostname first — tunnel subdomain always wins.
+# Because dnsDomain == dnsTunnelDomain the chart omits the catch-all "/" rule for
+# hybrid-proxy. The chart does not read gatewayRoute.rules — no explicit rules.
 #
-# Certificate: *.${CP_MY_DNS_DOMAIN} wildcard covers the tunnel subdomain — no extra cert.
-# DNS: add DNS record: ${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN} → Gateway LB.
+# Certificate: one *.${CP_MY_DNS_DOMAIN} wildcard. DNS: one wildcard record → Gateway LB.
 # =============================================================================
 
 tp-cp-core-finops:
@@ -1345,28 +1346,13 @@ hybrid-proxy:
     enabled: true
     controllerName: "${TP_GATEWAY_CLASS}"
     hostnames:
-    - '${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}'
+    - '*.${CP_MY_DNS_DOMAIN}'
     parentRefs:
     - name: "${TP_GATEWAY_NAME}"
       namespace: "${TP_GATEWAY_NAMESPACE}"
-    rules:
-    - matches:
-      - path:
-          type: PathPrefix
-          value: /infra/tunnel
-      backendRefs:
-      - name: hybrid-proxy
-        port: 105
-    - matches:
-      - path:
-          type: PathPrefix
-          value: /
-      backendRefs:
-      - name: hybrid-proxy
-        port: 105
 
 otel-collector:
-  enabled: true
+  enabled: true         # set explicitly: chart default is false in 1.20.0 (true in 1.19.0); requires a log server
 
 tp-cp-bootstrap-cronjobs:
   cronjobs:
@@ -1414,11 +1400,10 @@ global:
       podCIDR: "${TP_POD_CIDR}"
       serviceCIDR: "${TP_SERVICE_CIDR}"
     
-    # Hostname separation: dnsTunnelDomain is the dedicated tunnel subdomain.
-    # In 1.18, PathPrefix:/infra/tunnel is NOT generated by the chart (PCP-21362).
-    # The explicit rules above add both path rules as a workaround.
+    # Simplified DNS: same base domain for router and tunnel traffic.
+    # Equal values make the chart render only PathPrefix:/infra/tunnel for hybrid-proxy (1.19.0+).
     dnsDomain: "${TP_BASE_DNS_DOMAIN}"
-    dnsTunnelDomain: "${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}"
+    dnsTunnelDomain: "${TP_BASE_DNS_DOMAIN}"
     
     storage:
       pvcName: "control-plane-pvc"
@@ -1449,19 +1434,20 @@ global:
 EOF
 ```
 
-Verify the HTTPRoute has both explicit path rules:
+Verify the HTTPRoutes rendered by the chart:
 
 ```bash
 kubectl get httproute -n ${CP_INSTANCE_ID}-ns
-kubectl describe httproute -n ${CP_INSTANCE_ID}-ns
+kubectl get httproute -n ${CP_INSTANCE_ID}-ns hybrid-proxy \
+  -o jsonpath='{.spec.hostnames}{"  "}{.spec.rules[*].matches[*].path.value}{"\n"}'
 ```
 
-Expected `hybrid-proxy` HTTPRoute (from the explicit values above):
+Expected `hybrid-proxy` HTTPRoute (rendered by `tibco-cp-base` 1.19.0+ when `dnsDomain == dnsTunnelDomain`):
 
 ```yaml
 spec:
   hostnames:
-  - "${CP_INSTANCE_ID}-tunnel.${TP_BASE_DNS_DOMAIN}"
+  - "*.${CP_MY_DNS_DOMAIN}"
   rules:
   - matches:
     - path:
@@ -1470,14 +1456,9 @@ spec:
     backendRefs:
     - name: hybrid-proxy
       port: 105
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: hybrid-proxy
-      port: 105
 ```
+
+If you still see a second `PathPrefix: /` rule, `dnsDomain` and `dnsTunnelDomain` differ in the deployed values.
 
 ---
 
@@ -1767,7 +1748,7 @@ helm repo add tibco-platform ${TP_TIBCO_HELM_CHART_REPO}
 helm repo update
 
 # Set chart version for the current release
-export TP_CP_BASE_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.18.0}"
+export TP_CP_BASE_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.20.0}"
 
 # Install TIBCO Platform Control Plane
 helm upgrade --install --wait --timeout 1h \
@@ -1830,7 +1811,7 @@ You can reuse the `cp-values.yaml` file you used for the Control Plane installat
 **Option 1: Using existing values file**
 ```bash
 # Set the chart version to match your tibco-cp-base version
-export CP_CAPABILITY_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.18.0}"  # Should match your CP version
+export CP_CAPABILITY_CHART_VERSION="${TP_CP_BASE_CHART_VERSION:-1.20.0}"  # Should match your CP version
 
 # Install BWCE & BW5 capability chart
 helm upgrade --install --wait --timeout 15m \
@@ -1906,7 +1887,7 @@ kubectl get pods -n ${CP_INSTANCE_ID}-ns | grep -E 'bw|flogo|messaging'
 > **Installation Time**: Each capability chart typically takes 5-10 minutes to install. The `--wait` flag ensures Helm waits for all resources to be ready before completing.
 
 > [!TIP]
-> **Selective Installation**: If you only need specific capabilities, install only the required capability charts. For 1.18.0, the published artifact list includes `tibco-cp-bw:1.18.0` and `tibco-cp-flogo:1.18.0`; install Messaging/Hawk/Developer Hub charts only when those capabilities are part of your licensed release and available in the chart repository for that version.
+> **Selective Installation**: If you only need specific capabilities, install only the required capability charts. For 1.20.0, the published artifact list includes `tibco-cp-bw:1.20.0`, `tibco-cp-flogo:1.20.0`, `tibco-cp-devhub:1.20.0`, and `tibco-cp-hawk:1.20.8` (`tibco-cp-messaging` has no 1.20.0 release and stays at 1.19.23); install Messaging/Hawk/Developer Hub charts only when those capabilities are part of your licensed release and available in the chart repository for that version.
 
 **Common Issues and Troubleshooting:**
 
@@ -1929,7 +1910,7 @@ helm uninstall tibco-cp-bw -n ${CP_INSTANCE_ID}-ns
 ```
 
 **Reference Documentation:**
-- [TIBCO Control Plane 1.18.0 User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
+- [TIBCO Control Plane 1.20.0 User Guide - Capability Charts](https://docs.tibco.com/pub/platform-cp/1.20.0/doc/html/Default.htm#Installation/deploying-control-plane-in-kubernetes.htm)
 - [tibco-cp-bw Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-bw)
 - [tibco-cp-flogo Chart README](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/charts/tibco-cp-flogo)
 
@@ -2112,7 +2093,7 @@ export TP_SANDBOX="${DP_INSTANCE_ID}"  # Sandbox subdomain
 export TP_INGRESS_CLASS="nginx"  # or "traefik"
 export TP_SERVICE_CIDR="10.0.0.0/16"  # AKS service CIDR
 export TP_POD_CIDR="10.244.0.0/16"  # AKS pod CIDR (adjust based on your cluster)
-export TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION="${TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION:-1.18.3}"
+export TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION="${TP_DP_CONFIGURE_NAMESPACE_CHART_VERSION:-1.20.0}"
 
 helm upgrade --install --wait --timeout 1h \
   -n ${DP_NAMESPACE} dp-configure-namespace dp-configure-namespace \
@@ -2206,7 +2187,7 @@ The `dp-core-infrastructure` chart deploys the core Data Plane components includ
 ```bash
 # Set the access key from Control Plane UI
 export TP_DP_ACCESS_KEY="your-access-key-from-cp-ui"
-export TP_DP_CORE_INFRA_CHART_VERSION="${TP_DP_CORE_INFRA_CHART_VERSION:-1.18.4}"
+export TP_DP_CORE_INFRA_CHART_VERSION="${TP_DP_CORE_INFRA_CHART_VERSION:-1.20.3}"
 
 # Deploy dp-core-infrastructure
 helm upgrade --install --wait --timeout 1h \
@@ -2298,7 +2279,7 @@ kubectl logs -n ${DP_NAMESPACE} -l app.kubernetes.io/name=tp-provisioner-agent -
 With the Data Plane deployed and connected, you now provision capabilities (BWCE, Flogo, etc.) through the Control Plane UI, **NOT** via Helm charts.
 
 > [!NOTE]
-> In 1.18.0, the Control Plane UI may generate updated install commands and values for Data Plane components. Use the generated commands when they differ from this shared guide, especially for namespace-level RBAC, Gateway API endpoint selection, or capability-specific chart versions.
+> In 1.20.0, the Control Plane UI generates the install commands (`dp-configure-namespace` 1.20.0, `dp-core-infrastructure` 1.20.3; `networkPolicy.createDeprecatedPolicies` no longer exists) and may generate updated commands and values for Data Plane components. Use the generated commands when they differ from this shared guide, especially for namespace-level RBAC, Gateway API endpoint selection, or capability-specific chart versions.
 
 **Steps to provision capabilities**:
 
@@ -2314,7 +2295,7 @@ With the Data Plane deployed and connected, you now provision capabilities (BWCE
    - **Storage Class**: `azure-files-sc` (for BWCE/Flogo)
    - **Storage Class**: `azure-disk-sc` (for EMS)
    - **Ingress Class**: `nginx` or `traefik`
-  - **Gateway API**: Select and provide GatewayClass/Gateway/HTTPRoute details if using the 1.18.0 Gateway API endpoint option instead of ingress
+  - **Gateway API**: Select and provide GatewayClass/Gateway/HTTPRoute details if using the Gateway API endpoint option (1.18.0 and later) instead of ingress
   - **Namespace RBAC**: Confirm the target namespace and role assignments for Application Manager/Application Viewer users
    - **Domain**: Subdomain for app routing (e.g., `apps.${TP_DOMAIN}`)
 7. Click **Provision**
@@ -2341,7 +2322,7 @@ kubectl get gatewayclass,gateway,httproute -A
 2. Click **Capabilities** tab
 3. All provisioned capabilities should show **Status: Ready**
 
-**Verify 1.18.0 namespace-level access**:
+**Verify namespace-level access (1.18.0 and later)**:
 
 1. Confirm Application Manager and Application Viewer roles are assigned to the intended namespaces.
 2. Test with a non-admin user by deploying or viewing an application only in an authorized namespace.
@@ -2488,7 +2469,7 @@ helm upgrade --install --wait --timeout 30m \
   -n ${CP_INSTANCE_ID}-ns platform-base tibco-cp-base \
   --labels layer=5 \
   --repo "${TP_TIBCO_HELM_CHART_REPO}" \
-  --version "${TP_CP_BASE_CHART_VERSION:-1.18.0}" \
+  --version "${TP_CP_BASE_CHART_VERSION:-1.20.0}" \
   --values cp-values.yaml
 ```
 
@@ -2682,7 +2663,7 @@ global:
 
 ```bash
 # Step 1: Apply CRDs to the cluster
-kubectl apply -f /path/to/tibco-cp-base-1.18.0-extracted/crds/
+kubectl apply -f /path/to/tibco-cp-base-1.20.0-extracted/crds/
 
 # Step 2: Install with --skip-crds
 helm upgrade --install --wait --timeout 1h \
@@ -2842,7 +2823,8 @@ helm upgrade tibco-dp tibco-platform/tibco-platform-dp \
 
 ## References
 
-- [TIBCO Platform 1.18.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
+- [TIBCO Platform 1.20.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.20.0/doc/html/Default.htm)
+- [TIBCO Platform 1.19.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.19.0/doc/html/Default.htm)
 - [TIBCO Platform 1.17.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Default.htm)
 - [TIBCO Helm Charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [Azure Kubernetes Service Documentation](https://learn.microsoft.com/en-us/azure/aks/)

@@ -29,7 +29,7 @@ This guide covers the official TIBCO synchronization script, safe copy methods f
 
 - [ ] TIBCO JFrog registry credentials (provided by TIBCO): `csgprduswrepoedge.jfrog.io`
 - [ ] Target registry credentials (ACR service principal or managed identity)
-- [ ] `RELEASE_VERSION` — the TIBCO Platform version being deployed (e.g., `1.18.0`)
+- [ ] `RELEASE_VERSION` — the TIBCO Platform version being deployed (e.g., `1.20.0`)
 
 ### Clone the TIBCO tp-helm-charts Repository
 
@@ -55,7 +55,7 @@ TIBCO provides an official synchronization script at [`scripts/sync-artifacts/sy
 | `SOURCE_REGISTRY` | TIBCO JFrog source registry | `csgprduswrepoedge.jfrog.io` |
 | `SOURCE_REGISTRY_USERNAME` | JFrog username | `your-username` |
 | `SOURCE_REGISTRY_PASSWORD` | JFrog password or API token | `your-token` |
-| `RELEASE_VERSION` | Platform version (`major.minor.patch`) | `1.18.0` |
+| `RELEASE_VERSION` | Platform version (`major.minor.patch`) | `1.20.0` |
 | `TARGET_REGISTRY` | Your private registry URL | `myacr.azurecr.io` |
 
 ### Optional Environment Variables
@@ -76,7 +76,7 @@ TIBCO provides an official synchronization script at [`scripts/sync-artifacts/sy
 export SOURCE_REGISTRY="csgprduswrepoedge.jfrog.io"
 export SOURCE_REGISTRY_USERNAME="john.doe@company.com"
 export SOURCE_REGISTRY_PASSWORD="AKCp8mnyYZQ..."
-export RELEASE_VERSION="1.18.0"
+export RELEASE_VERSION="1.20.0"
 export TARGET_REGISTRY="tibcoworkshopacr.azurecr.io"
 export TARGET_REGISTRY_USERNAME="sp-tibco-acr-push"
 export TARGET_REGISTRY_PASSWORD="V3ryStr0ngP@ssw0rd!"

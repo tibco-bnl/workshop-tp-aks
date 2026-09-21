@@ -1336,7 +1336,7 @@ kubectl patch pvc -n elastic-system elasticsearch-data-dp-config-es-es-default-0
 
 ### TIBCO Platform Resources
 
-- [TIBCO Platform 1.18.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
+- [TIBCO Platform 1.20.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.20.0/doc/html/Default.htm)
 - [TIBCO Platform 1.17.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.17.0/doc/html/Default.htm)
 - [tp-helm-charts GitHub](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [AKS Workshop - Data Plane](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks/data-plane)

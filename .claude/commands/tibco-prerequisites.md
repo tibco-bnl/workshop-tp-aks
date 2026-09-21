@@ -20,7 +20,7 @@ Report: kubectl server version, number of Ready nodes, Azure subscription, and c
 
 ## Phase 2 — Collect Configuration
 
-Ask the user to confirm or provide these values (check `scripts/env.sh` or `howto/v1.18/how-to-cp-and-dp-aks-setup-guide.md` for defaults):
+Ask the user to confirm or provide these values (check `scripts/env.sh` or `howto/v1.20/how-to-cp-and-dp-aks-setup-guide.md` for defaults):
 
 | Variable | Description | Example |
 |----------|-------------|---------|

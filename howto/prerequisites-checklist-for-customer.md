@@ -1138,7 +1138,7 @@ Please complete this checklist and return to TIBCO implementation team **at leas
 
 ### Azure Infrastructure Readiness
 
-- [ ] AKS cluster is running and accessible (Kubernetes 1.32+)
+- [ ] AKS cluster is running and accessible (Kubernetes 1.33 recommended; highest version certified for TIBCO Control Plane 1.20.0)
 - [ ] `kubectl` CLI access with admin permissions verified
 - [ ] `az` CLI installed and configured with correct subscription
 - [ ] Helm 3.17.0+ installed on installation machine
@@ -1285,7 +1285,7 @@ If you encounter any challenges completing these prerequisites, please contact:
 ### Minimum AKS Resource Summary
 
 **Control Plane AKS Cluster:**
-- Kubernetes version: 1.32+
+- Kubernetes version: 1.33 recommended (highest version certified for TIBCO Control Plane 1.20.0; upstream workshop uses 1.35)
 - 3+ worker nodes (Standard_D8s_v3 or higher)
 - 24+ CPU cores total
 - 96+ GB RAM total
@@ -1296,7 +1296,7 @@ If you encounter any challenges completing these prerequisites, please contact:
 - Azure Load Balancer (automatic)
 
 **Data Plane AKS Cluster:**
-- Kubernetes version: 1.32+
+- Kubernetes version: 1.33 recommended (highest version certified for TIBCO Control Plane 1.20.0; upstream workshop uses 1.35)
 - 2+ worker nodes (Standard_D4s_v3 or higher)
 - 8+ CPU cores total
 - 32+ GB RAM total

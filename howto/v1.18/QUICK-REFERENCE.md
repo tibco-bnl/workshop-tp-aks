@@ -1,6 +1,6 @@
 # TIBCO Platform v1.18.0 Quick Reference Guide
 
-**TIBCO Platform Version**: 1.18.0 | **Status**: Current release
+**TIBCO Platform Version**: 1.18.0 | **Status**: Previous release
 
 ## Essential Commands
 

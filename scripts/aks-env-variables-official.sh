@@ -37,7 +37,7 @@ fi
 # Resource Group and Cluster
 export TP_RESOURCE_GROUP="tibco-platform-rg"  # Azure resource group name
 export TP_CLUSTER_NAME="tibco-aks-cluster"    # AKS cluster name
-export TP_KUBERNETES_VERSION="1.32"            # Kubernetes version (1.32 or above - CNCF certified)
+export TP_KUBERNETES_VERSION="1.33"            # Highest AKS version certified for TIBCO Control Plane 1.20.0 (upstream tp-helm-charts workshop uses 1.35)
 export KUBECONFIG=${KUBECONFIG:-~/.kube/config}  # Kubeconfig file path
 
 # Network Configuration
