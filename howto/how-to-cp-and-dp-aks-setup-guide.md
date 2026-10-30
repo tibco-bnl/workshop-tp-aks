@@ -2177,18 +2177,18 @@ The `dp-core-infrastructure` chart deploys the core Data Plane components includ
 
 **Get Data Plane Registration Information from Control Plane UI**:
 
-1. Login to Control Plane UI: `https://admin.${CP_MY_DNS_DOMAIN}`
-2. Navigate to **Settings** → **Clusters**
-3. Click **Add Cluster**
-4. Select **AKS** as cluster type
-5. Copy the following values:
-   - **Data Plane ID**: Should match `${DP_INSTANCE_ID}`
-   - **Subscription ID**: Your subscription identifier
-   - **Access Key**: Required for tibtunnel configuration
+For TIBCO Platform 1.21, register the Kubernetes Data Plane from **Data Planes** → **Register Data Plane** in the Control Plane UI. Do not use the older **Settings** → **Clusters** → **Add Cluster** flow as the 1.21 registration procedure.
+
+Hybrid connectivity is enabled by default. If you disable it, set **Reachable DP URL** to the Data Plane `cpdpproxy` service URL, for example `http://cpdpproxy.${DP_NAMESPACE}.svc.cluster.local`, and first verify that this URL resolves and is reachable from the Control Plane. It is not the Traefik ingress FQDN. When using a custom route resource, select the ingress or Gateway API controller installed on this AKS cluster and check the resource name, controller service DNS, ingress class or Gateway details, host/FQDN, and optional path prefix or annotations.
+
+The form also has optional outbound proxy, Data Plane certificate trust, service-log processing, custom container registry, and Helm chart repository settings. Decide whether Fluent Bit service-log processing is enabled before completing registration; the setting cannot be edited after registration. For registry Secret authentication, create the Secret in every applicable Data Plane namespace first. See the [official 1.21 Kubernetes cluster registration guide](https://docs.tibco.com/pub/platform-cp/1.21.0/doc/html/UserGuide/registering-an-existing-kubernetes-cluster.htm) and the [workshop 1.21 quick reference](v1.21/QUICK-REFERENCE).
+
+Use the 1.21 UI-generated commands and record the Data Plane ID, namespace, subscription ID, and any access/bootstrap values those commands require. Review the generated chart versions and values. The Helm command below is a manual fallback; it must use the values for this registration and must not be copied unchanged from another Data Plane.
 
 ```bash
-# Set the access key from Control Plane UI
-export TP_DP_ACCESS_KEY="your-access-key-from-cp-ui"
+# For the manual chart workflow only: set the access key/value as provided
+# by the 1.21 Control Plane-generated command.
+export TP_DP_ACCESS_KEY="<value-from-generated-command>"
 export TP_DP_CORE_INFRA_CHART_VERSION="${TP_DP_CORE_INFRA_CHART_VERSION:-1.21.4}"
 
 # Deploy dp-core-infrastructure
