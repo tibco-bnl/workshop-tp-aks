@@ -36,7 +36,7 @@ fi
 # Resource Group and Cluster
 export TP_RESOURCE_GROUP="tibco-platform-rg"  # Azure resource group name
 export TP_CLUSTER_NAME="tibco-aks-cluster"    # AKS cluster name
-export TP_KUBERNETES_VERSION="1.33"            # Kubernetes version (1.32 or above)
+export TP_KUBERNETES_VERSION="1.33"            # Example only; verify provider availability and TIBCO certification for your region
 export KUBECONFIG=$(pwd)/${TP_CLUSTER_NAME}.yaml  # Kubeconfig file path
 
 # Network Configuration

@@ -190,7 +190,7 @@ export AZURE_STORAGE_ACCOUNT="tibcodpsa"
 export AZURE_STORAGE_RESOURCE_GROUP="$AZURE_RESOURCE_GROUP"
 
 # Container Registry (from TIBCO)
-export CONTAINER_REGISTRY_SERVER="csgprduswrepoedge.jfrog.io"
+export CONTAINER_REGISTRY_SERVER="csgprdusw2reposaas.jfrog.io"
 export CONTAINER_REGISTRY_USERNAME="your-username"
 export CONTAINER_REGISTRY_PASSWORD="your-password"
 
@@ -1211,7 +1211,7 @@ kubectl scale deployment dp-core-ops -n $TP_DP_NAMESPACE --replicas=3
 
 ## References
 
-- [TIBCO Platform 1.20.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.20.0/doc/html/Default.htm)
+- [TIBCO Platform 1.21.0 Documentation](https://docs.tibco.com/pub/platform-cp/1.21.0/doc/html/Default.htm)
 - [Prerequisites Checklist](./prerequisites-checklist-for-customer)
 - [Complete CP+DP Setup Guide](./how-to-cp-and-dp-aks-setup-guide)
 - [DNS Configuration Guide](./how-to-add-dns-records-aks-azure)
