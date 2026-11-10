@@ -2,17 +2,17 @@
 
 Guides and supporting resources for deploying TIBCO Platform Control Plane and Data Plane on Azure Kubernetes Service.
 
-> **Current release:** [v1.21.0](./releases/v1.21.0) | **TIBCO Platform CP:** 1.21.0<br>
-> **Upgrade path:** [1.18.0 to 1.19.0](./releases/v1.19.0#upgrade-path-from-v1180), then [1.19.0 to 1.20.0](./releases/v1.20.0#upgrade-path-from-v1190), then [1.20.0 to 1.21.0](./releases/v1.21.0#upgrade-from-1200)<br>
+> **Current release:** [v1.22.0](./releases/v1.22.0) | **TIBCO Platform CP:** 1.22.0<br>
+> **Upgrade path:** [1.18.0 to 1.19.0](./releases/v1.19.0#upgrade-path-from-v1180), then [1.19.0 to 1.20.0](./releases/v1.20.0#upgrade-path-from-v1190), then [1.20.0 to 1.21.0](./releases/v1.21.0#upgrade-from-1200), then [1.21.0 to 1.22.0](./releases/v1.22.0#upgrade-from-1210)<br>
 > **Official charts:** [TIBCO tp-helm-charts](https://github.com/TIBCOSoftware/tp-helm-charts)
 
 ## Start Here
 
 | Need | Use |
 |------|-----|
-| New CP + DP workshop deployment | [Shared AKS CP + DP setup](./howto/how-to-cp-and-dp-aks-setup-guide), with the [1.21.0 quick reference](./howto/v1.21/QUICK-REFERENCE) |
-| Quick 1.21.0 commands and checks | [1.21.0 quick reference](./howto/v1.21/QUICK-REFERENCE) |
-| Upgrading from 1.18.0 | Upgrade to 1.19.0, then 1.20.0, then 1.21.0; see the linked release upgrade sections |
+| New CP + DP workshop deployment | [Shared AKS CP + DP setup](./howto/how-to-cp-and-dp-aks-setup-guide), with the [1.22.0 quick reference](./howto/v1.22/QUICK-REFERENCE) |
+| Quick 1.22.0 commands and checks | [1.22.0 quick reference](./howto/v1.22/QUICK-REFERENCE) |
+| Upgrading from 1.18.0 | Upgrade to 1.19.0, then 1.20.0, then 1.21.0, then 1.22.0; see the linked release upgrade sections |
 | Data Plane only with SaaS or remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide) |
 | Pre-installation readiness | [Customer prerequisites checklist](./howto/prerequisites-checklist-for-customer) |
 | Observability setup | [Data Plane observability guide](./howto/how-to-dp-aks-observability) |
@@ -22,7 +22,8 @@ Guides and supporting resources for deploying TIBCO Platform Control Plane and D
 
 | Version | Status | Highlights | Setup | Release Notes |
 |---------|--------|------------|-------|---------------|
-| 1.21.0 | Current | Per-Data-Plane hybrid connectivity, Kubernetes Secret registry auth, Native Control Tower (Preview), self-hosted MCP Hub, Maintenance Mode, TESSA write guardrails, EMS MCP | [Shared setup](./howto/how-to-cp-and-dp-aks-setup-guide) · [Quick reference](./howto/v1.21/QUICK-REFERENCE) | [Notes](./releases/v1.21.0) |
+| 1.22.0 | Current | Application Operator permission, application log download, Data Plane infrastructure resource customization, Amazon Bedrock and EMS MCP in TESSA, BW5/BW6 Instance Count and App Status alerts, NGINX Ingress support removed from TIBCO-operated CP | [Shared setup](./howto/how-to-cp-and-dp-aks-setup-guide) · [Quick reference](./howto/v1.22/QUICK-REFERENCE) | [Notes](./releases/v1.22.0) |
+| 1.21.0 | Previous | Per-Data-Plane hybrid connectivity, Kubernetes Secret registry auth, Native Control Tower (Preview), self-hosted MCP Hub, Maintenance Mode, TESSA write guardrails, EMS MCP | [Shared setup](./howto/how-to-cp-and-dp-aks-setup-guide) · [Quick reference](./howto/v1.21/QUICK-REFERENCE) | [Notes](./releases/v1.21.0) |
 | 1.20.0 | Previous | Control Plane rollback, OTLP custom headers, Flogo build Jobs, Developer Hub MCP Catalog, MCP Hub (Preview, TIBCO Operated CP), new `disabledInfraCapabilities` value | [Historical overlay](./howto/v1.20/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.20.0) |
 | 1.19.0 | Previous (mandatory hop from 1.18.0) | TESSA (Preview), ActiveSpaces capability, Infra MCP Server, PromQL cards, Jaeger v2, `createDeprecatedPolicies` removed, Gateway API hybrid-proxy route fixed | [Setup](./howto/v1.19/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.19.0) |
 | 1.18.0 | Previous | Gateway API, namespace-level RBAC, Console-managed email, Alert Audit Trail, Developer Hub self-service flows | [Setup](./howto/v1.18/how-to-cp-and-dp-aks-setup-guide) | [Notes](./releases/v1.18.0) |
@@ -35,6 +36,7 @@ Guides and supporting resources for deploying TIBCO Platform Control Plane and D
 
 | From | To | Guide |
 |------|----|-------|
+| 1.21.0 | 1.22.0 | [Upgrade path](./releases/v1.22.0#upgrade-from-1210) |
 | 1.20.0 | 1.21.0 | [Upgrade path](./releases/v1.21.0#upgrade-from-1200) |
 | 1.19.0 | 1.20.0 | [Upgrade path](./releases/v1.20.0#upgrade-path-from-v1190) |
 | 1.18.0 | 1.19.0 | [Upgrade path](./releases/v1.19.0#upgrade-path-from-v1180) |
@@ -50,7 +52,7 @@ The official upgrade assistants in `tp-helm-charts/scripts/<version>/upgrade.sh`
 | Scenario | Description | Primary Guide |
 |----------|-------------|---------------|
 | Architecture and topology planning | Choose CP/DP topology, DTAP cluster organization, subscription strategy, and deployment flavor | [Topology options](./howto/topology-options) |
-| CP + DP on one AKS cluster | Complete workshop or evaluation environment with Control Plane and Data Plane in the same AKS cluster | [Shared setup](./howto/how-to-cp-and-dp-aks-setup-guide) · [1.21.0 reference](./howto/v1.21/QUICK-REFERENCE) |
+| CP + DP on one AKS cluster | Complete workshop or evaluation environment with Control Plane and Data Plane in the same AKS cluster | [Shared setup](./howto/how-to-cp-and-dp-aks-setup-guide) · [1.22.0 reference](./howto/v1.22/QUICK-REFERENCE) |
 | AKS Data Plane with remote CP | Customer or regional AKS Data Plane connected to SaaS or another remote Control Plane | [Data Plane only setup](./howto/how-to-dp-aks-setup-guide) |
 | Observability | Prometheus, Elasticsearch/OpenSearch-related logging, Grafana, and monitoring setup | [Observability guide](./howto/how-to-dp-aks-observability) |
 | Enterprise network planning | Firewall, proxy, registry, Helm repository, and external endpoint planning | [AKS firewall requirements](./docs/firewall-requirements-aks) |
@@ -59,6 +61,8 @@ The official upgrade assistants in `tp-helm-charts/scripts/<version>/upgrade.sh`
 
 ### Current Release
 
+- [1.22.0 quick reference](./howto/v1.22/QUICK-REFERENCE)
+- [1.22.0 release notes](./releases/v1.22.0)
 - [1.21.0 quick reference](./howto/v1.21/QUICK-REFERENCE)
 - [1.21.0 release notes](./releases/v1.21.0)
 - [Shared CP + DP setup guide](./howto/how-to-cp-and-dp-aks-setup-guide)
@@ -106,7 +110,7 @@ The official upgrade assistants in `tp-helm-charts/scripts/<version>/upgrade.sh`
 | Area | Requirement |
 |------|-------------|
 | Azure | Subscription with permission to create or manage AKS, DNS, storage, and network resources |
-| AKS | TIBCO 1.21.0 certifies Kubernetes 1.35; confirm Azure regional/version availability before selecting the AKS version |
+| AKS | TIBCO 1.22.0 certifies Kubernetes 1.35; confirm Azure regional/version availability before selecting the AKS version |
 | Control Plane nodes | 3+ worker nodes, Standard_D8s_v3 or larger for workshop CP + DP environments |
 | Data Plane nodes | 2+ worker nodes, size based on runtime workload |
 | Tools | Azure CLI 2.88.0 (upstream tested), kubectl v1.34.3, Helm 3.17.0+ (3.18.0 upstream), openssl, jq 1.8+, yq 4.45.4+ |
@@ -129,20 +133,22 @@ workshop-tp-aks/
 │   ├── v1.17/
 │   ├── v1.18/
 │   ├── v1.19/               # upgrade hop from 1.18
-│   ├── v1.21/               # current release quick reference
+│   ├── v1.21/               # previous release quick reference
+│   ├── v1.22/               # current release quick reference
 │   └── v1.20/               # historical release overlay
-├── releases/                # release notes by version (v1.14.0 ... v1.21.0)
+├── releases/                # release notes by version (v1.14.0 ... v1.22.0)
 └── scripts/                 # environment, install, and connectivity helpers
 ```
 
 ## Official Resources
 
+- [TIBCO Platform Control Plane 1.22.0 documentation](https://docs.tibco.com/pub/platform-cp/1.22.0/doc/html/Default.htm)
 - [TIBCO Platform Control Plane 1.21.0 documentation](https://docs.tibco.com/pub/platform-cp/1.21.0/doc/html/Default.htm)
 - [TIBCO Platform Control Plane 1.19.0 documentation](https://docs.tibco.com/pub/platform-cp/1.19.0/doc/html/Default.htm)
 - [TIBCO Platform Control Plane 1.18.0 documentation](https://docs.tibco.com/pub/platform-cp/1.18.0/doc/html/Default.htm)
 - [TIBCO tp-helm-charts repository](https://github.com/TIBCOSoftware/tp-helm-charts)
 - [AKS workshop in tp-helm-charts](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/docs/workshop/aks)
-- [Official upgrade scripts (including 1.21.0)](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/scripts)
+- [Official upgrade scripts (including 1.22.0)](https://github.com/TIBCOSoftware/tp-helm-charts/tree/main/scripts)
 - [Azure Kubernetes Service documentation](https://learn.microsoft.com/en-us/azure/aks/)
 
 ## Support
@@ -156,4 +162,4 @@ This project is licensed under the MIT License. See [LICENSE](./LICENSE) for det
 ---
 
 **Maintained by:** TIBCO-BNL Team<br>
-**Last updated:** September 21, 2026
+**Last updated:** November 10, 2026

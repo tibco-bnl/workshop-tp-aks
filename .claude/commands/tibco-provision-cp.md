@@ -61,7 +61,7 @@ Determine the ingress class in use:
 kubectl get ingressclass
 ```
 
-Common options: `traefik`, `nginx`. Note it as `INGRESS_CLASS`.
+Common options: `traefik` (recommended; `nginx` is no longer officially supported or recommended from 1.22.0). Note it as `INGRESS_CLASS`.
 
 For cert-manager with Let's Encrypt, create a ClusterIssuer if it doesn't exist:
 

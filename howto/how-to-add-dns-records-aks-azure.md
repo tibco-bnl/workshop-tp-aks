@@ -154,7 +154,7 @@ export LB_IP=$(kubectl get svc -n ingress-system traefik \
 echo "Load Balancer IP: $LB_IP"
 ```
 
-For **NGINX Ingress Controller**:
+For **NGINX Ingress Controller** (no longer officially supported or recommended by TIBCO from 1.22.0; retained for existing environments):
 
 ```bash
 export LB_IP=$(kubectl get svc -n ingress-system ingress-nginx-controller \

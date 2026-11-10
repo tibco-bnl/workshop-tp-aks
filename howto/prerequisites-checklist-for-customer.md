@@ -785,17 +785,17 @@ The following are not required for all deployments but apply in specific custome
 
 > **Version pinning:** Mirror the exact chart versions listed in the setup guide. Do not rely on `latest` tags, as charts pulled from a mirrored repo bypass upstream version resolution.
 
-### 10.2 1.21 Data Plane Registration Connectivity and Certificate Trust
+### 10.2 1.22 Data Plane Registration Connectivity and Certificate Trust
 
-Hybrid connectivity is enabled by default in the 1.21 Data Plane registration form. Disable it only when the Control Plane can reach the Data Plane directly. When disabled, the **Reachable DP URL** must identify the Data Plane `cpdpproxy` service (for example, `http://cpdpproxy.<dp-namespace>.svc.cluster.local`), and the Control Plane must be able to resolve and reach that endpoint. This is not the Data Plane ingress FQDN or application hostname.
+Hybrid connectivity is enabled by default in the 1.22 Data Plane registration form. Disable it only when the Control Plane can reach the Data Plane directly. When disabled, the **Reachable DP URL** must identify the Data Plane `cpdpproxy` service (for example, `http://cpdpproxy.<dp-namespace>.svc.cluster.local`), and the Control Plane must be able to resolve and reach that endpoint. This is not the Data Plane ingress FQDN or application hostname.
 
-The 1.21 **Data Plane Certificate** fields describe a different direction of trust: use the Kubernetes Secret name and key when the Data Plane must trust a custom Control Plane certificate. The registration guide does not describe this as a CA-bundle field for making the Control Plane trust a private Data Plane ingress certificate. Do not prepare or upload the Data Plane ingress CA on the basis of the older guidance in this checklist; validate any ingress-certificate trust requirement against the current product documentation.
+The 1.22 **Data Plane Certificate** fields describe a different direction of trust: use the Kubernetes Secret name and key when the Data Plane must trust a custom Control Plane certificate. The registration guide does not describe this as a CA-bundle field for making the Control Plane trust a private Data Plane ingress certificate. Do not prepare or upload the Data Plane ingress CA on the basis of the older guidance in this checklist; validate any ingress-certificate trust requirement against the current product documentation.
 
 - [ ] Decide whether hybrid connectivity remains enabled or whether the Control Plane has verified direct access to the Data Plane.
 - [ ] If disabling hybrid connectivity, record and test the Data Plane `cpdpproxy` URL from the Control Plane network.
 - [ ] If the Control Plane uses a custom certificate, identify the certificate Secret name and key that the Data Plane must trust.
 
-> **Reference:** [Registering a Kubernetes Cluster — TIBCO Platform 1.21](https://docs.tibco.com/pub/platform-cp/1.21.0/doc/html/UserGuide/registering-an-existing-kubernetes-cluster.htm)
+> **Reference:** [Registering a Kubernetes Cluster — TIBCO Platform 1.22](https://docs.tibco.com/pub/platform-cp/1.22.0/doc/html/UserGuide/registering-an-existing-kubernetes-cluster.htm)
 
 ### 10.3 PostgreSQL SSL Certificate
 
